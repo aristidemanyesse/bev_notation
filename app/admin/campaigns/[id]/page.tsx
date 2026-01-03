@@ -1,0 +1,106 @@
+import { DashboardShell } from "@/components/layout/dashboard-shell"
+import { getCurrentUser } from "@/lib/actions/auth"
+import { redirect, notFound } from "next/navigation"
+import { getSupabaseServerClient } from "@/lib/supabase/server"
+import { AgentPerformanceTable } from "@/components/admin/agent-performance-table"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+import { Progress } from "@/components/ui/progress"
+import { CampaignStatusToggle } from "@/components/admin/campaign-status-toggle"
+import { Suspense } from "react"
+import { Loader2 } from "lucide-react"
+
+function CampaignLoader() {
+  return (
+    <div className="flex items-center justify-center py-12">
+      <Loader2 className="h-8 w-8 animate-spin text-primary" />
+    </div>
+  )
+}
+
+export default async function CampaignDetailsPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params
+
+  const user = await getCurrentUser()
+
+  if (!user || user.role?.code !== "ADMIN") {
+    redirect("/login")
+  }
+
+  const supabase = await getSupabaseServerClient()
+
+  const { data: campaign } = await supabase.from("admin_campaign_stats").select("*").eq("form_id", id).maybeSingle()
+
+  const { data: form } = await supabase.from("forms").select("*").eq("id", id).maybeSingle()
+
+  const { data: agentStats } = await supabase
+    .from("admin_campaign_agent_stats")
+    .select("*")
+    .eq("form_id", id)
+    .order("global_score", { ascending: false })
+
+  if (!campaign || !form) {
+    notFound()
+  }
+
+  const completionRate = campaign.completion_rate || 0
+
+  return (
+    <DashboardShell role="ADMIN">
+      <Suspense fallback={<CampaignLoader />}>
+        <div className="space-y-6 px-4 sm:px-0">
+          <div>
+            <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-2">
+              <h2 className="text-2xl sm:text-3xl font-semibold tracking-tight">{campaign.title}</h2>
+              <Badge variant={completionRate >= 75 ? "default" : "secondary"}>{campaign.period}</Badge>
+              <Badge variant={form.is_active ? "default" : "outline"}>{form.is_active ? "Active" : "Inactive"}</Badge>
+            </div>
+            <p className="text-muted-foreground text-sm sm:text-base">
+              Analyses détaillées de la campagne et performances des agents
+            </p>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <CampaignStatusToggle formId={id} isActive={form.is_active} />
+          </div>
+
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium">Total Agents</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{campaign.total_agents}</div>
+                <p className="text-xs text-muted-foreground">Participant à cette campagne</p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium">Évaluations</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">
+                  {campaign.total_submitted_evaluations} / {campaign.total_expected_evaluations}
+                </div>
+                <p className="text-xs text-muted-foreground">Évaluations complétées</p>
+              </CardContent>
+            </Card>
+
+            <Card className="sm:col-span-2 lg:col-span-1">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium">Taux de complétion</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{completionRate.toFixed(1)}%</div>
+                <Progress value={completionRate} className="mt-2 h-2" />
+              </CardContent>
+            </Card>
+          </div>
+
+          {agentStats && <AgentPerformanceTable agents={agentStats} />}
+        </div>
+      </Suspense>
+    </DashboardShell>
+  )
+}

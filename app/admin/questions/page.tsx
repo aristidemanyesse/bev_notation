@@ -1,0 +1,78 @@
+import { DashboardShell } from "@/components/layout/dashboard-shell"
+import { getCurrentUser } from "@/lib/actions/auth"
+import { redirect } from "next/navigation"
+import { getSupabaseServerClient } from "@/lib/supabase/server"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import Link from "next/link"
+import { Plus } from "lucide-react"
+import { QuestionActions } from "@/components/admin/question-actions"
+
+export default async function QuestionsPage() {
+  const user = await getCurrentUser()
+
+  if (!user || user.role?.code !== "ADMIN") {
+    redirect("/login")
+  }
+
+  const supabase = await getSupabaseServerClient()
+
+  const { data: questions } = await supabase
+    .from("questions")
+    .select("*, category:question_categories(*)")
+    .order("created_at", { ascending: false })
+
+  return (
+    <DashboardShell role="ADMIN">
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-3xl font-semibold tracking-tight">Questions</h2>
+            <p className="text-muted-foreground">Gérer les questions d'évaluation</p>
+          </div>
+          <Button asChild>
+            <Link href="/admin/questions/new">
+              <Plus className="mr-2 h-4 w-4" />
+              Nouvelle question
+            </Link>
+          </Button>
+        </div>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Toutes les questions</CardTitle>
+            <CardDescription>Liste de toutes les questions d'évaluation</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {questions && questions.length > 0 ? (
+                questions.map((question) => (
+                  <div
+                    key={question.id}
+                    className="flex items-start justify-between rounded-lg border border-border bg-card p-4"
+                  >
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-1">
+                        <h3 className="font-semibold">{question.label}</h3>
+                        {question.category && <Badge variant="secondary">{question.category.label}</Badge>}
+                        <Badge variant={question.is_active ? "default" : "outline"}>
+                          {question.is_active ? "Active" : "Inactive"}
+                        </Badge>
+                      </div>
+                      {question.description && <p className="text-sm text-muted-foreground">{question.description}</p>}
+                      <p className="text-xs text-muted-foreground mt-1">Poids: {question.weight}</p>
+                    </div>
+                    <QuestionActions question={question} />
+                  </div>
+                ))
+              ) : (
+                <p className="text-center text-muted-foreground py-8">Aucune question trouvée.</p>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </DashboardShell>
+  )
+}
