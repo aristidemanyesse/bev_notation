@@ -9,6 +9,8 @@ import { CampaignHistory } from "@/components/dashboard/campaign-history"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
 import { Users, FileText, CheckCircle2, TrendingUp } from "lucide-react"
+import { EvaluationsGivenTable } from "@/components/dashboard/evaluations-given-table"
+import { EvaluationsReceivedTable } from "@/components/dashboard/evaluations-received-table"
 
 export default async function DashboardPage() {
   const user = await getCurrentUser()
@@ -24,8 +26,15 @@ export default async function DashboardPage() {
   const supabase = await getSupabaseServerClient()
 
   // Get active form
-  const { data: activeForm } = await supabase.from("forms").select("*").eq("is_active", true).single()
+const { data: activeForm } = await supabase
+  .from("forms")
+  .select("*")
+  .eq("is_active", true)
+  .order("created_at", { ascending: false }) // ou "period" si tu préfères
+  .limit(1)
+  .maybeSingle()
 
+  
   // Get dashboard summary
   const { data: summary } = await supabase
     .from("agent_dashboard_summary")
@@ -55,6 +64,34 @@ export default async function DashboardPage() {
     .eq("form_id", activeForm?.id)
     .is("submitted_at", null)
 
+  const { data: evaluationsGiven } = await supabase
+    .from("evaluations")
+    .select(
+      `
+      *,
+      evaluated:agents!evaluations_evaluated_id_fkey(matricule, first_name, last_name),
+      form:forms(title, period)
+    `,
+    )
+    .eq("evaluator_id", user.id)
+    .eq("form_id", activeForm?.id)
+    .not("submitted_at", "is", null)
+    .order("submitted_at", { ascending: false })
+
+  const { data: evaluationsReceived } = await supabase
+    .from("evaluations")
+    .select(
+      `
+      *,
+      evaluator:agents!evaluations_evaluator_id_fkey(matricule, first_name, last_name),
+      form:forms(title, period)
+    `,
+    )
+    .eq("evaluated_id", user.id)
+    .eq("form_id", activeForm?.id)
+    .not("submitted_at", "is", null)
+    .order("submitted_at", { ascending: false })
+
   // Get past campaigns
   const { data: pastCampaigns } = await supabase
     .from("forms")
@@ -70,6 +107,13 @@ export default async function DashboardPage() {
     expectedEvaluations > 0
       ? Math.round((totalEvaluationsDone / (totalEvaluationsDone + expectedEvaluations)) * 100)
       : 100
+
+
+    console.log("activeForm:", activeForm)
+console.log("summary:", summary)
+console.log("categoryScores:", categoryScores)
+console.log("pendingEvaluations:", pendingEvaluations)
+
 
   return (
     <DashboardShell role="AGENT">
@@ -137,6 +181,14 @@ export default async function DashboardPage() {
         )}
 
         {pendingEvaluations && pendingEvaluations.length > 0 && <EvaluationsList evaluations={pendingEvaluations} />}
+
+        <div className="grid gap-6 lg:grid-cols-2">
+          {evaluationsGiven && evaluationsGiven.length > 0 && <EvaluationsGivenTable evaluations={evaluationsGiven} />}
+
+          {evaluationsReceived && evaluationsReceived.length > 0 && (
+            <EvaluationsReceivedTable evaluations={evaluationsReceived} agentId={user.id} formId={activeForm?.id} />
+          )}
+        </div>
 
         {pastCampaigns && pastCampaigns.length > 0 && <CampaignHistory campaigns={pastCampaigns as Form[]} />}
       </div>

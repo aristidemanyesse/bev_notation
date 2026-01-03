@@ -1,6 +1,7 @@
 "use server"
 
-import { getSupabaseServerClient } from "@/lib/supabase/server"
+import { getSupabaseServerClient, getSupabaseAdminClient } from "@/lib/supabase/server"
+import { supabaseAdminClient } from "@/lib/supabase/adminClient"
 import { revalidatePath } from "next/cache"
 
 interface CreateCampaignData {
@@ -12,9 +13,17 @@ interface CreateCampaignData {
   agentIds: string[]
 }
 
+interface UpdateCampaignData {
+  formId: string
+  title: string
+  period: string
+  isActive: boolean
+  questionIds: string[]
+}
+
 export async function createCampaign(data: CreateCampaignData) {
   try {
-    const supabase = await getSupabaseServerClient()
+    const supabase = await supabaseAdminClient
 
     // Create form
     const { data: form, error: formError } = await supabase
@@ -28,8 +37,12 @@ export async function createCampaign(data: CreateCampaignData) {
       .select()
       .single()
 
-    if (formError || !form) {
-      return { error: "Failed to create campaign" }
+    if (formError) {
+      console.error("[v0] createCampaign formError:", formError)
+      return { error: formError.message }
+    }
+    if (!form) {
+      return { error: "Form not returned after insert" }
     }
 
     // Add questions to form
@@ -68,7 +81,54 @@ export async function createCampaign(data: CreateCampaignData) {
     revalidatePath("/admin/campaigns")
     return { success: true, formId: form.id }
   } catch (error) {
+    console.log("[v0] Error in createCampaign:", error)
     return { error: "An unexpected error occurred" }
+  }
+}
+
+export async function updateCampaign(data: UpdateCampaignData) {
+  try {
+    const supabase = await getSupabaseServerClient()
+
+    // Update form
+    const { error: formError } = await supabase
+      .from("forms")
+      .update({
+        title: data.title,
+        period: data.period,
+        is_active: data.isActive,
+      })
+      .eq("id", data.formId)
+
+    if (formError) {
+      return { error: "Échec de la mise à jour de la campagne" }
+    }
+
+    // Delete existing form questions
+    const { error: deleteError } = await supabase.from("form_questions").delete().eq("form_id", data.formId)
+
+    if (deleteError) {
+      return { error: "Échec de la suppression des anciennes questions" }
+    }
+
+    // Add new questions
+    const formQuestions = data.questionIds.map((questionId, index) => ({
+      form_id: data.formId,
+      question_id: questionId,
+      position: index + 1,
+    }))
+
+    const { error: questionsError } = await supabase.from("form_questions").insert(formQuestions)
+
+    if (questionsError) {
+      return { error: "Échec de l'ajout des nouvelles questions" }
+    }
+
+    revalidatePath("/admin/campaigns")
+    revalidatePath(`/admin/campaigns/${data.formId}`)
+    return { success: true }
+  } catch (error) {
+    return { error: "Une erreur inattendue s'est produite" }
   }
 }
 

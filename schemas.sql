@@ -97,6 +97,8 @@ CREATE TABLE evaluations (
   UNIQUE (form_id, evaluator_id, evaluated_id)
 );
 
+
+
 -- ===============================
 -- REPONSES
 -- ===============================
@@ -108,6 +110,9 @@ CREATE TABLE answers (
   comment text
 );
 
+ALTER TABLE answers
+ADD CONSTRAINT answers_evaluation_question_unique
+UNIQUE (evaluation_id, question_id);
 
 
 -- ===============================
@@ -158,7 +163,21 @@ FOR DELETE
 USING (is_admin(auth.uid()));
 
 
+-- Autoriser uniquement les admins à créer des forms
+CREATE POLICY "forms_insert_admin"
+ON forms
+FOR INSERT
+WITH CHECK (
+  auth.role() = 'admin'
+);
 
+
+CREATE POLICY "forms_select_admin" 
+ON forms
+FOR SELECT
+USING (
+  auth.role() = 'ADMIN'
+);
 -- Evaluations : création
 -- Evaluations : création (fixed)
 DROP POLICY IF EXISTS evaluation_insert ON evaluations;
@@ -196,3 +215,55 @@ USING (
   OR is_admin(auth.uid())
 );
 
+ALTER TABLE forms ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "forms_select_agents"
+ON forms
+FOR SELECT
+USING (is_active = true);
+
+
+ALTER TABLE agents ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "agents_read_all"
+ON agents
+FOR SELECT
+TO authenticated
+USING (true);
+
+CREATE POLICY "answers_insert_by_evaluator"
+ON answers
+FOR INSERT
+TO authenticated
+WITH CHECK (
+  evaluation_id IN (
+    SELECT id FROM evaluations
+    WHERE evaluator_id = auth.uid()
+  )
+);
+
+
+CREATE POLICY "answers_update_by_evaluator"
+ON answers
+FOR UPDATE
+TO authenticated
+USING (
+  evaluation_id IN (
+    SELECT id FROM evaluations
+    WHERE evaluator_id = auth.uid()
+  )
+)
+WITH CHECK (
+  evaluation_id IN (
+    SELECT id FROM evaluations
+    WHERE evaluator_id = auth.uid()
+  )
+);
+
+
+CREATE POLICY "evaluations_update_by_evaluator"
+ON evaluations
+FOR UPDATE
+TO authenticated
+USING (evaluator_id = auth.uid())
+WITH CHECK (evaluator_id = auth.uid());

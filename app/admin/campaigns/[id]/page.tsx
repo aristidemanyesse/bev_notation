@@ -7,8 +7,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
 import { CampaignStatusToggle } from "@/components/admin/campaign-status-toggle"
+import { Button } from "@/components/ui/button"
 import { Suspense } from "react"
-import { Loader2 } from "lucide-react"
+import { Loader2, Edit } from "lucide-react"
+import Link from "next/link"
+import { supabaseAdminClient } from "@/lib/supabase/adminClient"
 
 function CampaignLoader() {
   return (
@@ -18,7 +21,11 @@ function CampaignLoader() {
   )
 }
 
-export default async function CampaignDetailsPage({ params }: { params: Promise<{ id: string }> }) {
+interface PageParams {
+  id: string
+}
+
+export default async function CampaignDetailsPage({ params }: { params: PageParams | Promise<PageParams> }) {
   const { id } = await params
 
   const user = await getCurrentUser()
@@ -27,7 +34,7 @@ export default async function CampaignDetailsPage({ params }: { params: Promise<
     redirect("/login")
   }
 
-  const supabase = await getSupabaseServerClient()
+  const supabase =  supabaseAdminClient
 
   const { data: campaign } = await supabase.from("admin_campaign_stats").select("*").eq("form_id", id).maybeSingle()
 
@@ -39,6 +46,7 @@ export default async function CampaignDetailsPage({ params }: { params: Promise<
     .eq("form_id", id)
     .order("global_score", { ascending: false })
 
+
   if (!campaign || !form) {
     notFound()
   }
@@ -49,15 +57,24 @@ export default async function CampaignDetailsPage({ params }: { params: Promise<
     <DashboardShell role="ADMIN">
       <Suspense fallback={<CampaignLoader />}>
         <div className="space-y-6 px-4 sm:px-0">
-          <div>
-            <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-2">
-              <h2 className="text-2xl sm:text-3xl font-semibold tracking-tight">{campaign.title}</h2>
-              <Badge variant={completionRate >= 75 ? "default" : "secondary"}>{campaign.period}</Badge>
-              <Badge variant={form.is_active ? "default" : "outline"}>{form.is_active ? "Active" : "Inactive"}</Badge>
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+              <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-2">
+                <h2 className="text-2xl sm:text-3xl font-semibold tracking-tight">{campaign.title}</h2>
+                <Badge variant={completionRate >= 75 ? "default" : "secondary"}>{campaign.period}</Badge>
+                <Badge variant={form.is_active ? "default" : "outline"}>{form.is_active ? "Active" : "Inactive"}</Badge>
+              </div>
+              <p className="text-muted-foreground text-sm sm:text-base">
+                Analyses détaillées de la campagne et performances des agents
+              </p>
             </div>
-            <p className="text-muted-foreground text-sm sm:text-base">
-              Analyses détaillées de la campagne et performances des agents
-            </p>
+
+            <Button asChild variant="outline" size="sm">
+              <Link href={`/admin/campaigns/${id}/edit`}>
+                <Edit className="mr-2 h-4 w-4" />
+                Modifier
+              </Link>
+            </Button>
           </div>
 
           <div className="flex items-center gap-2">
