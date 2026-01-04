@@ -91,7 +91,7 @@ export async function createCampaign(data: CreateCampaignData) {
 
 export async function updateCampaign(data: UpdateCampaignData) {
   try {
-    const supabase = await getSupabaseServerClient()
+    const supabase = await supabaseAdminClient
 
     // 1️⃣ Mise à jour des infos du formulaire
     const { error: formError } = await supabase

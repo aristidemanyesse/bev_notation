@@ -20,7 +20,7 @@ export function DashboardNav({ role }: DashboardNavProps) {
     },
     // {
     //   href: "/dashboard/evaluations",
-    //   label: "Mes évaluations",
+    //   label: "Mes notations",
     //   icon: FileText,
     // },
   ]
@@ -32,14 +32,14 @@ export function DashboardNav({ role }: DashboardNavProps) {
       icon: LayoutDashboard,
     },
     {
-      href: "/admin/campaigns",
-      label: "Campagnes",
-      icon: FileText,
-    },
-    {
       href: "/admin/agents",
       label: "Agents",
       icon: Users,
+    },
+    {
+      href: "/admin/campaigns",
+      label: "Campagnes",
+      icon: FileText,
     },
     {
       href: "/admin/questions",

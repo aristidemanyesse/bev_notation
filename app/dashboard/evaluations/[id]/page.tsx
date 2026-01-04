@@ -59,11 +59,13 @@ export default async function EvaluationPage({ params }: { params: Promise<{ id:
     <DashboardShell role={user.role?.code as "ADMIN" | "AGENT"}>
       <div className="max-w-3xl mx-auto space-y-6">
         <div>
-          <h2 className="text-3xl font-semibold tracking-tight">Formulaire d'évaluation</h2>
+          <h2 className="text-3xl font-semibold tracking-tight">Notation de {evaluation.evaluated.first_name} {evaluation.evaluated.last_name} <small className="text-muted-foreground">({evaluation.evaluated.matricule})</small></h2>
+          <h5>{evaluation.form.title} - {evaluation.form.period}</h5>
+          <br></br>
           <p className="text-muted-foreground">Complétez votre évaluation pour votre collègue</p>
         </div>
 
-        <Card>
+        {/* <Card>
           <CardHeader>
             <div className="flex items-center justify-between">
               <div>
@@ -78,10 +80,11 @@ export default async function EvaluationPage({ params }: { params: Promise<{ id:
           <CardContent>
             <p className="text-sm text-muted-foreground">{evaluation.form.title}</p>
           </CardContent>
-        </Card>
+        </Card> */}
 
         <EvaluationForm
           evaluationId={id}
+          formId={evaluation.form_id}
           questions={questions}
           existingAnswers={existingAnswers || []}
           isSubmitted={!!evaluation.submitted_at}

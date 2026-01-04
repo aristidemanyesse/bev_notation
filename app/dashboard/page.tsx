@@ -8,95 +8,92 @@ import { EvaluationsList } from "@/components/dashboard/evaluations-list"
 import { CampaignHistory } from "@/components/dashboard/campaign-history"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
-import { Users, FileText, CheckCircle2, TrendingUp } from "lucide-react"
+import { Users, FileText, CheckCircle2, TrendingUp, Plus, Link } from "lucide-react"
 import { EvaluationsGivenTable } from "@/components/dashboard/evaluations-given-table"
 import { EvaluationsReceivedTable } from "@/components/dashboard/evaluations-received-table"
+import { Button } from "@/components/ui/button"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@radix-ui/react-select"
+import { CampaignSelect } from "@/components/dashboard/campaign-select"
 
-export default async function DashboardPage() {
+export default async function DashboardPage({searchParams}: {searchParams: Promise<{ campaignId?: string }>}) {
   const user = await getCurrentUser()
 
   if (!user) {
     redirect("/login")
   }
-
-
   const supabase = await getSupabaseServerClient()
 
-  // Get active form
-const { data: activeForm } = await supabase
+    // Get active campaigns (pour le select)
+
+const { data: activeCampaigns } = await supabase
   .from("forms")
-  .select("*")
+  .select("id, title, period, created_at")
   .eq("is_active", true)
-  .order("created_at", { ascending: false }) // ou "period" si tu préfères
-  .limit(1)
+  .order("created_at", { ascending: false })
+
+const campaigns = activeCampaigns ?? []
+
+const resolvedSearchParams = await searchParams
+const selectedCampaignId =
+  resolvedSearchParams.campaignId ?? campaigns[0]?.id
+
+const selectedCampaign = campaigns.find(c => c.id === selectedCampaignId)
+
+const { data: summary } = await supabase
+  .from("agent_dashboard_summary")
+  .select("*")
+  .eq("agent_id", user.id)
+  .eq("form_id", selectedCampaignId)
   .maybeSingle()
 
-  
-  // Get dashboard summary
-  const { data: summary } = await supabase
-    .from("agent_dashboard_summary")
-    .select("*")
-    .eq("agent_id", user.id)
-    .eq("form_id", activeForm?.id)
-    .single()
 
-  // Get category scores
   const { data: categoryScores } = await supabase
-    .from("agent_category_scores")
-    .select("*")
-    .eq("agent_id", user.id)
-    .eq("form_id", activeForm?.id)
+  .from("agent_category_scores")
+  .select("*")
+  .eq("agent_id", user.id)
+  .eq("form_id", selectedCampaignId)
 
-  // Get pending evaluations
-  const { data: pendingEvaluations, error } = await supabase
-    .from("agent_pending_evaluations")
-    .select(`
-      *,
-      evaluated:agents!evaluations_evaluated_id_fkey(
-        matricule,
-        first_name,
-        last_name
-      )
-    `)
-    .eq("evaluator_id", user.id)
-    .order("form_created_at", { ascending: true }) 
+
+  const { data: pendingEvaluations } = await supabase
+  .from("agent_pending_evaluations")
+  .select(`
+    *,
+    evaluated:agents!evaluations_evaluated_id_fkey(
+      matricule,
+      first_name,
+      last_name
+    )
+  `)
+  .eq("evaluator_id", user.id)
+  .eq("form_id", selectedCampaignId)
+  .order("form_created_at", { ascending: true })
 
 
   const { data: evaluationsGiven } = await supabase
-    .from("evaluations")
-    .select(
-      `
-      *,
-      evaluated:agents!evaluations_evaluated_id_fkey(matricule, first_name, last_name),
-      form:forms(title, period)
-    `,
-    )
-    .eq("evaluator_id", user.id)
-    .eq("form_id", activeForm?.id)
-    .not("submitted_at", "is", null)
-    .order("submitted_at", { ascending: false })
+  .from("evaluations")
+  .select(`
+    *,
+    evaluated:agents!evaluations_evaluated_id_fkey(matricule, first_name, last_name),
+    form:forms(title, period)
+  `)
+  .eq("evaluator_id", user.id)
+  .eq("form_id", selectedCampaignId)
+  .not("submitted_at", "is", null)
+  .order("submitted_at", { ascending: false })
+
 
   const { data: evaluationsReceived } = await supabase
-    .from("evaluations")
-    .select(
-      `
-      *,
-      evaluator:agents!evaluations_evaluator_id_fkey(matricule, first_name, last_name),
-      form:forms(title, period)
-    `,
-    )
-    .eq("evaluated_id", user.id)
-    .eq("form_id", activeForm?.id)
-    .not("submitted_at", "is", null)
-    .order("submitted_at", { ascending: false })
+  .from("evaluations")
+  .select(`
+    *,
+    evaluator:agents!evaluations_evaluator_id_fkey(matricule, first_name, last_name),
+    form:forms(title, period)
+  `)
+  .eq("evaluated_id", user.id)
+  .eq("form_id", selectedCampaignId)
+  .not("submitted_at", "is", null)
+  .order("submitted_at", { ascending: false })
 
-  // Get past campaigns
-  const { data: pastCampaigns } = await supabase
-    .from("forms")
-    .select("*")
-    .eq("is_active", false)
-    .order("period", { ascending: false })
-    .limit(5)
 
   const totalEvaluationsReceived = summary?.evaluations_received || 0
   const totalEvaluationsDone = summary?.evaluations_done || 0
@@ -109,42 +106,51 @@ const { data: activeForm } = await supabase
   return (
     <DashboardShell role={user.role?.code as "ADMIN" | "AGENT"}>
       <div className="space-y-6 px-4 sm:px-0">
-        <div>
-          <h2 className="text-2xl sm:text-3xl font-semibold tracking-tight">Tableau de bord</h2>
-          <p className="text-sm sm:text-base text-muted-foreground">
-            {activeForm ? `Campagne active : ${activeForm.title} (${activeForm.period})` : "Aucune campagne active"}
-          </p>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <h2 className="text-2xl sm:text-3xl font-semibold tracking-tight">Tableau de bord du {selectedCampaign?.title}</h2>
+            <p className="text-sm sm:text-base text-muted-foreground">
+              {selectedCampaign
+                ? selectedCampaign.period
+                : "Aucune campagne active"}
+            </p>
+          </div>
+          <CampaignSelect
+            campaigns = {activeCampaigns}
+            selectedCampaignId={selectedCampaignId}
+          />
         </div>
+        
 
-        {activeForm && summary && (
+        {selectedCampaign && summary && (
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Score global</CardTitle>
+                <CardTitle className="text-sm font-medium">Note globale</CardTitle>
                 <TrendingUp className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">
                   {summary.global_score ? summary.global_score.toFixed(2) : "N/A"}
                 </div>
-                <p className="text-xs text-muted-foreground">Basé sur {summary.total_reviews || 0} évaluations</p>
+                <p className="text-xs text-muted-foreground">Basé sur {summary.total_reviews || 0} notations</p>
               </CardContent>
             </Card>
 
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Évaluations reçues</CardTitle>
+                <CardTitle className="text-sm font-medium">Notations reçues</CardTitle>
                 <Users className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">{totalEvaluationsReceived}</div>
-                <p className="text-xs text-muted-foreground">Évaluations par les pairs</p>
+                <p className="text-xs text-muted-foreground">Ceux qui vous ont notés</p>
               </CardContent>
             </Card>
 
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Évaluations complétées</CardTitle>
+                <CardTitle className="text-sm font-medium">Notations complétées</CardTitle>
                 <CheckCircle2 className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
@@ -156,32 +162,32 @@ const { data: activeForm } = await supabase
 
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Évaluations en attente</CardTitle>
+                <CardTitle className="text-sm font-medium">Notations en attente</CardTitle>
                 <FileText className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">{expectedEvaluations}</div>
-                <p className="text-xs text-muted-foreground">À compléter</p>
+                <p className="text-xs text-muted-foreground">Notations à terminer</p>
               </CardContent>
             </Card>
           </div>
         )}
 
-        {categoryScores && categoryScores.length > 0 && (
+        {/* {categoryScores && categoryScores.length > 0 && (
           <CategoryScoresChart scores={categoryScores as AgentCategoryScore[]} />
-        )}
+        )} */}
 
         {pendingEvaluations && pendingEvaluations.length > 0 && <EvaluationsList evaluations={pendingEvaluations} />}
 
-        <div className="grid gap-6 lg:grid-cols-2">
+        <div className="grid gap-6 ">
           {evaluationsGiven && evaluationsGiven.length > 0 && <EvaluationsGivenTable evaluations={evaluationsGiven} />}
 
           {evaluationsReceived && evaluationsReceived.length > 0 && (
-            <EvaluationsReceivedTable evaluations={evaluationsReceived} agentId={user.id} formId={activeForm?.id} />
+            <EvaluationsReceivedTable evaluations={evaluationsReceived} agentId={user.id} formId={selectedCampaign?.id} />
           )}
         </div>
 
-        {pastCampaigns && pastCampaigns.length > 0 && <CampaignHistory campaigns={pastCampaigns as Form[]} />}
+        {/* {pastCampaigns && pastCampaigns.length > 0 && <CampaignHistory campaigns={pastCampaigns as Form[]} />} */}
       </div>
     </DashboardShell>
   )

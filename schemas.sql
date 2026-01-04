@@ -275,3 +275,23 @@ CREATE POLICY "forms_update_admin"
 ON public.forms
 FOR UPDATE
 USING (auth.role() = 'ADMIN');
+
+
+ALTER TABLE form_questions
+DROP CONSTRAINT form_questions_question_id_fkey;
+
+ALTER TABLE form_questions
+ADD CONSTRAINT form_questions_question_id_fkey
+FOREIGN KEY (question_id)
+REFERENCES questions(id)
+ON DELETE CASCADE;
+
+
+ALTER TABLE answers
+DROP CONSTRAINT answers_question_id_fkey;
+
+ALTER TABLE answers
+ADD CONSTRAINT answers_question_id_fkey
+FOREIGN KEY (question_id)
+REFERENCES questions(id)
+ON DELETE CASCADE;

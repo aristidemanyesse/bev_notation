@@ -14,12 +14,13 @@ import { CheckCircle2 } from "lucide-react"
 
 interface EvaluationFormProps {
   evaluationId: string
+  formId: string
   questions: Question[]
   existingAnswers: Answer[]
   isSubmitted: boolean
 }
 
-export function EvaluationForm({ evaluationId, questions, existingAnswers, isSubmitted }: EvaluationFormProps) {
+export function EvaluationForm({ evaluationId, formId, questions, existingAnswers, isSubmitted }: EvaluationFormProps) {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -73,21 +74,21 @@ export function EvaluationForm({ evaluationId, questions, existingAnswers, isSub
       setError(result.error)
       setLoading(false)
     } else {
-      router.push("/dashboard")
+      router.push(`/dashboard?campaignId=${formId}`)
       router.refresh()
     }
   }
 
-  if (isSubmitted) {
-    return (
-      <Alert className="bg-green-50 dark:bg-green-950 border-green-200 dark:border-green-800">
-        <CheckCircle2 className="h-4 w-4 text-green-600 dark:text-green-400" />
-        <AlertDescription className="text-green-800 dark:text-green-200">
-          Cette évaluation a déjà été soumise.
-        </AlertDescription>
-      </Alert>
-    )
-  }
+  // if (isSubmitted) {
+  //   return (
+  //     <Alert className="bg-green-50 dark:bg-green-950 border-green-200 dark:border-green-800">
+  //       <CheckCircle2 className="h-4 w-4 text-green-600 dark:text-green-400" />
+  //       <AlertDescription className="text-green-800 dark:text-green-200">
+  //         Cette évaluation a déjà été soumise.
+  //       </AlertDescription>
+  //     </Alert>
+  //   )
+  // }
 
   return (
     <div className="space-y-6">
@@ -101,14 +102,13 @@ export function EvaluationForm({ evaluationId, questions, existingAnswers, isSub
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-3">
-              <Label>Score (1-5)</Label>
               <RadioGroup
                 value={answers[question.id]?.score?.toString() || ""}
                 onValueChange={(value) => handleScoreChange(question.id, Number.parseInt(value))}
                 disabled={loading}
               >
                 <div className="flex gap-6">
-                  {[1, 2, 3, 4, 5].map((score) => (
+                  {[1, 2, 3, 4].map((score) => (
                     <div key={score} className="flex items-center space-x-2">
                       <RadioGroupItem value={score.toString()} id={`${question.id}-${score}`} />
                       <Label htmlFor={`${question.id}-${score}`} className="font-normal cursor-pointer">
@@ -118,14 +118,13 @@ export function EvaluationForm({ evaluationId, questions, existingAnswers, isSub
                   ))}
                 </div>
               </RadioGroup>
-              <p className="text-xs text-muted-foreground">1 = Faible, 5 = Excellent</p>
             </div>
-
+            
+            <br></br>
             <div className="space-y-2">
-              <Label htmlFor={`comment-${question.id}`}>Commentaire (optionnel)</Label>
               <Textarea
                 id={`comment-${question.id}`}
-                placeholder="Ajoutez vos commentaires ici..."
+                placeholder="Ajoutez un commentaire ici (optionnel)..."
                 value={answers[question.id]?.comment || ""}
                 onChange={(e) => handleCommentChange(question.id, e.target.value)}
                 disabled={loading}

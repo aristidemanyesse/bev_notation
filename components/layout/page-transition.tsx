@@ -1,18 +1,19 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { usePathname } from "next/navigation"
+import { usePathname, useSearchParams } from "next/navigation"
 import { Loader2 } from "lucide-react"
 
 export function PageTransition() {
   const [isLoading, setIsLoading] = useState(false)
   const pathname = usePathname()
+  const searchParams = useSearchParams() // 👈 écoute aussi les query params
 
   useEffect(() => {
     setIsLoading(true)
     const timeout = setTimeout(() => setIsLoading(false), 500)
     return () => clearTimeout(timeout)
-  }, [pathname])
+  }, [pathname, searchParams?.toString()]) // 👈 déclenche à chaque changement de query
 
   if (!isLoading) return null
 

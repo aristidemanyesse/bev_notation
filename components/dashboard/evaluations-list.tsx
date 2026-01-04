@@ -41,14 +41,14 @@ return (
             <p className="text-sm text-muted-foreground">Matricule : {evaluation.evaluated.matricule}</p>
           </div>
         </div>
-        <div className="flex h-10 w-50 items-center justify-center text-sm font-semibold">
+        <div className="flex h-10 w-70 items-center justify-center text-sm font-semibold">
           <div className="text-sm text-muted-foreground">
             <p>Campagne : {evaluation.form_title}</p>
             <p>Période : {evaluation.form_period}</p>
           </div>
         </div>
         <Button asChild size="sm">
-          <Link href={`/dashboard/evaluations/${evaluation.id}`}> Évaluer <ChevronRight className="ml-2 h-4 w-4" />
+          <Link href={`/dashboard/evaluations/${evaluation.id}`}> Soumettre la notation <ChevronRight className="ml-2 h-4 w-4" />
           </Link>
         </Button>
       </div>

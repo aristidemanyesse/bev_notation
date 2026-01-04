@@ -20,7 +20,7 @@ export default async function EvaluationViewPage({ params }: PageProps) {
     .from("evaluations")
     .select(`
       *,
-      evaluated:agents!evaluations_evaluated_id_fkey(
+      evaluator:agents!evaluations_evaluator_id_fkey(
         id,
         first_name,
         last_name,
@@ -60,28 +60,11 @@ export default async function EvaluationViewPage({ params }: PageProps) {
     <DashboardShell role={user.role?.code as "ADMIN" | "AGENT"}>
   <div className="max-w-3xl mx-auto space-y-6">
     <div>
-      <h2 className="text-3xl font-semibold tracking-tight">Formulaire d'évaluation</h2>
-      <p className="text-muted-foreground">
-        Visualisation des réponses pour {evaluation.evaluated.first_name} {evaluation.evaluated.last_name}
-      </p>
-    </div>
-
-    <Card>
-      <CardHeader>
-        <div className="flex items-center justify-between">
-          <div>
-            <CardTitle>
-              {evaluation.evaluated.first_name} {evaluation.evaluated.last_name}
-            </CardTitle>
-            <CardDescription>Matricule: {evaluation.evaluated.matricule}</CardDescription>
-          </div>
-          <Badge>{form.period}</Badge>
+          <h2 className="text-3xl font-semibold tracking-tight">Notation de {evaluation.evaluator.first_name} {evaluation.evaluator.last_name} <small className="text-muted-foreground">({evaluation.evaluator.matricule})</small></h2>
+          <h5>{evaluation.form.title} - {evaluation.form.period}</h5>
+          <br></br>
+          <p className="text-muted-foreground">Visualisation des réponses de votre collègue</p>
         </div>
-      </CardHeader>
-      <CardContent>
-        <p className="text-sm text-muted-foreground">{form.title}</p>
-      </CardContent>
-    </Card>
 
     <EvaluationView questions={questionsWithAnswers} answers={evaluation.answers} />
   </div>

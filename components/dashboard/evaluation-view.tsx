@@ -31,7 +31,7 @@ export function EvaluationView({ questions, answers }: EvaluationViewProps) {
                         </CardTitle>
                         {question.description && <CardDescription>{question.description}</CardDescription>}
                     </div>
-                    <Label className="text-3xl">{answer?.score ?? "Non noté"}</Label>
+                    <Label className="text-2xl">{answer?.score ?? "Non noté"}</Label>
                 </div>
             </CardHeader>
             <CardContent className="space-y-2">

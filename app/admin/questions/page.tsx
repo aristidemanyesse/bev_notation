@@ -28,8 +28,8 @@ export default async function QuestionsPage() {
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-3xl font-semibold tracking-tight">Questions</h2>
-            <p className="text-muted-foreground">Gérer les questions d'évaluation</p>
+            <h2 className="text-3xl font-semibold tracking-tight">Questions ({questions?.length || 0})</h2>
+            <p className="text-muted-foreground">Gérer les questions de notations</p>
           </div>
           <Button asChild>
             <Link href="/admin/questions/new">

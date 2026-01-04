@@ -36,7 +36,7 @@ export async function EvaluationsGivenTable({ evaluations }: EvaluationsGivenTab
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Évaluations effectuées</CardTitle>
+        <CardTitle>Les agents que vous avez notés</CardTitle>
         <CardDescription>Les agents que vous avez évalués lors de la dernière campagne</CardDescription>
       </CardHeader>
       <CardContent>

@@ -38,8 +38,8 @@ export async function EvaluationsReceivedTable({ evaluations, agentId, formId }:
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Évaluations reçues</CardTitle>
-        <CardDescription>Les évaluations que vous avez reçues lors de la dernière campagne</CardDescription>
+        <CardTitle>Les agents qui vous ont notés</CardTitle>
+        <CardDescription>Les notations que vous avez reçues lors de la dernière campagne</CardDescription>
       </CardHeader>
       <CardContent>
         <div className="overflow-x-auto">

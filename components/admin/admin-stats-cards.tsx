@@ -17,7 +17,7 @@ export function AdminStatsCards({
 }: AdminStatsCardsProps) {
   const stats = [
     {
-      label: "Total d'agents",
+      label: "Total des agents",
       value: totalAgents,
       icon: Users,
       description: "Agents actifs dans le système",
@@ -29,7 +29,7 @@ export function AdminStatsCards({
       description: "Campagnes d'évaluation",
     },
     {
-      label: "Évaluations complétées",
+      label: "Notations complétées",
       value: totalCompleted,
       icon: CheckCircle2,
       description: "Toutes campagnes confondues",

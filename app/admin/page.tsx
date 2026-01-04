@@ -51,7 +51,7 @@ export default async function AdminPage() {
           overallCompletion={overallCompletion}
         />
 
-        {campaigns && campaigns.length > 0 && <CompletionChart campaigns={campaigns as AdminCampaignStats[]} />}
+        {/* {campaigns && campaigns.length > 0 && <CompletionChart campaigns={campaigns as AdminCampaignStats[]} />} */}
 
         {campaigns && campaigns.length > 0 && <CampaignsList campaigns={campaigns as AdminCampaignStats[]} />}
       </div>
