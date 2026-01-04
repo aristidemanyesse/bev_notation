@@ -10,7 +10,7 @@ export default async function EvaluationPage({ params }: { params: Promise<{ id:
   const { id } = await params
   const user = await getCurrentUser()
 
-  if (!user || user.role?.code !== "AGENT") {
+  if (!user) {
     redirect("/login")
   }
 
@@ -31,7 +31,7 @@ export default async function EvaluationPage({ params }: { params: Promise<{ id:
 
   if (!evaluation) {
     return (
-      <DashboardShell role="AGENT">
+      <DashboardShell role={user.role?.code as "ADMIN" | "AGENT"}>
         <div className="space-y-6">
           <h2 className="text-3xl font-semibold tracking-tight">Évaluation non trouvée</h2>
           <p className="text-muted-foreground">Cette évaluation n'existe pas ou vous n'y avez pas accès.</p>
@@ -56,7 +56,7 @@ export default async function EvaluationPage({ params }: { params: Promise<{ id:
   const questions = formQuestions?.map((fq) => fq.question) || []
 
   return (
-    <DashboardShell role="AGENT">
+    <DashboardShell role={user.role?.code as "ADMIN" | "AGENT"}>
       <div className="max-w-3xl mx-auto space-y-6">
         <div>
           <h2 className="text-3xl font-semibold tracking-tight">Formulaire d'évaluation</h2>

@@ -28,7 +28,7 @@ export async function submitEvaluation(
 
     if (answersError) {
       console.error("ANSWERS ERROR:", answersError)
-      return { error: "Failed to save answers" }
+      return { error: "Echec lors de l'enregistrement des réponses" }
     }
 
     // 2️⃣ Marquer l’évaluation comme soumise
@@ -39,13 +39,13 @@ export async function submitEvaluation(
 
     if (evalError) {
       console.error("EVAL ERROR:", evalError)
-      return { error: "Failed to submit evaluation" }
+      return { error: "Echec lors de la soumission de l'évaluation" }
     }
 
     revalidatePath("/dashboard")
     return { success: true }
   } catch (error) {
     console.error("SUBMIT ERROR:", error)
-    return { error: "An unexpected error occurred" }
+    return { error: "Une erreur inattendue s'est produite" }
 }
 }

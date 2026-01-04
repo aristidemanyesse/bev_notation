@@ -19,9 +19,6 @@ export default async function DashboardPage() {
     redirect("/login")
   }
 
-  if (user.role?.code !== "AGENT") {
-    redirect("/admin")
-  }
 
   const supabase = await getSupabaseServerClient()
 
@@ -51,18 +48,19 @@ const { data: activeForm } = await supabase
     .eq("form_id", activeForm?.id)
 
   // Get pending evaluations
-  const { data: pendingEvaluations } = await supabase
-    .from("evaluations")
-    .select(
-      `
+  const { data: pendingEvaluations, error } = await supabase
+    .from("agent_pending_evaluations")
+    .select(`
       *,
-      evaluated:agents!evaluations_evaluated_id_fkey(matricule, first_name, last_name),
-      form:forms(title, period)
-    `,
-    )
+      evaluated:agents!evaluations_evaluated_id_fkey(
+        matricule,
+        first_name,
+        last_name
+      )
+    `)
     .eq("evaluator_id", user.id)
-    .eq("form_id", activeForm?.id)
-    .is("submitted_at", null)
+    .order("form_created_at", { ascending: true }) 
+
 
   const { data: evaluationsGiven } = await supabase
     .from("evaluations")
@@ -108,15 +106,8 @@ const { data: activeForm } = await supabase
       ? Math.round((totalEvaluationsDone / (totalEvaluationsDone + expectedEvaluations)) * 100)
       : 100
 
-
-    console.log("activeForm:", activeForm)
-console.log("summary:", summary)
-console.log("categoryScores:", categoryScores)
-console.log("pendingEvaluations:", pendingEvaluations)
-
-
   return (
-    <DashboardShell role="AGENT">
+    <DashboardShell role={user.role?.code as "ADMIN" | "AGENT"}>
       <div className="space-y-6 px-4 sm:px-0">
         <div>
           <h2 className="text-2xl sm:text-3xl font-semibold tracking-tight">Tableau de bord</h2>

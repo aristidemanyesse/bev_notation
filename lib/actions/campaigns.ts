@@ -38,11 +38,11 @@ export async function createCampaign(data: CreateCampaignData) {
       .single()
 
     if (formError) {
-      console.error("[v0] createCampaign formError:", formError)
+      console.error("[v0] Erreur lors de la création de la campagne", formError)
       return { error: formError.message }
     }
     if (!form) {
-      return { error: "Form not returned after insert" }
+      return { error: "Erreur lors de la création de la campagne" }
     }
 
     // Add questions to form
@@ -55,7 +55,7 @@ export async function createCampaign(data: CreateCampaignData) {
     const { error: questionsError } = await supabase.from("form_questions").insert(formQuestions)
 
     if (questionsError) {
-      return { error: "Failed to add questions to campaign" }
+      return { error: "Erreur lors de l'ajout des questions" }
     }
 
     // Create evaluations (A evaluates B, A ≠ B)
@@ -75,14 +75,14 @@ export async function createCampaign(data: CreateCampaignData) {
     const { error: evaluationsError } = await supabase.from("evaluations").insert(evaluations)
 
     if (evaluationsError) {
-      return { error: "Failed to create evaluations" }
+      return { error: "Erreur lors de la création des évaluations" }
     }
 
     revalidatePath("/admin/campaigns")
     return { success: true, formId: form.id }
   } catch (error) {
-    console.log("[v0] Error in createCampaign:", error)
-    return { error: "An unexpected error occurred" }
+    console.log("[v0] Erreur lors de la création d'une campagne", error)
+    return { error: "Une erreur inattendue s'est produite" }
   }
 }
 
@@ -139,12 +139,12 @@ export async function toggleCampaignStatus(formId: string, isActive: boolean) {
     const { error } = await supabase.from("forms").update({ is_active: isActive }).eq("id", formId)
 
     if (error) {
-      return { error: "Failed to update campaign status" }
+      return { error: "Échec de la mise à jour du statut de la campagne" }
     }
 
     revalidatePath("/admin/campaigns")
     return { success: true }
   } catch (error) {
-    return { error: "An unexpected error occurred" }
+    return { error: "Une erreur inattendue s'est produite" }
   }
 }

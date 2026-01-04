@@ -25,7 +25,7 @@ export function LoginForm() {
   }
 
   return (
-    <Card className="w-full max-w-lg bg-background/95 backdrop-blur-md shadow-2xl border-orange-200">
+    <Card className="w-full w-120 bg-background/95 backdrop-blur-md shadow-2xl border-orange-200">
       <CardHeader className="space-y-2 pb-6">
         <CardTitle className="text-3xl font-bold text-orange-600">Connexion</CardTitle>
         <CardDescription className="text-base">

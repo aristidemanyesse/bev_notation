@@ -7,16 +7,17 @@ import { getSupabaseServerClient } from "@/lib/supabase/server"
 export default async function EvaluationsPage() {
   const user = await getCurrentUser()
 
-  if (!user || user.role?.code !== "AGENT") {
+  if (!user) {
     redirect("/login")
   }
+
 
   const supabase = await getSupabaseServerClient()
 
   const { data: activeForm } = await supabase.from("forms").select("*").eq("is_active", true).single()
 
   return (
-    <DashboardShell role="AGENT">
+    <DashboardShell role={user.role?.code as "ADMIN" | "AGENT"}>
       <div className="space-y-6">
         <div>
           <h2 className="text-3xl font-semibold tracking-tight">My Evaluations</h2>

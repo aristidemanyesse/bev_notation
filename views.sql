@@ -168,3 +168,15 @@ GROUP BY
 REVOKE ALL ON admin_campaign_stats FROM PUBLIC;
 REVOKE ALL ON admin_campaign_agent_stats FROM PUBLIC;
 REVOKE ALL ON admin_campaign_category_scores FROM PUBLIC;
+
+
+CREATE OR REPLACE VIEW agent_pending_evaluations AS
+SELECT
+  e.*,
+  f.title AS form_title,
+  f.period AS form_period,
+  f.created_at AS form_created_at
+FROM evaluations e
+JOIN forms f ON f.id = e.form_id
+WHERE f.is_active = true
+  AND e.submitted_at IS NULL;

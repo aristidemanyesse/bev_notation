@@ -97,6 +97,7 @@ CREATE TABLE evaluations (
   UNIQUE (form_id, evaluator_id, evaluated_id)
 );
 
+ALTER TABLE evaluations ENABLE ROW LEVEL SECURITY;
 
 
 -- ===============================
