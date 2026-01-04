@@ -35,7 +35,7 @@ export function CategoryScoresChart({ scores }: CategoryScoresChartProps) {
             <XAxis dataKey="category" className="text-xs" />
             <YAxis domain={[0, 5]} className="text-xs" />
             <ChartTooltip content={<ChartTooltipContent />} />
-            <Bar dataKey="score" fill="var(--color-score)" radius={[4, 4, 0, 0]} />
+            <Bar dataKey="score" fill="var(--secondary)" radius={[4, 4, 0, 0]} />
           </BarChart>
         </ChartContainer>
       </CardContent>

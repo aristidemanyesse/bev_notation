@@ -268,3 +268,10 @@ FOR UPDATE
 TO authenticated
 USING (evaluator_id = auth.uid())
 WITH CHECK (evaluator_id = auth.uid());
+
+
+-- exemple pour autoriser l'update à l'utilisateur admin
+CREATE POLICY "forms_update_admin" 
+ON public.forms
+FOR UPDATE
+USING (auth.role() = 'ADMIN');

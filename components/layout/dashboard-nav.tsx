@@ -18,11 +18,11 @@ export function DashboardNav({ role }: DashboardNavProps) {
       label: "Tableau de bord",
       icon: LayoutGrid,
     },
-    {
-      href: "/dashboard/evaluations",
-      label: "Mes évaluations",
-      icon: FileText,
-    },
+    // {
+    //   href: "/dashboard/evaluations",
+    //   label: "Mes évaluations",
+    //   icon: FileText,
+    // },
   ]
 
   const adminLinks = [

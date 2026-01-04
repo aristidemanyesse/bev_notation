@@ -41,8 +41,8 @@ export function CompletionChart({ campaigns }: CompletionChartProps) {
             <YAxis className="text-xs" />
             <ChartTooltip content={<ChartTooltipContent />} />
             <Legend />
-            <Bar dataKey="completed" fill="var(--color-completed)" radius={[4, 4, 0, 0]} />
-            <Bar dataKey="expected" fill="var(--color-expected)" radius={[4, 4, 0, 0]} />
+            <Bar dataKey="completed" fill="var(--secondary)" radius={[4, 4, 0, 0]} />
+            <Bar dataKey="expected" fill="var(--primary)" radius={[4, 4, 0, 0]} />
           </BarChart>
         </ChartContainer>
       </CardContent>

@@ -4,6 +4,7 @@ import { getSupabaseServerClient, getSupabaseAdminClient } from "@/lib/supabase/
 import { supabaseAdminClient } from "@/lib/supabase/adminClient"
 import { revalidatePath } from "next/cache"
 
+
 interface CreateCampaignData {
   title: string
   period: string
@@ -86,11 +87,13 @@ export async function createCampaign(data: CreateCampaignData) {
   }
 }
 
+
+
 export async function updateCampaign(data: UpdateCampaignData) {
   try {
     const supabase = await getSupabaseServerClient()
 
-    // Update form
+    // 1️⃣ Mise à jour des infos du formulaire
     const { error: formError } = await supabase
       .from("forms")
       .update({
@@ -104,33 +107,73 @@ export async function updateCampaign(data: UpdateCampaignData) {
       return { error: "Échec de la mise à jour de la campagne" }
     }
 
-    // Delete existing form questions
-    const { error: deleteError } = await supabase.from("form_questions").delete().eq("form_id", data.formId)
+    // 2️⃣ Nettoyer les doublons dans questionIds
+    const uniqueQuestionIds = Array.from(new Set(data.questionIds))
 
-    if (deleteError) {
-      return { error: "Échec de la suppression des anciennes questions" }
+    // 3️⃣ Récupérer les questions existantes du formulaire
+    const { data: existingQuestions, error: fetchError } = await supabase
+      .from("form_questions")
+      .select("question_id, position")
+      .eq("form_id", data.formId)
+
+    if (fetchError) {
+      return { error: "Échec de la récupération des questions existantes" }
     }
 
-    // Add new questions
-    const formQuestions = data.questionIds.map((questionId, index) => ({
-      form_id: data.formId,
-      question_id: questionId,
-      position: index + 1,
-    }))
+    const existingIds = existingQuestions?.map(q => q.question_id) || []
 
-    const { error: questionsError } = await supabase.from("form_questions").insert(formQuestions)
+    // 4️⃣ Calculer les ajouts et suppressions
+    const toAdd = uniqueQuestionIds.filter(id => !existingIds.includes(id))
+    const toRemove = existingIds.filter(id => !uniqueQuestionIds.includes(id))
 
-    if (questionsError) {
-      return { error: "Échec de l'ajout des nouvelles questions" }
+    // 5️⃣ Supprimer uniquement les questions retirées
+    if (toRemove.length > 0) {
+      const { error: deleteError } = await supabase
+        .from("form_questions")
+        .delete()
+        .eq("form_id", data.formId)
+        .in("question_id", toRemove)
+      if (deleteError) {
+        return { error: "Échec de la suppression des anciennes questions" }
+      }
     }
 
+    // 6️⃣ Ajouter les nouvelles questions
+    if (toAdd.length > 0) {
+      const newQuestions = toAdd.map((id) => ({
+        form_id: data.formId,
+        question_id: id,
+        position: uniqueQuestionIds.indexOf(id) + 1,
+      }))
+      const { error: insertError } = await supabase.from("form_questions").insert(newQuestions)
+      if (insertError) {
+        return { error: "Échec de l'ajout des nouvelles questions" }
+      }
+    }
+
+    // 7️⃣ Mettre à jour la position des questions existantes si nécessaire
+    for (const q of existingQuestions) {
+      const newPosition = uniqueQuestionIds.indexOf(q.question_id) + 1
+      if (q.position !== newPosition) {
+        await supabase
+          .from("form_questions")
+          .update({ position: newPosition })
+          .eq("form_id", data.formId)
+          .eq("question_id", q.question_id)
+      }
+    }
+
+    // 8️⃣ Revalidation
     revalidatePath("/admin/campaigns")
     revalidatePath(`/admin/campaigns/${data.formId}`)
+
     return { success: true }
   } catch (error) {
+    console.error("[updateCampaign] Error:", error)
     return { error: "Une erreur inattendue s'est produite" }
   }
 }
+
 
 export async function toggleCampaignStatus(formId: string, isActive: boolean) {
   try {
