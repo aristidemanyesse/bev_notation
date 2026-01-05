@@ -1,6 +1,6 @@
 "use client"
 
-import { useRouter, useSearchParams } from "next/navigation"
+import { useRouter } from "next/navigation"
 import {
   Select,
   SelectContent,
@@ -23,15 +23,12 @@ export function CampaignSelect({
   selectedCampaignId: string
 }) {
   const router = useRouter()
-  const searchParams = useSearchParams()
 
   return (
     <Select
       value={selectedCampaignId}
       onValueChange={(value) => {
-        const params = new URLSearchParams(searchParams.toString())
-        params.set("campaignId", value)
-        router.push(`/dashboard?${params.toString()}`)
+        router.push(`/dashboard?campaignId=${value}`)
       }}
     >
       <SelectTrigger className="w-[320px]">
