@@ -27,8 +27,8 @@ export function LoginForm() {
   return (
     <Card className="w-full w-120 bg-background/95 backdrop-blur-md shadow-2xl border-orange-200">
       <CardHeader className="space-y-2 pb-6">
-        <CardTitle className="text-3xl font-bold text-orange-600">Connexion</CardTitle>
-        <CardDescription className="text-base">
+        <CardTitle className="text-3xl font-bold text-orange-600 text-center">Espace de connexion</CardTitle>
+        <CardDescription className="text-base text-center">
           Entrez vos identifiants pour accéder à la plateforme d'évaluation
         </CardDescription>
       </CardHeader>
@@ -56,6 +56,7 @@ export function LoginForm() {
               id="password"
               name="password"
               type="password"
+              placeholder="Mot de passe"
               required
               disabled={loading}
               className="h-11 text-base"

@@ -26,7 +26,7 @@ export default async function NewAgentPage() {
   const { data: roles } = await supabase.from("roles").select("*").order("label")
 
   return (
-    <DashboardShell role="ADMIN">
+    <DashboardShell role="ADMIN" user={user}>
       <div className="max-w-2xl mx-auto space-y-6 px-4 sm:px-0">
         <div>
           <h2 className="text-2xl sm:text-3xl font-semibold tracking-tight">Créer un nouvel agent</h2>

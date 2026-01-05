@@ -43,7 +43,7 @@ export default async function EditCampaignPage({ params }: { params: Promise<{ i
   const { data: questions } = await supabase.from("questions").select("*").eq("is_active", true).order("label")
 
   return (
-    <DashboardShell role="ADMIN">
+    <DashboardShell role="ADMIN" user={user}>
       <div className="max-w-4xl mx-auto space-y-6 px-4 sm:px-0">
         <div>
           <h2 className="text-2xl sm:text-3xl font-semibold tracking-tight">Modifier la campagne</h2>

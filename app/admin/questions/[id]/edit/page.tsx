@@ -28,7 +28,7 @@ export default async function EditQuestionPage({ params }: { params: Promise<{ i
   }
 
   return (
-    <DashboardShell role="ADMIN">
+    <DashboardShell role="ADMIN" user={user}>
       <div className="max-w-3xl mx-auto space-y-6">
         <div>
           <h2 className="text-3xl font-semibold tracking-tight">Modifier une question</h2>

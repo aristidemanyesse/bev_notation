@@ -54,7 +54,7 @@ export default async function CampaignDetailsPage({ params }: { params: PagePara
   const completionRate = campaign.completion_rate || 0
 
   return (
-    <DashboardShell role="ADMIN">
+    <DashboardShell role="ADMIN" user={user}>
       <Suspense fallback={<CampaignLoader />}>
         <div className="space-y-6 px-4 sm:px-0">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">

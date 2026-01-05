@@ -35,7 +35,7 @@ export default async function AdminPage() {
   const overallCompletion = totalExpected > 0 ? Math.round((totalCompleted / totalExpected) * 100) : 0
 
   return (
-    <DashboardShell role="ADMIN">
+    <DashboardShell role="ADMIN" user={user}>
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>

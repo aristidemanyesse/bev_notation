@@ -2,17 +2,9 @@ import { DashboardShell } from "@/components/layout/dashboard-shell"
 import { getCurrentUser } from "@/lib/actions/auth"
 import { redirect } from "next/navigation"
 import { getSupabaseServerClient } from "@/lib/supabase/server"
-import type { AgentCategoryScore, Form } from "@/lib/types/database"
-import { CategoryScoresChart } from "@/components/dashboard/category-scores-chart"
-import { EvaluationsList } from "@/components/dashboard/evaluations-list"
-import { CampaignHistory } from "@/components/dashboard/campaign-history"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
 import { Users, FileText, CheckCircle2, TrendingUp, Plus, Link } from "lucide-react"
-import { EvaluationsGivenTable } from "@/components/dashboard/evaluations-given-table"
-import { EvaluationsReceivedTable } from "@/components/dashboard/evaluations-received-table"
-import { Button } from "@/components/ui/button"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@radix-ui/react-select"
 import { CampaignSelect } from "@/components/dashboard/campaign-select"
 
 export default async function DashboardPage({searchParams}: {searchParams: Promise<{ campaignId?: string }>}) {
@@ -45,13 +37,6 @@ const { data: summary } = await supabase
   .eq("agent_id", user.id)
   .eq("form_id", selectedCampaignId)
   .maybeSingle()
-
-
-  const { data: categoryScores } = await supabase
-  .from("agent_category_scores")
-  .select("*")
-  .eq("agent_id", user.id)
-  .eq("form_id", selectedCampaignId)
 
 
   const { data: pendingEvaluations } = await supabase
@@ -104,7 +89,7 @@ const { data: summary } = await supabase
       : 100
 
   return (
-    <DashboardShell role={user.role?.code as "ADMIN" | "AGENT"}>
+    <DashboardShell role={user.role?.code as "ADMIN" | "AGENT"} user={user}>
       <div className="space-y-6 px-4 sm:px-0">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
@@ -118,74 +103,80 @@ const { data: summary } = await supabase
           <CampaignSelect
             campaigns = {activeCampaigns}
             selectedCampaignId={selectedCampaignId}
+            path = "/dashboard?campaignId="
           />
         </div>
+        <p className="h-5"> </p>
         
 
         {selectedCampaign && summary && (
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Note globale</CardTitle>
-                <TrendingUp className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">
-                  {summary.global_score ? summary.global_score.toFixed(2) : "N/A"}
-                </div>
-                <p className="text-xs text-muted-foreground">Basé sur {summary.total_reviews || 0} notations</p>
-              </CardContent>
-            </Card>
+          <div className="grid gap-10 sm:grid-cols-3 grid-flow-row auto-rows-max">
+            <div className="col-span-1">
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-lg font-medium">Note globale</CardTitle>
+                  <TrendingUp className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent className="text-center h-55">
+                  <div className="h-6"> </div>
+                  <div className="text-8xl font-bold">
+                    {summary.global_score ? summary.global_score.toFixed() : "N/A"}
+                  </div>
+                  <p className="text-xs text-muted-foreground">Note du {selectedCampaign?.title}</p>
+                </CardContent>
+              </Card>
+            </div>
+            <div className="grid gap-4 col-span-2 sm:grid-cols-2">
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">Moyenne</CardTitle>
+                  <TrendingUp className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">
+                    {summary.global_score ? summary.global_score.toFixed(2) : "N/A"}
+                  </div>
+                  <p className="text-xs text-muted-foreground">Totaux des notes affectés des coefficients / 18 </p>
+                </CardContent>
+              </Card>
 
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Notations reçues</CardTitle>
-                <Users className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{totalEvaluationsReceived}</div>
-                <p className="text-xs text-muted-foreground">Ceux qui vous ont notés</p>
-              </CardContent>
-            </Card>
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">Notations reçues</CardTitle>
+                  <Users className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">{totalEvaluationsReceived}</div>
+                  <p className="text-xs text-muted-foreground">Ceux qui vous ont notés</p>
+                </CardContent>
+              </Card>
 
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Notations complétées</CardTitle>
-                <CheckCircle2 className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{totalEvaluationsDone}</div>
-                <p className="text-xs text-muted-foreground">{completionRate}% de taux de complétion</p>
-                <Progress value={completionRate} className="mt-2 h-1" />
-              </CardContent>
-            </Card>
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">Notations complétées</CardTitle>
+                  <CheckCircle2 className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">{totalEvaluationsDone}</div>
+                  <p className="text-xs text-muted-foreground">{completionRate}% de taux de complétion</p>
+                  <Progress value={completionRate} className="mt-2 h-1" />
+                </CardContent>
+              </Card>
 
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Notations en attente</CardTitle>
-                <FileText className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{expectedEvaluations}</div>
-                <p className="text-xs text-muted-foreground">Notations à terminer</p>
-              </CardContent>
-            </Card>
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">Notations en attente</CardTitle>
+                  <FileText className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">{expectedEvaluations}</div>
+                  <p className="text-xs text-muted-foreground">Notations à terminer</p>
+                </CardContent>
+              </Card>
+            </div>
           </div>
         )}
 
-        {/* {categoryScores && categoryScores.length > 0 && (
-          <CategoryScoresChart scores={categoryScores as AgentCategoryScore[]} />
-        )} */}
-
-        {pendingEvaluations && pendingEvaluations.length > 0 && <EvaluationsList evaluations={pendingEvaluations} />}
-
-        <div className="grid gap-6 ">
-          {evaluationsGiven && evaluationsGiven.length > 0 && <EvaluationsGivenTable evaluations={evaluationsGiven} />}
-
-          {evaluationsReceived && evaluationsReceived.length > 0 && (
-            <EvaluationsReceivedTable evaluations={evaluationsReceived} agentId={user.id} formId={selectedCampaign?.id} />
-          )}
-        </div>
 
         {/* {pastCampaigns && pastCampaigns.length > 0 && <CampaignHistory campaigns={pastCampaigns as Form[]} />} */}
       </div>

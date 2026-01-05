@@ -24,7 +24,7 @@ export default async function AgentsPage() {
     .order("last_name", { ascending: true })
 
   return (
-    <DashboardShell role="ADMIN">
+    <DashboardShell role="ADMIN" user={user}>
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>

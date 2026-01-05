@@ -146,7 +146,7 @@ export function EvaluationForm({ evaluationId, formId, questions, existingAnswer
           Annuler
         </Button>
         <Button onClick={handleSubmit} disabled={loading}>
-          {loading ? "Envoi en cours..." : "Soumettre l'évaluation"}
+          {loading ? "Envoi en cours..." : "Envoyer les notes"}
         </Button>
       </div>
     </div>

@@ -9,25 +9,25 @@ const _geist = Geist({ subsets: ["latin"] })
 const _geistMono = Geist_Mono({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "Plateforme d'Évaluation",
-  description: "Plateforme interne d'évaluation par les pairs",
-  generator: "v0.app",
+  title: "Plateforme de notation - BEV",
+  description: "Plateforme de notation des agents",
+  generator: "RSTD",
   icons: {
     icon: [
       {
-        url: "/icon-light-32x32.png",
+        url: "/logo.png",
         media: "(prefers-color-scheme: light)",
       },
       {
-        url: "/icon-dark-32x32.png",
+        url: "/logo.png",
         media: "(prefers-color-scheme: dark)",
       },
       {
-        url: "/icon.svg",
+        url: "/logo.png",
         type: "image/svg+xml",
       },
     ],
-    apple: "/apple-icon.png",
+    apple: "/logo.png",
   },
 }
 

@@ -48,7 +48,7 @@ return (
           </div>
         </div>
         <Button asChild size="sm">
-          <Link href={`/dashboard/evaluations/${evaluation.id}`}> Soumettre la notation <ChevronRight className="ml-2 h-4 w-4" />
+          <Link href={`/dashboard/evaluations/${evaluation.id}`}> Noter l'agent <ChevronRight className="ml-2 h-4 w-4" />
           </Link>
         </Button>
       </div>

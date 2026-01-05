@@ -57,7 +57,7 @@ export default async function EvaluationViewPage({ params }: PageProps) {
 
   const user = await getCurrentUser()
   return (
-    <DashboardShell role={user.role?.code as "ADMIN" | "AGENT"}>
+    <DashboardShell role={user.role?.code as "ADMIN" | "AGENT"} user={user}>
   <div className="max-w-3xl mx-auto space-y-6">
     <div>
           <h2 className="text-3xl font-semibold tracking-tight">Notation de {evaluation.evaluator.first_name} {evaluation.evaluator.last_name} <small className="text-muted-foreground">({evaluation.evaluator.matricule})</small></h2>

@@ -11,7 +11,7 @@ export default async function SettingsPage() {
   }
 
   return (
-    <DashboardShell role="ADMIN">
+    <DashboardShell role="ADMIN" user={user}>
       <div className="space-y-6">
         <div>
           <h2 className="text-3xl font-semibold tracking-tight">Paramètres</h2>

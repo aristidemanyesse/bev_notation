@@ -11,9 +11,11 @@ export function DashboardHeader({ role }: DashboardHeaderProps) {
     <header className="border-b border-border bg-card">
       <div className="flex h-16 items-center justify-between px-6">
         <div className="flex items-center gap-3">
-          <div className="h-8 w-8 rounded-lg bg-primary" />
+          <div className="flex justify-center">
+            <img src="/logo.png" alt="Logo" className="h-10 w-auto" />
+          </div>
           <div>
-            <h1 className="text-lg font-semibold">Plateforme d'Évaluation</h1>
+            <h1 className="text-lg font-semibold">Plateforme de notation - BEV</h1>
             <p className="text-xs text-muted-foreground">
               {role === "ADMIN" ? "Tableau de bord administrateur" : "Tableau de bord agent"}
             </p>

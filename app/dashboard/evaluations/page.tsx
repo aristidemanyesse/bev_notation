@@ -17,7 +17,7 @@ export default async function EvaluationsPage() {
   const { data: activeForm } = await supabase.from("forms").select("*").eq("is_active", true).single()
 
   return (
-    <DashboardShell role={user.role?.code as "ADMIN" | "AGENT"}>
+    <DashboardShell role={user.role?.code as "ADMIN" | "AGENT"} user={user}>
       <div className="space-y-6">
         <div>
           <h2 className="text-3xl font-semibold tracking-tight">My Evaluations</h2>

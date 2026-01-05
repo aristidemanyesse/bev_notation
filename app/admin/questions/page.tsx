@@ -24,7 +24,7 @@ export default async function QuestionsPage() {
     .order("created_at", { ascending: false })
 
   return (
-    <DashboardShell role="ADMIN">
+    <DashboardShell role="ADMIN" user={user}>
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>

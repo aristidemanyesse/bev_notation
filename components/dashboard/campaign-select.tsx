@@ -18,9 +18,11 @@ type Campaign = {
 export function CampaignSelect({
   campaigns,
   selectedCampaignId,
+  path = "/dashboard?campaignId=",
 }: {
   campaigns: Campaign[] | null
   selectedCampaignId: string
+  path: string
 }) {
   const router = useRouter()
 
@@ -28,7 +30,8 @@ export function CampaignSelect({
     <Select
       value={selectedCampaignId}
       onValueChange={(value) => {
-        router.push(`/dashboard?campaignId=${value}`)
+        router.push(path)
+        router.push(`${path}${value}`)
       }}
     >
       <SelectTrigger className="w-[320px]">

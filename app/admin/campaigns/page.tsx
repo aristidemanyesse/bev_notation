@@ -83,7 +83,7 @@ export default async function CampaignsPage() {
   }
 
   return (
-    <DashboardShell role="ADMIN">
+    <DashboardShell role="ADMIN" user={user}>
       <div className="space-y-6 px-4 sm:px-0">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
