@@ -17,22 +17,22 @@ export function DashboardStats({ summary, expectedEvaluations }: DashboardStatsP
       label: "Score global",
       value: summary.global_score ? summary.global_score.toFixed(2) : "N/A",
       icon: Star,
-      description: `Basé sur ${summary.total_reviews || 0} évaluations`,
+      description: `Basé sur ${summary.total_reviews || 0} notations`,
     },
     {
-      label: "Évaluations reçues",
+      label: "Collègues qui m'ont notés",
       value: summary.evaluations_received,
       icon: Users,
-      description: "Évaluations par les pairs",
+      description: "Notations par les pairs",
     },
     {
-      label: "Évaluations complétées",
+      label: "Nombre de collègues notés",
       value: summary.evaluations_done,
       icon: CheckCircle2,
       description: `${completionRate}% de taux de complétion`,
     },
     {
-      label: "Évaluations en attente",
+      label: "Nbre de collègues restants",
       value: expectedEvaluations,
       icon: Clock,
       description: "À compléter",
@@ -52,7 +52,7 @@ export function DashboardStats({ summary, expectedEvaluations }: DashboardStatsP
             <CardContent>
               <div className="text-2xl font-bold">{stat.value}</div>
               <p className="text-xs text-muted-foreground">{stat.description}</p>
-              {stat.label === "Évaluations complétées" && <Progress value={completionRate} className="mt-2 h-1" />}
+              {stat.label === "Nombre de collègues notés" && <Progress value={completionRate} className="mt-2 h-1" />}
             </CardContent>
           </Card>
         )

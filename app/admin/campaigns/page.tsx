@@ -52,7 +52,7 @@ async function CampaignsList() {
                     </div>
                     <p className="text-sm text-muted-foreground">
                       {campaign.period} • {campaign.total_agents} agents • {campaign.total_submitted_evaluations} /{" "}
-                      {campaign.total_expected_evaluations} évaluations complétées
+                      {campaign.total_expected_evaluations} agents notés
                     </p>
                   </div>
                   <Button asChild variant="outline" size="sm" className="w-full sm:w-auto bg-transparent">

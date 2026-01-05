@@ -76,7 +76,7 @@ export async function createCampaign(data: CreateCampaignData) {
     const { error: evaluationsError } = await supabase.from("evaluations").insert(evaluations)
 
     if (evaluationsError) {
-      return { error: "Erreur lors de la création des évaluations" }
+      return { error: "Erreur lors de la création des notations" }
     }
 
     revalidatePath("/admin/campaigns")

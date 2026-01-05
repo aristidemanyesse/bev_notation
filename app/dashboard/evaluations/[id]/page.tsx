@@ -65,23 +65,6 @@ export default async function EvaluationPage({ params }: { params: Promise<{ id:
           <p className="text-muted-foreground">Complétez votre évaluation pour votre collègue</p>
         </div>
 
-        {/* <Card>
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <div>
-                <CardTitle>
-                  {evaluation.evaluated.first_name} {evaluation.evaluated.last_name}
-                </CardTitle>
-                <CardDescription>Matricule: {evaluation.evaluated.matricule}</CardDescription>
-              </div>
-              <Badge>{evaluation.form.period}</Badge>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-muted-foreground">{evaluation.form.title}</p>
-          </CardContent>
-        </Card> */}
-
         <EvaluationForm
           evaluationId={id}
           formId={evaluation.form_id}

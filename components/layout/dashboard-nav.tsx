@@ -39,7 +39,7 @@ export function DashboardNav({ role, user }: DashboardNavProps) {
     },
     {
       href: "/dashboard/notations",
-      label: "Voir mes notations",
+      label: "Consulter mes notes",
       icon: Eye,
     },
   ]

@@ -57,7 +57,7 @@ export function AgentPerformanceTable({ agents }: AgentPerformanceTableProps) {
     <Card>
       <CardHeader>
         <CardTitle>Performance des agents</CardTitle>
-        <CardDescription>Scores individuels et taux de complétion des évaluations</CardDescription>
+        <CardDescription>Scores individuels et taux de complétion des notations</CardDescription>
       </CardHeader>
       <CardContent>
         <Table>

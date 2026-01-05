@@ -29,20 +29,20 @@ export function LoginForm() {
       <CardHeader className="space-y-2 pb-6">
         <CardTitle className="text-3xl font-bold text-orange-600 text-center">Espace de connexion</CardTitle>
         <CardDescription className="text-base text-center">
-          Entrez vos identifiants pour accéder à la plateforme d'évaluation
+          Entrez vos identifiants pour accéder à la plateforme de notation
         </CardDescription>
       </CardHeader>
       <CardContent className="pb-8">
         <form action={handleSubmit} className="space-y-6">
           <div className="space-y-2">
             <Label htmlFor="email" className="text-base">
-              Adresse e-mail
+              Login
             </Label>
             <Input
               id="email"
               name="email"
               type="email"
-              placeholder="agent@entreprise.com"
+              placeholder="login"
               required
               disabled={loading}
               className="h-11 text-base"
