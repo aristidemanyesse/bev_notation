@@ -28,8 +28,8 @@ export function CampaignsList({ campaigns }: CampaignsListProps) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Recentes évaluation</CardTitle>
-        <CardDescription>Liste des dernières campagnes d'évaluation</CardDescription>
+        <CardTitle>Recentes notations</CardTitle>
+        <CardDescription>Liste des dernières notations</CardDescription>
       </CardHeader>
       <CardContent>
         <div className="space-y-3">

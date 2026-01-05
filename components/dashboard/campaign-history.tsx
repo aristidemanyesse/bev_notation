@@ -10,8 +10,8 @@ export function CampaignHistory({ campaigns }: CampaignHistoryProps) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Historique des campagnes</CardTitle>
-        <CardDescription>Vos campagnes d'évaluation passées</CardDescription>
+        <CardTitle>Historique des trimestres</CardTitle>
+        <CardDescription>Vos notations trimestrielles passées</CardDescription>
       </CardHeader>
       <CardContent>
         <div className="space-y-3">

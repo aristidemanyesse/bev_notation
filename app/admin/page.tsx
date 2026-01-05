@@ -40,7 +40,7 @@ export default async function AdminPage() {
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-3xl font-semibold tracking-tight">Tableau de bord administrateur</h2>
-            <p className="text-muted-foreground">Gérer les campagnes et surveiller la progression des évaluations</p>
+            <p className="text-muted-foreground">Gérer les notations et surveiller la progression des notes</p>
           </div>
         </div>
 

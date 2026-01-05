@@ -23,16 +23,16 @@ export function AdminStatsCards({
       description: "Agents actifs dans le système",
     },
     {
-      label: "Total de campagnes",
+      label: "Total de Trimestres",
       value: totalCampaigns,
       icon: FileText,
-      description: "Campagnes d'évaluation",
+      description: "Notations actives dans le système",
     },
     {
       label: "Notations complétées",
       value: totalCompleted,
       icon: CheckCircle2,
-      description: "Toutes campagnes confondues",
+      description: "Tous trimestres confondus",
     },
     {
       label: "Complétion globale",
