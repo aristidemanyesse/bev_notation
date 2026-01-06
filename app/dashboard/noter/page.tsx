@@ -112,7 +112,7 @@ const { data: summary } = await supabase
             <p className="text-sm sm:text-base text-muted-foreground">
               {selectedCampaign
                 ? selectedCampaign.title + " - " + selectedCampaign.period
-                : "Aucune campagne active"}
+                : "Aucune notation active"}
             </p>
           </div>
           <CampaignSelect

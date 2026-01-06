@@ -68,7 +68,7 @@ export default async function CampaignDetailsPage({ params }: { params: PagePara
                 <Badge variant={form.is_active ? "default" : "outline"}>{form.is_active ? "Active" : "Inactive"}</Badge>
               </div>
               <p className="text-muted-foreground text-sm sm:text-base">
-                Analyses détaillées de la campagne et performances des agents
+                Analyses détaillées du trimestre et performances des agents
               </p>
             </div>
 
@@ -91,7 +91,7 @@ export default async function CampaignDetailsPage({ params }: { params: PagePara
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">{campaign.total_agents}</div>
-                <p className="text-xs text-muted-foreground">Participant à cette campagne</p>
+                <p className="text-xs text-muted-foreground">Participant à cette notation</p>
               </CardContent>
             </Card>
 

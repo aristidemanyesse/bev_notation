@@ -26,7 +26,7 @@ export function CampaignStatusToggle({ formId, isActive }: CampaignStatusToggleP
     <div className="flex items-center space-x-2">
       <Switch id="campaign-status" checked={isActive} onCheckedChange={handleToggle} disabled={loading} />
       <Label htmlFor="campaign-status" className="font-normal cursor-pointer">
-        {isActive ? "La campagne est active" : "La campagne est inactive"}
+        {isActive ? "La notation est active" : "La notation est inactive"}
       </Label>
     </div>
   )

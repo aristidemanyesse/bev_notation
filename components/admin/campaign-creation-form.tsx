@@ -75,7 +75,7 @@ export function CampaignCreationForm({ questions, agents, createdBy }: CampaignC
     <form onSubmit={handleSubmit} className="space-y-6">
       <div className="space-y-4">
         <div className="space-y-2">
-          <Label htmlFor="title">Titre de la campagne</Label>
+          <Label htmlFor="title">Titre de la notation</Label>
           <Input
             id="title"
             placeholder="Évaluation Q1 2025"
@@ -106,7 +106,7 @@ export function CampaignCreationForm({ questions, agents, createdBy }: CampaignC
             disabled={loading}
           />
           <Label htmlFor="isActive" className="font-normal cursor-pointer">
-            Activer la campagne immédiatement
+            Activer la notation immédiatement
           </Label>
         </div>
       </div>
@@ -114,7 +114,7 @@ export function CampaignCreationForm({ questions, agents, createdBy }: CampaignC
       <Card>
         <CardHeader>
           <CardTitle className="text-base">Sélectionner les questions</CardTitle>
-          <CardDescription>Choisissez les questions à inclure dans cette campagne</CardDescription>
+          <CardDescription>Choisissez les questions à inclure dans cette notation</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-3 max-h-96 overflow-y-auto">
@@ -152,7 +152,7 @@ export function CampaignCreationForm({ questions, agents, createdBy }: CampaignC
 
       {success && (
         <Alert>
-          <AlertDescription>Campagne créée avec succès ! Redirection...</AlertDescription>
+          <AlertDescription>Notation créée avec succès ! Redirection...</AlertDescription>
         </Alert>
       )}
 
@@ -173,7 +173,7 @@ export function CampaignCreationForm({ questions, agents, createdBy }: CampaignC
               Création...
             </>
           ) : (
-            "Créer la campagne"
+            "Créer la notation"
           )}
         </Button>
       </div>

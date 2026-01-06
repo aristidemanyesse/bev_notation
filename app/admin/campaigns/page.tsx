@@ -66,7 +66,7 @@ async function CampaignsList() {
             })
           ) : (
             <p className="text-center text-muted-foreground py-8">
-              Aucune campagne trouvée. Créez votre première campagne.
+              Aucune notation trouvée. Créez votre premièr trimestre de notation.
             </p>
           )}
         </div>

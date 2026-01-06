@@ -43,12 +43,12 @@ return (
         </div>
         <div className="flex h-10 w-70 items-center justify-center text-sm font-semibold">
           <div className="text-sm text-muted-foreground">
-            <p>Campagne : {evaluation.form_title}</p>
+            <p>Trimestre : {evaluation.form_title}</p>
             <p>Période : {evaluation.form_period}</p>
           </div>
         </div>
         <Button asChild size="sm">
-          <Link href={`/dashboard/evaluations/${evaluation.id}`}> Noter un collègue <ChevronRight className="ml-2 h-4 w-4" />
+          <Link href={`/dashboard/evaluations/${evaluation.id}`}> Noter le collègue <ChevronRight className="ml-2 h-4 w-4" />
           </Link>
         </Button>
       </div>

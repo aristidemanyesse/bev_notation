@@ -39,11 +39,11 @@ export async function createCampaign(data: CreateCampaignData) {
       .single()
 
     if (formError) {
-      console.error("[v0] Erreur lors de la création de la campagne", formError)
+      console.error("[v0] Erreur lors de la création de la notation", formError)
       return { error: formError.message }
     }
     if (!form) {
-      return { error: "Erreur lors de la création de la campagne" }
+      return { error: "Erreur lors de la création de la notation" }
     }
 
     // Add questions to form
@@ -82,7 +82,7 @@ export async function createCampaign(data: CreateCampaignData) {
     revalidatePath("/admin/campaigns")
     return { success: true, formId: form.id }
   } catch (error) {
-    console.log("[v0] Erreur lors de la création d'une campagne", error)
+    console.log("[v0] Erreur lors de la création d'une notation", error)
     return { error: "Une erreur inattendue s'est produite" }
   }
 }
@@ -104,7 +104,7 @@ export async function updateCampaign(data: UpdateCampaignData) {
       .eq("id", data.formId)
 
     if (formError) {
-      return { error: "Échec de la mise à jour de la campagne" }
+      return { error: "Échec de la mise à jour de la notation" }
     }
 
     // 2️⃣ Nettoyer les doublons dans questionIds
@@ -182,7 +182,7 @@ export async function toggleCampaignStatus(formId: string, isActive: boolean) {
     const { error } = await supabase.from("forms").update({ is_active: isActive }).eq("id", formId)
 
     if (error) {
-      return { error: "Échec de la mise à jour du statut de la campagne" }
+      return { error: "Échec de la mise à jour du statut de la notation" }
     }
 
     revalidatePath("/admin/campaigns")

@@ -74,7 +74,7 @@ export function EvaluationForm({ evaluationId, formId, questions, existingAnswer
       setError(result.error)
       setLoading(false)
     } else {
-      router.push(`/dashboard?campaignId=${formId}`)
+      router.push(`/dashboard/noter?campaignId=${formId}`)
       router.refresh()
     }
   }
@@ -145,7 +145,7 @@ export function EvaluationForm({ evaluationId, formId, questions, existingAnswer
         <Button variant="outline" onClick={() => router.back()} disabled={loading}>
           Annuler
         </Button>
-        <Button onClick={handleSubmit} disabled={loading}>
+        <Button variant="secondary" onClick={handleSubmit} disabled={loading}>
           {loading ? "Envoi en cours..." : "Envoyer les notes"}
         </Button>
       </div>
