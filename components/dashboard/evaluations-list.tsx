@@ -47,7 +47,7 @@ return (
             <p>Période : {evaluation.form_period}</p>
           </div>
         </div>
-        <Button asChild size="sm">
+        <Button variant="secondary" asChild size="sm">
           <Link href={`/dashboard/evaluations/${evaluation.id}`}> Noter l'agent <ChevronRight className="ml-2 h-4 w-4" />
           </Link>
         </Button>

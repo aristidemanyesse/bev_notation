@@ -42,13 +42,13 @@ export async function EvaluationsGivenTable({ evaluations }: EvaluationsGivenTab
       <CardContent>
         <div className="overflow-x-auto">
           <Table>
-            <TableHeader>
+            <TableHeader className="bg-primary">
               <TableRow>
-                <TableHead>Agent</TableHead>
-                <TableHead className="text-center">Complétion</TableHead>
-                <TableHead className="text-center">Note globale</TableHead>
-                <TableHead className="text-center">Date</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
+                <TableHead className="text-white">Agent</TableHead>
+                <TableHead className="text-center text-white">Complétion</TableHead>
+                <TableHead className="text-center text-white">Note globale</TableHead>
+                <TableHead className="text-center text-white">Date</TableHead>
+                <TableHead className="text-right text-white">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>

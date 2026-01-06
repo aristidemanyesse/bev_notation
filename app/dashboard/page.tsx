@@ -93,7 +93,7 @@ const { data: summary } = await supabase
       <div className="space-y-6 px-4 sm:px-0">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h2 className="text-2xl sm:text-3xl font-semibold tracking-tight">Tableau de bord du {selectedCampaign?.title}</h2>
+            <h2 className="text-2xl sm:text-3xl font-semibold tracking-tight ">Tableau de bord du {selectedCampaign?.title}</h2>
             <p className="text-sm sm:text-base text-muted-foreground">
               {selectedCampaign
                 ? selectedCampaign.period
@@ -129,7 +129,7 @@ const { data: summary } = await supabase
             <div className="grid gap-4 col-span-2 sm:grid-cols-2">
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Moyenne</CardTitle>
+                  <CardTitle className="text-sm font-medium text-secondary">Moyenne</CardTitle>
                   <TrendingUp className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
@@ -142,7 +142,7 @@ const { data: summary } = await supabase
 
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Notations reçues</CardTitle>
+                  <CardTitle className="text-sm font-medium text-secondary">Notations reçues</CardTitle>
                   <Users className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
@@ -153,7 +153,7 @@ const { data: summary } = await supabase
 
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Notations complétées</CardTitle>
+                  <CardTitle className="text-sm font-medium text-secondary">Notations complétées</CardTitle>
                   <CheckCircle2 className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
@@ -165,7 +165,7 @@ const { data: summary } = await supabase
 
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Notations en attente</CardTitle>
+                  <CardTitle className="text-sm font-medium text-secondary">Notations en attente</CardTitle>
                   <FileText className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
