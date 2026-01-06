@@ -14,7 +14,7 @@ export function DashboardStats({ summary, expectedEvaluations }: DashboardStatsP
 
   const stats = [
     {
-      label: "Score global",
+      label: "Note globale",
       value: summary.global_score ? summary.global_score.toFixed(2) : "N/A",
       icon: Star,
       description: `Basé sur ${summary.total_reviews || 0} notations`,

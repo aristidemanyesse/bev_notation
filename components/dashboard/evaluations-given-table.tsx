@@ -46,6 +46,7 @@ export async function EvaluationsGivenTable({ evaluations }: EvaluationsGivenTab
               <TableRow>
                 <TableHead>Agent</TableHead>
                 <TableHead className="text-center">Complétion</TableHead>
+                <TableHead className="text-center">Moyenne</TableHead>
                 <TableHead className="text-center">Note globale</TableHead>
                 <TableHead className="text-center">Date</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
@@ -69,6 +70,9 @@ export async function EvaluationsGivenTable({ evaluations }: EvaluationsGivenTab
                   </TableCell>
                   <TableCell className="text-center">
                     <span className="font-semibold">{evaluation.avgScore}</span>
+                  </TableCell>
+                  <TableCell className="text-center">
+                    <span className="font-semibold">{evaluation.avgScore.toFixed}</span>
                   </TableCell>
                   <TableCell className="text-center text-sm text-muted-foreground">
                     {new Date(evaluation.submitted_at).toLocaleDateString("fr-FR")}

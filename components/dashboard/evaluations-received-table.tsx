@@ -48,6 +48,7 @@ export async function EvaluationsReceivedTable({ evaluations, agentId, formId }:
               <TableRow>
                 <TableHead>Évaluateur</TableHead>
                 <TableHead className="text-center">Complétion</TableHead>
+                <TableHead className="text-center">Moyenne</TableHead>
                 <TableHead className="text-center">Note globale</TableHead>
                 <TableHead className="text-center">Date</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
@@ -68,6 +69,9 @@ export async function EvaluationsReceivedTable({ evaluations, agentId, formId }:
                     <Badge variant={evaluation.completionPct === 100 ? "default" : "secondary"}>
                       {evaluation.completionPct}%
                     </Badge>
+                  </TableCell>
+                  <TableCell className="text-center">
+                    <span className="font-semibold">{evaluation.avgScore}</span>
                   </TableCell>
                   <TableCell className="text-center">
                     <span className="font-semibold">{evaluation.avgScore}</span>
