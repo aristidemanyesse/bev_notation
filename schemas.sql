@@ -295,3 +295,25 @@ ADD CONSTRAINT answers_question_id_fkey
 FOREIGN KEY (question_id)
 REFERENCES questions(id)
 ON DELETE CASCADE;
+
+
+
+ALTER TABLE agents
+ADD COLUMN username text,
+ADD COLUMN username_lower text;
+
+
+UPDATE agents
+SET
+  username = matricule,
+  username_lower = lower(matricule)
+WHERE username IS NULL;
+
+
+ALTER TABLE agents
+ALTER COLUMN username SET NOT NULL,
+ALTER COLUMN username_lower SET NOT NULL;
+
+
+CREATE UNIQUE INDEX agents_username_lower_unique
+ON agents (username_lower);

@@ -6,11 +6,11 @@ import { redirect } from "next/navigation"
 export async function login(formData: FormData) {
   const email = formData.get("email") as string
   const password = formData.get("password") as string
+  const fakeEmail = `${email}@internal.local` as string
 
   const supabase = await getSupabaseServerClient()
-
   const { error } = await supabase.auth.signInWithPassword({
-    email,
+    email: fakeEmail,
     password,
   })
 
