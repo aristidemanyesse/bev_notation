@@ -34,7 +34,7 @@ export default async function CampaignDetailsPage({ params }: { params: PagePara
     redirect("/login")
   }
 
-  const supabase =  supabaseAdminClient
+  const supabase = await getSupabaseServerClient()
 
   const { data: campaign } = await supabase.from("admin_campaign_stats").select("*").eq("form_id", id).maybeSingle()
 
@@ -47,8 +47,11 @@ export default async function CampaignDetailsPage({ params }: { params: PagePara
     .order("global_score", { ascending: false })
 
 
+  console.log("campaign:", campaign)
+  console.log("form:", form)
+
   if (!campaign || !form) {
-    notFound()
+    throw new Error("Campaign or Form not found")
   }
 
   const completionRate = campaign.completion_rate || 0
@@ -65,7 +68,7 @@ export default async function CampaignDetailsPage({ params }: { params: PagePara
                 <Badge variant={form.is_active ? "default" : "outline"}>{form.is_active ? "Active" : "Inactive"}</Badge>
               </div>
               <p className="text-muted-foreground text-sm sm:text-base">
-                Analyses détaillées de la campagne et performances des agents
+                Analyses détaillées du trimestre et performances des agents
               </p>
             </div>
 
@@ -88,19 +91,19 @@ export default async function CampaignDetailsPage({ params }: { params: PagePara
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">{campaign.total_agents}</div>
-                <p className="text-xs text-muted-foreground">Participant à cette campagne</p>
+                <p className="text-xs text-muted-foreground">Participant à cette notation</p>
               </CardContent>
             </Card>
 
             <Card>
               <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-medium">Évaluations</CardTitle>
+                <CardTitle className="text-sm font-medium">Notations</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">
                   {campaign.total_submitted_evaluations} / {campaign.total_expected_evaluations}
                 </div>
-                <p className="text-xs text-muted-foreground">Évaluations complétées</p>
+                <p className="text-xs text-muted-foreground">Nombre de collègues notés</p>
               </CardContent>
             </Card>
 

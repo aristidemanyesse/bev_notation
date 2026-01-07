@@ -74,10 +74,10 @@ export function CampaignEditForm({ form, questions, selectedQuestionIds }: Campa
     <form onSubmit={handleSubmit} className="space-y-6">
       <div className="space-y-4">
         <div className="space-y-2">
-          <Label htmlFor="title">Titre de la campagne</Label>
+          <Label htmlFor="title">Titre de la notation</Label>
           <Input
             id="title"
-            placeholder="Évaluation Q1 2025"
+            placeholder="Notation Q1 2025"
             value={formData.title}
             onChange={(e) => setFormData((prev) => ({ ...prev, title: e.target.value }))}
             required
@@ -105,7 +105,7 @@ export function CampaignEditForm({ form, questions, selectedQuestionIds }: Campa
             disabled={loading}
           />
           <Label htmlFor="isActive" className="font-normal cursor-pointer">
-            Campagne active
+            Trimestre active
           </Label>
         </div>
       </div>
@@ -113,7 +113,7 @@ export function CampaignEditForm({ form, questions, selectedQuestionIds }: Campa
       <Card>
         <CardHeader>
           <CardTitle className="text-base">Sélectionner les questions</CardTitle>
-          <CardDescription>Choisissez les questions à inclure dans cette campagne</CardDescription>
+          <CardDescription>Choisissez les questions à inclure dans cette notation</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-3 max-h-96 overflow-y-auto">
@@ -151,7 +151,7 @@ export function CampaignEditForm({ form, questions, selectedQuestionIds }: Campa
 
       {success && (
         <Alert>
-          <AlertDescription>Campagne modifiée avec succès ! Redirection...</AlertDescription>
+          <AlertDescription>Notation modifiée avec succès ! Redirection...</AlertDescription>
         </Alert>
       )}
 

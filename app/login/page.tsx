@@ -20,7 +20,7 @@ export default function LoginPage() {
           <h1 className="text-sm font-bold text-white/90 mb-4 h-20">SOUS-DIRECTION DES ENQUETES,<br></br> DES RECOUPEMENTS ET DU RENSEIGNEMENT</h1>
           <h1 className="text-5xl font-bold text-primary mb-4">Brigade d'Enquêtes et de Visite</h1>
           <p className="text-xl font-bold text-white/90">
-            Plateforme de grilles de notation pour les agents
+            Plateforme de grilles de notation entre les agents
           </p>
         </div>
       </div>
@@ -35,7 +35,7 @@ export default function LoginPage() {
 
           {/* Formulaire */}
           <LoginForm />
-<p className="text-muted-foreground text-center"> copyright © 2023 Bev Notation </p>
+<p className="text-muted-foreground text-center"> copyright © 2026 Bev Notation </p>
         </div>
           
       </div>

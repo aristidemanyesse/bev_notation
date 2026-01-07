@@ -39,18 +39,19 @@ export async function EvaluationsReceivedTable({ evaluations, agentId, formId }:
     <Card>
       <CardHeader>
         <CardTitle>Les agents qui vous ont notés</CardTitle>
-        <CardDescription>Les notations que vous avez reçues lors de la dernière campagne</CardDescription>
+        <CardDescription>Les notations que vous avez reçues lors du dernier trimestre</CardDescription>
       </CardHeader>
       <CardContent>
         <div className="overflow-x-auto">
           <Table>
             <TableHeader>
-              <TableRow>
-                <TableHead>Évaluateur</TableHead>
-                <TableHead className="text-center">Complétion</TableHead>
-                <TableHead className="text-center">Note globale</TableHead>
-                <TableHead className="text-center">Date</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
+              <TableRow className="bg-primary">
+                <TableHead className="text-white">Évaluateur</TableHead>
+                <TableHead className="text-center text-white">Complétion</TableHead>
+                <TableHead className="text-center text-white">Moyenne</TableHead>
+                <TableHead className="text-center text-white">Note globale</TableHead>
+                <TableHead className="text-center text-white">Date</TableHead>
+                <TableHead className="text-right text-white">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -68,6 +69,9 @@ export async function EvaluationsReceivedTable({ evaluations, agentId, formId }:
                     <Badge variant={evaluation.completionPct === 100 ? "default" : "secondary"}>
                       {evaluation.completionPct}%
                     </Badge>
+                  </TableCell>
+                  <TableCell className="text-center">
+                    <span className="font-semibold">{evaluation.avgScore}</span>
                   </TableCell>
                   <TableCell className="text-center">
                     <span className="font-semibold">{evaluation.avgScore}</span>

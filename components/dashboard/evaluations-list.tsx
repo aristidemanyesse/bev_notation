@@ -16,7 +16,7 @@ return (
   <CardHeader>
     <div className="flex items-center justify-between">
       <div>
-        <CardTitle>Évaluations</CardTitle>
+        <CardTitle>Notations</CardTitle>
         <CardDescription>
           {pending.length} en attente, {completed.length} complétées
         </CardDescription>
@@ -43,12 +43,12 @@ return (
         </div>
         <div className="flex h-10 w-70 items-center justify-center text-sm font-semibold">
           <div className="text-sm text-muted-foreground">
-            <p>Campagne : {evaluation.form_title}</p>
+            <p>Trimestre : {evaluation.form_title}</p>
             <p>Période : {evaluation.form_period}</p>
           </div>
         </div>
-        <Button variant="secondary" asChild size="sm">
-          <Link href={`/dashboard/evaluations/${evaluation.id}`}> Noter l'agent <ChevronRight className="ml-2 h-4 w-4" />
+        <Button asChild size="sm">
+          <Link href={`/dashboard/evaluations/${evaluation.id}`}> Noter le collègue <ChevronRight className="ml-2 h-4 w-4" />
           </Link>
         </Button>
       </div>
@@ -56,7 +56,7 @@ return (
       ) : (
       <div className="text-center py-8 text-muted-foreground">
         <CheckCircle2 className="h-12 w-12 mx-auto mb-3 opacity-50" />
-        <p>Toutes les évaluations sont complétées !</p>
+        <p>Toutes les notations sont complétées !</p>
       </div>
       )}
     </div>

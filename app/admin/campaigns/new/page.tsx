@@ -32,14 +32,14 @@ export default async function NewCampaignPage() {
     <DashboardShell role="ADMIN" user={user}>
       <div className="max-w-4xl mx-auto space-y-6 px-4 sm:px-0">
         <div>
-          <h2 className="text-2xl sm:text-3xl font-semibold tracking-tight">Créer une nouvelle campagne</h2>
-          <p className="text-muted-foreground text-sm sm:text-base">Configurer une nouvelle campagne d'évaluation</p>
+          <h2 className="text-2xl sm:text-3xl font-semibold tracking-tight">Créer une nouveau trimestre</h2>
+          <p className="text-muted-foreground text-sm sm:text-base">Configurer une nouveau trimestre de notation</p>
         </div>
 
         <Card>
           <CardHeader>
-            <CardTitle>Détails de la campagne</CardTitle>
-            <CardDescription>Configurez les paramètres de votre campagne d'évaluation</CardDescription>
+            <CardTitle>Détails du trimestre</CardTitle>
+            <CardDescription>Configurez les paramètres de la notation du trimestre</CardDescription>
           </CardHeader>
           <CardContent>
             <Suspense fallback={<FormLoader />}>

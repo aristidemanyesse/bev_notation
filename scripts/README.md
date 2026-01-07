@@ -125,7 +125,7 @@ ORDER BY qc.label, q.weight DESC;
 **Problème : "Le matricule existe peut-être déjà"**
 - Solution : Chaque matricule doit être unique. Utilisez AGT001, AGT002, etc.
 
-**Problème : "Aucune campagne trouvée"**
+**Problème : "Aucune notation trouvée"**
 - Solution : Créez une campagne via l'interface admin
 
 **Problème : L'agent ne voit pas ses évaluations**

@@ -97,7 +97,7 @@ const { data: summary } = await supabase
             <p className="text-sm sm:text-base text-muted-foreground">
               {selectedCampaign
                 ? selectedCampaign.period
-                : "Aucune campagne active"}
+                : "Aucune notation active"}
             </p>
           </div>
           <CampaignSelect
@@ -119,7 +119,7 @@ const { data: summary } = await supabase
                 </CardHeader>
                 <CardContent className="text-center h-55">
                   <div className="h-6"> </div>
-                  <div className="text-8xl font-bold">
+                  <div className="text-9xl font-bold">
                     {summary.global_score ? summary.global_score.toFixed() : "N/A"}
                   </div>
                   <p className="text-xs text-muted-foreground">Note du {selectedCampaign?.title}</p>
@@ -142,7 +142,7 @@ const { data: summary } = await supabase
 
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium text-secondary">Notations reçues</CardTitle>
+                  <CardTitle className="text-sm font-medium">Collègues qui m'ont notés</CardTitle>
                   <Users className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
@@ -153,7 +153,7 @@ const { data: summary } = await supabase
 
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium text-secondary">Notations complétées</CardTitle>
+                  <CardTitle className="text-sm font-medium">Nombre de collègues notés</CardTitle>
                   <CheckCircle2 className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
@@ -165,7 +165,7 @@ const { data: summary } = await supabase
 
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium text-secondary">Notations en attente</CardTitle>
+                  <CardTitle className="text-sm font-medium">Nbre de collègues restants</CardTitle>
                   <FileText className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>

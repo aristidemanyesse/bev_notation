@@ -37,7 +37,7 @@ export async function EvaluationsGivenTable({ evaluations }: EvaluationsGivenTab
     <Card>
       <CardHeader>
         <CardTitle>Les agents que vous avez notés</CardTitle>
-        <CardDescription>Les agents que vous avez évalués lors de la dernière campagne</CardDescription>
+        <CardDescription>Les agents que vous avez évalués lors du dernier trimestre</CardDescription>
       </CardHeader>
       <CardContent>
         <div className="overflow-x-auto">
@@ -46,6 +46,7 @@ export async function EvaluationsGivenTable({ evaluations }: EvaluationsGivenTab
               <TableRow>
                 <TableHead className="text-white">Agent</TableHead>
                 <TableHead className="text-center text-white">Complétion</TableHead>
+                <TableHead className="text-center text-white">Moyenne</TableHead>
                 <TableHead className="text-center text-white">Note globale</TableHead>
                 <TableHead className="text-center text-white">Date</TableHead>
                 <TableHead className="text-right text-white">Actions</TableHead>
@@ -69,6 +70,9 @@ export async function EvaluationsGivenTable({ evaluations }: EvaluationsGivenTab
                   </TableCell>
                   <TableCell className="text-center">
                     <span className="font-semibold">{evaluation.avgScore}</span>
+                  </TableCell>
+                  <TableCell className="text-center">
+                    <span className="font-semibold">{evaluation.avgScore.toFixed}</span>
                   </TableCell>
                   <TableCell className="text-center text-sm text-muted-foreground">
                     {new Date(evaluation.submitted_at).toLocaleDateString("fr-FR")}

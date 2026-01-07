@@ -46,14 +46,14 @@ export default async function EditCampaignPage({ params }: { params: Promise<{ i
     <DashboardShell role="ADMIN" user={user}>
       <div className="max-w-4xl mx-auto space-y-6 px-4 sm:px-0">
         <div>
-          <h2 className="text-2xl sm:text-3xl font-semibold tracking-tight">Modifier la campagne</h2>
-          <p className="text-muted-foreground text-sm sm:text-base">Mettre à jour les paramètres de la campagne</p>
+          <h2 className="text-2xl sm:text-3xl font-semibold tracking-tight">Modifier la notation</h2>
+          <p className="text-muted-foreground text-sm sm:text-base">Mettre à jour les paramètres de la notation du trimestre</p>
         </div>
 
         <Card>
           <CardHeader>
-            <CardTitle>Détails de la campagne</CardTitle>
-            <CardDescription>Modifiez les informations de votre campagne d'évaluation</CardDescription>
+            <CardTitle>Détails du trimestre</CardTitle>
+            <CardDescription>Modifiez les informations de la notation du trimestre</CardDescription>
           </CardHeader>
           <CardContent>
             <Suspense fallback={<FormLoader />}>

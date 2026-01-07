@@ -35,7 +35,7 @@ export function CampaignSelect({
       }}
     >
       <SelectTrigger className="w-[320px]">
-        <SelectValue placeholder="Sélectionner une campagne" />
+        <SelectValue placeholder="Sélectionner un trimestre" />
       </SelectTrigger>
 
       <SelectContent>

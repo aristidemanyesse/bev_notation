@@ -29,7 +29,7 @@ export function AdminStatsCards({
       description: "Notations actives dans le système",
     },
     {
-      label: "Notations complétées",
+      label: "Nombre de collègues notés",
       value: totalCompleted,
       icon: CheckCircle2,
       description: "Tous trimestres confondus",

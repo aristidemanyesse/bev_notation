@@ -57,7 +57,7 @@ export function AgentPerformanceTable({ agents }: AgentPerformanceTableProps) {
     <Card>
       <CardHeader>
         <CardTitle>Performance des agents</CardTitle>
-        <CardDescription>Scores individuels et taux de complétion des évaluations</CardDescription>
+        <CardDescription>Scores individuels et taux de complétion des notations</CardDescription>
       </CardHeader>
       <CardContent>
         <Table>
@@ -72,7 +72,13 @@ export function AgentPerformanceTable({ agents }: AgentPerformanceTableProps) {
               <TableHead>Matricule</TableHead>
               <TableHead>
                 <Button variant="ghost" size="sm" onClick={() => toggleSort("score")} className="h-8 px-2">
-                  Score Global
+                  Moyenne
+                  <ArrowUpDown className="ml-2 h-3 w-3" />
+                </Button>
+              </TableHead>
+              <TableHead>
+                <Button variant="ghost" size="sm" onClick={() => toggleSort("score")} className="h-8 px-2">
+                  Note globale
                   <ArrowUpDown className="ml-2 h-3 w-3" />
                 </Button>
               </TableHead>
@@ -104,7 +110,8 @@ export function AgentPerformanceTable({ agents }: AgentPerformanceTableProps) {
                   <TableCell>
                     <Badge variant="outline">{agent.matricule}</Badge>
                   </TableCell>
-                  <TableCell className={scoreColor}>{hasScore ? agent.global_score.toFixed(2) : "N/D"}</TableCell>
+                  <TableCell className={scoreColor}>{hasScore ? agent.global_score : "N/A"}</TableCell>
+                  <TableCell className={scoreColor}>{hasScore ? agent.global_score.toFixed() : "N/A"}</TableCell>
                   <TableCell>{agent.evaluations_received}</TableCell>
                   <TableCell>{agent.evaluations_done}</TableCell>
                 </TableRow>
