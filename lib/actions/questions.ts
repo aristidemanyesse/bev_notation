@@ -74,7 +74,6 @@ export async function deleteQuestion(questionId: string) {
     const { error } = await supabase.from("questions").delete().eq("id", questionId)
 
     if (error) {
-      console.log(error)
       return { error: "Erreur lors de la suppression de la question" }
     }
 

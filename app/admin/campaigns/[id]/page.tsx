@@ -45,10 +45,6 @@ export default async function CampaignDetailsPage({ params }: { params: PagePara
     .eq("form_id", id)
     .order("global_score", { ascending: false })
 
-
-  console.log("campaign:", campaign)
-  console.log("form:", form)
-
   if (!campaign || !form) {
     throw new Error("Campaign or Form not found")
   }
