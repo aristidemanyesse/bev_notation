@@ -173,7 +173,7 @@ export function CampaignCreationForm({ questions, agents, createdBy }: CampaignC
               Création...
             </>
           ) : (
-            "Créer la notation"
+            "Créer"
           )}
         </Button>
       </div>

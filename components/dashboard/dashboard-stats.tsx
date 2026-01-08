@@ -29,7 +29,7 @@ export function DashboardStats({ summary, expectedEvaluations }: DashboardStatsP
       label: "Nombre de collègues notés",
       value: summary.evaluations_done,
       icon: CheckCircle2,
-      description: `${completionRate}% de taux de complétion`,
+      description: `${completionRate}% de Taux de complétion`,
     },
     {
       label: "Nbre de collègues restants",

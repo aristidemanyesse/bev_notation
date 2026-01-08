@@ -31,19 +31,23 @@ const selectedCampaignId =
 
 const selectedCampaign = campaigns.find(c => c.id === selectedCampaignId)
 
-const { data: summary } = await supabase
+const { data: summary , error: summaryErr} = await supabase
   .from("agent_dashboard_summary")
   .select("*")
   .eq("agent_id", user.id)
   .eq("form_id", selectedCampaignId)
   .maybeSingle()
 
+  if (summaryErr) {
+    console.error("[v0] Erreur récupération de l'évaluation en cours", summaryErr)
+  }
 
-  const { data: pendingEvaluations } = await supabase
+
+  const { data: pendingEvaluations, error: pendingErr } = await supabase
   .from("agent_pending_evaluations")
   .select(`
     *,
-    evaluated:agents!evaluations_evaluated_id_fkey(
+    evaluated:agents_public!evaluations_evaluated_id_fkey(
       matricule,
       first_name,
       last_name
@@ -53,12 +57,16 @@ const { data: summary } = await supabase
   .eq("form_id", selectedCampaignId)
   .order("form_created_at", { ascending: true })
 
+  if (pendingErr) {
+    console.error("[v0] Erreur récupération des évaluations en attente", pendingErr)
+  }
+
 
   const { data: evaluationsGiven } = await supabase
   .from("evaluations")
   .select(`
     *,
-    evaluated:agents!evaluations_evaluated_id_fkey(matricule, first_name, last_name),
+    evaluated:agents_public!evaluations_evaluated_id_fkey(matricule, first_name, last_name),
     form:forms(title, period)
   `)
   .eq("evaluator_id", user.id)
@@ -71,7 +79,7 @@ const { data: summary } = await supabase
   .from("evaluations")
   .select(`
     *,
-    evaluator:agents!evaluations_evaluator_id_fkey(matricule, first_name, last_name),
+    evaluator:agents_public!evaluations_evaluator_id_fkey(matricule, first_name, last_name),
     form:forms(title, period)
   `)
   .eq("evaluated_id", user.id)
@@ -87,6 +95,16 @@ const { data: summary } = await supabase
     expectedEvaluations > 0
       ? Math.round((totalEvaluationsDone / (totalEvaluationsDone + expectedEvaluations)) * 100)
       : 100
+
+  if (!campaigns.length) {
+    return (
+      <DashboardShell role={user.role?.code as "ADMIN" | "AGENT"} user={user}>
+        <div className="p-6">
+          Aucune campagne active pour le moment.
+        </div>
+      </DashboardShell>
+    )
+  }
 
   return (
     <DashboardShell role={user.role?.code as "ADMIN" | "AGENT"} user={user}>
@@ -142,7 +160,7 @@ const { data: summary } = await supabase
 
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Collègues qui m'ont notés</CardTitle>
+                  <CardTitle className="text-sm font-medium">Nombre de collègues qui m'ont notés</CardTitle>
                   <Users className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
@@ -153,19 +171,19 @@ const { data: summary } = await supabase
 
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Nombre de collègues notés</CardTitle>
+                  <CardTitle className="text-sm font-medium">Nombre de collègues que j'ai noté</CardTitle>
                   <CheckCircle2 className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold">{totalEvaluationsDone}</div>
-                  <p className="text-xs text-muted-foreground">{completionRate}% de taux de complétion</p>
+                  <p className="text-xs text-muted-foreground">{completionRate}% de Taux de complétion</p>
                   <Progress value={completionRate} className="mt-2 h-1" />
                 </CardContent>
               </Card>
 
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Nbre de collègues restants</CardTitle>
+                  <CardTitle className="text-sm font-medium">Nombre de collègues restants</CardTitle>
                   <FileText className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>

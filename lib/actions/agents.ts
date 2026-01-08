@@ -7,6 +7,7 @@ interface CreateAgentData {
   email: string
   password: string
   matricule: string
+  username: string
   firstName: string
   lastName: string
   roleId: string
@@ -18,6 +19,7 @@ interface UpdateAgentData {
   matricule: string
   firstName: string
   lastName: string
+  username: string
   roleId: string
   isActive: boolean
 }
@@ -30,7 +32,7 @@ export async function createAgent(data: CreateAgentData) {
       data: { user },
       error: authError,
     } = await supabaseAdmin.auth.admin.createUser({
-      email: data.email,
+      email: `${data.username}@internal.local`,
       password: data.password,
       email_confirm: true,
     })
@@ -42,6 +44,7 @@ export async function createAgent(data: CreateAgentData) {
     const { error: agentError } = await supabaseAdmin.from("agents").insert({
       id: user.id,
       matricule: data.matricule,
+      username: data.username,
       first_name: data.firstName,
       last_name: data.lastName,
       role_id: data.roleId,
@@ -68,6 +71,7 @@ export async function updateAgent(data: UpdateAgentData) {
       .from("agents")
       .update({
         matricule: data.matricule,
+        username: data.username,
         first_name: data.firstName,
         last_name: data.lastName,
         role_id: data.roleId,

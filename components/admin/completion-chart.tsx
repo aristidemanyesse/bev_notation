@@ -31,7 +31,7 @@ export function CompletionChart({ campaigns }: CompletionChartProps) {
     <Card>
       <CardHeader>
         <CardTitle>Taux de complétion</CardTitle>
-        <CardDescription>Complétion des notations sur les trimestres récentes</CardDescription>
+        <CardDescription>Taux des notations sur les trimestres récentes</CardDescription>
       </CardHeader>
       <CardContent>
         <ChartContainer config={chartConfig} className="h-[350px] w-full">

@@ -21,7 +21,7 @@ export default async function EvaluationPage({ params }: { params: Promise<{ id:
     .select(
       `
       *,
-      evaluated:agents!evaluations_evaluated_id_fkey(id, matricule, first_name, last_name),
+      evaluated:agents_public!evaluations_evaluated_id_fkey(id, matricule, first_name, last_name),
       form:forms(id, title, period)
     `,
     )
@@ -33,8 +33,8 @@ export default async function EvaluationPage({ params }: { params: Promise<{ id:
     return (
       <DashboardShell role={user.role?.code as "ADMIN" | "AGENT"} user={user}>
         <div className="space-y-6">
-          <h2 className="text-3xl font-semibold tracking-tight">Évaluation non trouvée</h2>
-          <p className="text-muted-foreground">Cette évaluation n'existe pas ou vous n'y avez pas accès.</p>
+          <h2 className="text-3xl font-semibold tracking-tight">Notation non trouvée</h2>
+          <p className="text-muted-foreground">Cette notation n'existe pas ou vous n'y avez pas accès.</p>
         </div>
       </DashboardShell>
     )
@@ -62,7 +62,7 @@ export default async function EvaluationPage({ params }: { params: Promise<{ id:
           <h2 className="text-3xl font-semibold tracking-tight">Notation de {evaluation.evaluated.first_name} {evaluation.evaluated.last_name} <small className="text-muted-foreground">({evaluation.evaluated.matricule})</small></h2>
           <h5>{evaluation.form.title} - {evaluation.form.period}</h5>
           <br></br>
-          <p className="text-muted-foreground">Complétez votre évaluation pour votre collègue</p>
+          <p className="text-muted-foreground">Noter votre collègue</p>
         </div>
 
         <EvaluationForm

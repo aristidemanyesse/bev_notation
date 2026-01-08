@@ -4,9 +4,9 @@ import { getSupabaseServerClient } from "@/lib/supabase/server"
 import { redirect } from "next/navigation"
 
 export async function login(formData: FormData) {
-  const email = formData.get("email") as string
+  const identifiant = formData.get("identifiant") as string
   const password = formData.get("password") as string
-  const fakeEmail = `${email}@internal.local` as string
+  const fakeEmail = `${identifiant}@internal.local` as string
 
   const supabase = await getSupabaseServerClient()
   const { error } = await supabase.auth.signInWithPassword({
@@ -15,6 +15,7 @@ export async function login(formData: FormData) {
   })
 
   if (error) {
+    console.error("[v0] Erreur lors de la connexion", error)
     return { error: error.message }
   }
 

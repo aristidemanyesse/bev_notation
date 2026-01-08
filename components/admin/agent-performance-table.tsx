@@ -57,7 +57,7 @@ export function AgentPerformanceTable({ agents }: AgentPerformanceTableProps) {
     <Card>
       <CardHeader>
         <CardTitle>Performance des agents</CardTitle>
-        <CardDescription>Scores individuels et taux de complétion des notations</CardDescription>
+        <CardDescription>Scores individuels et Taux de complétion des notations</CardDescription>
       </CardHeader>
       <CardContent>
         <Table>
@@ -82,10 +82,10 @@ export function AgentPerformanceTable({ agents }: AgentPerformanceTableProps) {
                   <ArrowUpDown className="ml-2 h-3 w-3" />
                 </Button>
               </TableHead>
-              <TableHead>Reçues</TableHead>
+              <TableHead>Nb. Personnes l'ayant noté</TableHead>
               <TableHead>
                 <Button variant="ghost" size="sm" onClick={() => toggleSort("completion")} className="h-8 px-2">
-                  Complétées
+                  Nb. Personnes qu'il a noté
                   <ArrowUpDown className="ml-2 h-3 w-3" />
                 </Button>
               </TableHead>

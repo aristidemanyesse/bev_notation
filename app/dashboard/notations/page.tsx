@@ -58,7 +58,7 @@ const { data: summary } = await supabase
   .from("agent_pending_evaluations")
   .select(`
     *,
-    evaluated:agents!evaluations_evaluated_id_fkey(
+    evaluated:agents_public!evaluations_evaluated_id_fkey(
       matricule,
       first_name,
       last_name
@@ -73,7 +73,7 @@ const { data: summary } = await supabase
   .from("evaluations")
   .select(`
     *,
-    evaluated:agents!evaluations_evaluated_id_fkey(matricule, first_name, last_name),
+    evaluated:agents_public!evaluations_evaluated_id_fkey(matricule, first_name, last_name),
     form:forms(title, period)
   `)
   .eq("evaluator_id", user.id)
@@ -86,7 +86,7 @@ const { data: summary } = await supabase
   .from("evaluations")
   .select(`
     *,
-    evaluator:agents!evaluations_evaluator_id_fkey(matricule, first_name, last_name),
+    evaluator:agents_public!evaluations_evaluator_id_fkey(matricule, first_name, last_name),
     form:forms(title, period)
   `)
   .eq("evaluated_id", user.id)

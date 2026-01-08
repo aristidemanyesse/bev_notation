@@ -20,7 +20,7 @@ export default async function EvaluationViewPage({ params }: PageProps) {
     .from("evaluations")
     .select(`
       *,
-      evaluator:agents!evaluations_evaluator_id_fkey(
+      evaluator:agents_public!evaluations_evaluator_id_fkey(
         id,
         first_name,
         last_name,

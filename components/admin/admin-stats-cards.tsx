@@ -35,7 +35,7 @@ export function AdminStatsCards({
       description: "Tous trimestres confondus",
     },
     {
-      label: "Complétion globale",
+      label: "Taux globale",
       value: `${overallCompletion}%`,
       icon: TrendingUp,
       description: "Taux de complétion de la plateforme",
@@ -55,7 +55,7 @@ export function AdminStatsCards({
             <CardContent>
               <div className="text-2xl font-bold">{stat.value}</div>
               <p className="text-xs text-muted-foreground">{stat.description}</p>
-              {stat.label === "Complétion globale" && <Progress value={overallCompletion} className="mt-2 h-1" />}
+              {stat.label === "Taux globale" && <Progress value={overallCompletion} className="mt-2 h-1" />}
             </CardContent>
           </Card>
         )

@@ -35,14 +35,14 @@ export function LoginForm() {
       <CardContent className="pb-8">
         <form action={handleSubmit} className="space-y-6">
           <div className="space-y-2">
-            <Label htmlFor="email" className="text-base">
-              Login
+            <Label htmlFor="identifiant" className="text-base">
+              Identifiant
             </Label>
             <Input
-              id="email"
-              name="email"
-              type="email"
-              placeholder="login"
+              id="identifiant"
+              name="identifiant"
+              type="text"
+              placeholder="identifiant"
               required
               disabled={loading}
               className="h-11 text-base"

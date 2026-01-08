@@ -12,6 +12,7 @@ export interface Agent {
   matricule: string
   first_name: string
   last_name: string
+  username: string
   role_id: string
   is_active: boolean
   created_at: string
