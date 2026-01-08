@@ -1,7 +1,6 @@
 "use server"
 
 import { getSupabaseServerClient, getSupabaseAdminClient } from "@/lib/supabase/server"
-import { supabaseAdminClient } from "@/lib/supabase/adminClient"
 import { revalidatePath } from "next/cache"
 
 
@@ -24,7 +23,7 @@ interface UpdateCampaignData {
 
 export async function createCampaign(data: CreateCampaignData) {
   try {
-    const supabase = await supabaseAdminClient
+    const supabase = await getSupabaseServerClient()
 
     // Create form
     const { data: form, error: formError } = await supabase
@@ -39,7 +38,9 @@ export async function createCampaign(data: CreateCampaignData) {
       .single()
 
     if (formError) {
-      console.error("[v0] Erreur lors de la création de la notation", formError)
+      if (formError?.code === "23505") {
+        return { error: "Une campagne existe déjà pour ce trimestre et cette année." }
+      }
       return { error: formError.message }
     }
     if (!form) {
@@ -59,26 +60,6 @@ export async function createCampaign(data: CreateCampaignData) {
       return { error: "Erreur lors de l'ajout des questions" }
     }
 
-    // Create evaluations (A evaluates B, A ≠ B)
-    const evaluations = []
-    for (const evaluatorId of data.agentIds) {
-      for (const evaluatedId of data.agentIds) {
-        if (evaluatorId !== evaluatedId) {
-          evaluations.push({
-            form_id: form.id,
-            evaluator_id: evaluatorId,
-            evaluated_id: evaluatedId,
-          })
-        }
-      }
-    }
-
-    const { error: evaluationsError } = await supabase.from("evaluations").insert(evaluations)
-
-    if (evaluationsError) {
-      return { error: "Erreur lors de la création des notations" }
-    }
-
     revalidatePath("/admin/campaigns")
     return { success: true, formId: form.id }
   } catch (error) {
@@ -91,7 +72,7 @@ export async function createCampaign(data: CreateCampaignData) {
 
 export async function updateCampaign(data: UpdateCampaignData) {
   try {
-    const supabase = await supabaseAdminClient
+    const supabase = await getSupabaseServerClient()
 
     // 1️⃣ Mise à jour des infos du formulaire
     const { error: formError } = await supabase

@@ -6,7 +6,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { CampaignEditForm } from "@/components/admin/campaign-edit-form"
 import { Suspense } from "react"
 import { Loader2 } from "lucide-react"
-import { supabaseAdminClient } from "@/lib/supabase/adminClient"
 
 function FormLoader() {
   return (
@@ -24,7 +23,7 @@ export default async function EditCampaignPage({ params }: { params: Promise<{ i
     redirect("/login")
   }
 
-  const supabase = supabaseAdminClient
+  const supabase = await getSupabaseServerClient()
 
   const { data: form } = await supabase.from("forms").select("*").eq("id", id).maybeSingle()
 

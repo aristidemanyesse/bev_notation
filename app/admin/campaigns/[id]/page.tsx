@@ -11,7 +11,6 @@ import { Button } from "@/components/ui/button"
 import { Suspense } from "react"
 import { Loader2, Edit } from "lucide-react"
 import Link from "next/link"
-import { supabaseAdminClient } from "@/lib/supabase/adminClient"
 
 function CampaignLoader() {
   return (
