@@ -40,7 +40,7 @@ export function DashboardNav({ role, user }: DashboardNavProps) {
     },
     {
       href: "/dashboard/notations",
-      label: role == 'ADMIN' ? 'Les notes des agents' : "Consulter mes notes",
+      label: role == 'ADMIN' ? 'Consulter les notes' : "Consulter mes notes",
       icon: Eye,
     },
     {
