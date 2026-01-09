@@ -58,7 +58,7 @@ export function CampaignEditForm({ form, questions, selectedQuestionIds }: Campa
   const now = new Date()
   const currentYear = now.getFullYear()
 
-  const yearOptions = useMemo(() => [currentYear - 1, currentYear, currentYear + 1], [currentYear])
+  const yearOptions = useMemo(() => [currentYear, currentYear + 1, currentYear + 2, currentYear + 3], [currentYear])
 
   const initial = useMemo(() => parseYearAndQuarterFromTitleOrPeriod(form), [form])
 

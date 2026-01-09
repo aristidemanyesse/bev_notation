@@ -117,3 +117,29 @@ export async function deleteAgent(agentId: string) {
     return { error: "Une erreur inattendue s'est produite" }
   }
 }
+
+
+
+
+export async function updatePassword(newPassword: string) {
+  const supabase = await getSupabaseServerClient()
+
+  const {
+    data: { user },
+    error: userErr,
+  } = await supabase.auth.getUser()
+
+  if (userErr || !user) {
+    return { error: "Utilisateur non authentifié." }
+  }
+
+  const { error } = await supabase.auth.updateUser({
+    password: newPassword,
+  })
+
+  if (error) {
+    return { error: error.message }
+  }
+
+  return { success: true }
+}

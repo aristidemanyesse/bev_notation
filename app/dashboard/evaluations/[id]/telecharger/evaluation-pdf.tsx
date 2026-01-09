@@ -150,10 +150,6 @@ export function EvaluationPdf({
   const agentName = `${evaluation.evaluated?.last_name ?? ""} ${evaluation.evaluated?.first_name ?? ""}`.trim()
   const matricule = evaluation.evaluated?.matricule ?? ""
 
-  const direction = evaluation.evaluated?.direction ?? ""
-  const service = evaluation.evaluated?.service ?? ""
-  const contact = evaluation.evaluated?.contact ?? ""
-
   const title = evaluation.form?.title ?? ""
   const submittedAt = evaluation.submitted_at ? new Date(evaluation.submitted_at).toLocaleDateString("fr-FR") : ""
 
@@ -170,8 +166,11 @@ export function EvaluationPdf({
             <Text style={styles.dashed}>---------</Text>
             <Text style={styles.ministryLine}>DIRECTION GENERALE DES IMPOTS</Text>
             <Text style={styles.dashed}>---------</Text>
-            <Text style={styles.ministryLine}>DIRECTION DES RESSOURCES HUMAINES</Text>
-            <Text style={styles.ministryLine}>ET DE LA FORMATION</Text>
+            <Text style={styles.ministryLine}>DIRECTION DES ENQUÊTES, DU RENSEIGNEMENT ET</Text>
+            <Text style={styles.ministryLine}>DE L'ANALYSE-RISQUE</Text>
+            <Text style={styles.dashed}>---------</Text>
+            <Text style={styles.ministryLine}>SOUS-DIRECTION DES ENQUÊTES,</Text>
+            <Text style={styles.ministryLine}>DES RECOUPEMENTS ET DU RENSEIGNEMENT</Text>
             <Text style={styles.dashed}>---------</Text>
           </View>
 
@@ -196,22 +195,28 @@ export function EvaluationPdf({
         </View>
 
         {/* META */}
+
         <View style={styles.meta}>
+
+          <View>
+              <View style={{width: "65%"}}>
+                <Text style={styles.metaLabel}>NOM DE L’AGENT :</Text> {agentName}
+              </View>
+              <View style={{width: "35%"}}>
+                <Text style={styles.metaLabel}>MATRICULE :</Text> {matricule}
+              </View>
+          </View>
+
           <Text style={styles.metaLine}>
-            <Text style={styles.metaLabel}>NOM DE L’AGENT :</Text> {agentName} - <Text style={styles.metaLabel}>MATRICULE :</Text>{" "}
-            {matricule}
+            <Text style={styles.metaLabel}>DIRECTION :</Text> DIRECTION DES ENQUÊTES, DU RENSEIGNEMENT ET DE L'ANALYSE-RISQUE
           </Text>
 
           <Text style={styles.metaLine}>
-            <Text style={styles.metaLabel}>DIRECTION :</Text> {direction}
+            <Text style={styles.metaLabel}>SOUS-DIRECTION :</Text> DIRECTION DES ENQUÊTES, DU RENSEIGNEMENT ET DE L'ANALYSE-RISQUE
           </Text>
 
           <Text style={styles.metaLine}>
-            <Text style={styles.metaLabel}>SERVICE :</Text> {service}
-          </Text>
-
-          <Text style={styles.metaLine}>
-            <Text style={styles.metaLabel}>CONTACT :</Text> {contact}
+            <Text style={styles.metaLabel}>SERVICE :</Text> Brigade d'enquête et de Visite
           </Text>
         </View>
 
@@ -277,23 +282,8 @@ export function EvaluationPdf({
         <View style={styles.footerLine} />
 
         <View style={styles.footerCols}>
-          <View style={styles.footerCol}>
-            <Text>.Direction Générale des Impôts-Abidjan-Plateau</Text>
-            <Text>.Cité Administrative - Tour E 10ème étage</Text>
-            <Text>.BP V 103 Abidjan</Text>
-          </View>
-
-          <View style={styles.footerCol}>
-            <Text>.Tél : 27 20 21 10 90</Text>
-            <Text>.Dir : 27 20 22 65 04</Text>
-            <Text>.Fax : 27 20 22 87 86</Text>
-          </View>
-
-          <View style={styles.footerCol}>
-            <Text>.Email : infodgi@dgi.gouv.ci</Text>
-            <Text>.Site web : www.dgi.gouv.ci</Text>
-            <Text>.Ligne verte : 800 88 888</Text>
-          </View>
+          <Text style={{textAlign: "center", color: "grey"}}>DERAR-Abidjan - Deux Plateaux Vallons - rue des jardins - BP V 103 Abidjan - Tél : 27 22 41 20 96 - Fax : 27 22 41 32 20</Text>
+          <Text style={{textAlign: "center", color: "grey"}}>Site web: www.dgi.gouv.ci - Email: info@dgi.gouv.ci - Ligne verte: 800 88 888</Text>
         </View>
       </Page>
     </Document>

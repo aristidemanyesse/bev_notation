@@ -43,7 +43,7 @@ export function CampaignCreationForm({ questions, agents, createdBy }: CampaignC
 
   const yearOptions = useMemo(() => {
     // année -1, année, année +1
-    return [currentYear - 1, currentYear, currentYear + 1]
+    return [currentYear, currentYear + 1, currentYear + 2, currentYear + 3]
   }, [currentYear])
 
   const defaultQuarter: Quarter = "T1"

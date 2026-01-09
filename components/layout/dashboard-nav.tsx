@@ -10,6 +10,7 @@ import {
   LayoutGrid,
   HelpCircle,
   LucideEdit,
+  FileLock,
   Eye,
 } from "lucide-react"
 
@@ -41,6 +42,11 @@ export function DashboardNav({ role, user }: DashboardNavProps) {
       href: "/dashboard/notations",
       label: "Consulter mes notes",
       icon: Eye,
+    },
+    {
+      href: "/dashboard/compte/mot-de-passe",
+      label: "Changer mot de passe",
+      icon: FileLock,
     },
   ]
 
@@ -101,7 +107,7 @@ export function DashboardNav({ role, user }: DashboardNavProps) {
       </div>
 
       {/* AGENT */}
-      <div className="space-y-1 h-45">
+      <div className="space-y-1 h-60">
         <div className="my-4 border-t border-border" />
         <p className="px-3 pb-1 text-xs font-semibold uppercase text-muted-foreground">
           Tous
