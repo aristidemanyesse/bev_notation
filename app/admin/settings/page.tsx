@@ -21,7 +21,7 @@ export default async function SettingsPage() {
         <Card>
           <CardHeader>
             <CardTitle>Paramètres de la plateforme</CardTitle>
-            <CardDescription>Configurer les paramètres de la plateforme d'évaluation</CardDescription>
+            <CardDescription>Configurer les paramètres de la plateforme de notation</CardDescription>
           </CardHeader>
           <CardContent>
             <p className="text-muted-foreground">Les options de paramètres apparaîtront ici.</p>

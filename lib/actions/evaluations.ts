@@ -39,7 +39,7 @@ export async function submitEvaluation(
 
     if (evalError) {
       console.error("EVAL ERROR:", evalError)
-      return { error: "Echec lors de la soumission de l'évaluation" }
+      return { error: "Echec lors de la soumission de la notation" }
     }
 
     revalidatePath("/dashboard")

@@ -42,7 +42,7 @@ export default async function QuestionsPage() {
         <Card>
           <CardHeader>
             <CardTitle>Toutes les questions</CardTitle>
-            <CardDescription>Liste de toutes les questions d'évaluation</CardDescription>
+            <CardDescription>Liste de toutes les questions de notation</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-3">

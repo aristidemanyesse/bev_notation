@@ -1,6 +1,6 @@
 "use server"
 
-import { getSupabaseAdminClient } from "@/lib/supabase/server"
+import { getSupabaseAdminClient, getSupabaseServerClient } from "@/lib/supabase/server"
 import { revalidatePath } from "next/cache"
 
 interface CreateAgentData {
@@ -26,7 +26,7 @@ interface UpdateAgentData {
 
 export async function createAgent(data: CreateAgentData) {
   try {
-    const supabaseAdmin = await getSupabaseAdminClient()
+    const supabaseAdmin = await getSupabaseServerClient()
 
     const {
       data: { user },
@@ -65,7 +65,7 @@ export async function createAgent(data: CreateAgentData) {
 
 export async function updateAgent(data: UpdateAgentData) {
   try {
-    const supabaseAdmin = await getSupabaseAdminClient()
+    const supabaseAdmin = await getSupabaseServerClient()
 
     const { error } = await supabaseAdmin
       .from("agents")
@@ -92,7 +92,7 @@ export async function updateAgent(data: UpdateAgentData) {
 
 export async function deleteAgent(agentId: string) {
   try {
-    const supabaseAdmin = await getSupabaseAdminClient()
+    const supabaseAdmin = await getSupabaseServerClient()
 
     // Supprimer l'agent de la table
     const { error: agentError } = await supabaseAdmin.from("agents").delete().eq("id", agentId)

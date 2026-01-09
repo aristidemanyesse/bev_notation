@@ -43,7 +43,7 @@ export async function EvaluationsGivenTable({ evaluations }: EvaluationsGivenTab
           <CardDescription>Les agents que vous avez noté lors du trimestre</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="text-sm text-muted-foreground">Aucune évaluation soumise.</div>
+          <div className="text-sm text-muted-foreground">Aucune notation soumise.</div>
         </CardContent>
       </Card>
     )

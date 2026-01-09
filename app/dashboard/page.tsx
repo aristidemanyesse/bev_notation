@@ -15,8 +15,19 @@ export default async function DashboardPage({searchParams}: {searchParams: Promi
   }
   const supabase = await getSupabaseServerClient()
 
-    // Get active campaigns (pour le select)
 
+  const { data: trimestres } = await supabase
+    .from("admin_campaign_stats")
+    .select("*")
+    .order("period", { ascending: false })
+
+  const activeCampaign = trimestres?.find((c) => c.period)
+  // Calculate totals
+  const totalAgents = activeCampaign?.total_agents || 0
+
+
+
+// Get active campaigns (pour le select)
 const { data: activeCampaigns } = await supabase
   .from("forms")
   .select("id, title, period, created_at")
@@ -24,12 +35,13 @@ const { data: activeCampaigns } = await supabase
   .order("created_at", { ascending: false })
 
 const campaigns = activeCampaigns ?? []
-
-const resolvedSearchParams = await searchParams
-const selectedCampaignId =
+  // Calculate totals
+  
+  const resolvedSearchParams = await searchParams
+  const selectedCampaignId =
   resolvedSearchParams.campaignId ?? campaigns[0]?.id
-
-const selectedCampaign = campaigns.find(c => c.id === selectedCampaignId)
+  
+  const selectedCampaign = campaigns.find(c => c.id === selectedCampaignId)
 
 const { data: summary , error: summaryErr} = await supabase
   .from("agent_dashboard_summary")
@@ -39,8 +51,9 @@ const { data: summary , error: summaryErr} = await supabase
   .maybeSingle()
 
   if (summaryErr) {
-    console.error("[v0] Erreur récupération de l'évaluation en cours", summaryErr)
+    console.error("[v0] Erreur récupération de la notation en cours", summaryErr)
   }
+
 
 
   const { data: pendingEvaluations, error: pendingErr } = await supabase
@@ -58,7 +71,7 @@ const { data: summary , error: summaryErr} = await supabase
   .order("form_created_at", { ascending: true })
 
   if (pendingErr) {
-    console.error("[v0] Erreur récupération des évaluations en attente", pendingErr)
+    console.error("[v0] Erreur récupération des notations en attente", pendingErr)
   }
 
 
@@ -111,12 +124,7 @@ const { data: summary , error: summaryErr} = await supabase
       <div className="space-y-6 px-4 sm:px-0">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h2 className="text-2xl sm:text-3xl font-semibold tracking-tight ">Tableau de bord du {selectedCampaign?.title}</h2>
-            <p className="text-sm sm:text-base text-muted-foreground">
-              {selectedCampaign
-                ? selectedCampaign.period
-                : "Aucune notation active"}
-            </p>
+            <h2 className="text-2xl sm:text-3xl font-semibold tracking-tight ">Tableau de bord - {selectedCampaign?.title}</h2>
           </div>
           <CampaignSelect
             campaigns = {activeCampaigns}
@@ -140,7 +148,7 @@ const { data: summary , error: summaryErr} = await supabase
                   <div className="text-9xl font-bold">
                     {summary.global_score ? summary.global_score.toFixed() : "N/A"}
                   </div>
-                  <p className="text-xs text-muted-foreground">Note du {selectedCampaign?.title}</p>
+                  <p className="text-xs text-muted-foreground">{selectedCampaign?.title}</p>
                 </CardContent>
               </Card>
             </div>
@@ -164,7 +172,7 @@ const { data: summary , error: summaryErr} = await supabase
                   <Users className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">{totalEvaluationsReceived}</div>
+                  <div className="text-2xl font-bold">{totalEvaluationsReceived} / {totalAgents}</div>
                   <p className="text-xs text-muted-foreground">Ceux qui vous ont notés</p>
                 </CardContent>
               </Card>
@@ -183,7 +191,7 @@ const { data: summary , error: summaryErr} = await supabase
 
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Nombre de collègues restants</CardTitle>
+                  <CardTitle className="text-sm font-medium">Nombre de collègues restants que je dois noter</CardTitle>
                   <FileText className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>

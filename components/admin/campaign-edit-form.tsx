@@ -31,7 +31,7 @@ const QUARTERS: { value: Quarter; label: string }[] = [
 function parseYearAndQuarterFromTitleOrPeriod(form: Form): { year: number; quarter: Quarter } {
   // 1) Si period est déjà "T1..T4"
   if (["T1", "T2", "T3", "T4"].includes(form.period as string)) {
-    // Essayer d'extraire l'année depuis le title: "Évaluation T1 2026"
+    // Essayer d'extraire l'année depuis le title: "Trimestre T1 2026"
     const m = (form.title ?? "").match(/(\d{4})/)
     const year = m ? Number(m[1]) : new Date().getFullYear()
     return { year, quarter: form.period as Quarter }
@@ -51,7 +51,7 @@ function parseYearAndQuarterFromTitleOrPeriod(form: Form): { year: number; quart
 }
 
 function buildTitle(year: number, quarter: Quarter) {
-  return `Notation ${year}-${quarter}`
+  return `Trimestre ${year}-${quarter}`
 }
 
 export function CampaignEditForm({ form, questions, selectedQuestionIds }: CampaignEditFormProps) {

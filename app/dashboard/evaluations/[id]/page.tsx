@@ -59,7 +59,7 @@ export default async function EvaluationPage({ params }: { params: Promise<{ id:
     <DashboardShell role={user.role?.code as "ADMIN" | "AGENT"} user={user}>
       <div className="max-w-3xl mx-auto space-y-6">
         <div>
-          <h2 className="text-3xl font-semibold tracking-tight">Notation de {evaluation.evaluated.first_name} {evaluation.evaluated.last_name} <small className="text-muted-foreground">({evaluation.evaluated.matricule})</small></h2>
+          <h2 className="text-3xl font-semibold tracking-tight text-primary">Notation de {evaluation.evaluated.first_name} {evaluation.evaluated.last_name} <small className="text-muted-foreground">({evaluation.evaluated.matricule})</small></h2>
           <h5>{evaluation.form.title} - {evaluation.form.period}</h5>
           <br></br>
           <p className="text-muted-foreground">Noter votre collègue</p>

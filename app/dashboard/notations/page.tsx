@@ -135,7 +135,7 @@ const { data: summary } = await supabase
             <div className="flex flex-col items-center justify-center gap-2 rounded-lg border border-dashed p-8 text-muted-foreground">
               <Eye className="h-6 w-6 opacity-50" />
               <p className="text-sm font-medium">
-                Aucune évaluation reçue
+                Aucune notaion reçue
               </p>
               <p className="text-xs">
                 Les résultats apparaîtront ici une fois que des collègues vous auront noté.

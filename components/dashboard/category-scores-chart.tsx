@@ -26,7 +26,7 @@ export function CategoryScoresChart({ scores }: CategoryScoresChartProps) {
     <Card>
       <CardHeader>
         <CardTitle>Performance par catégorie</CardTitle>
-        <CardDescription>Vos scores moyens dans les différentes catégories d'évaluation</CardDescription>
+        <CardDescription>Vos scores moyens dans les différentes catégories de notation</CardDescription>
       </CardHeader>
       <CardContent>
         <ChartContainer config={chartConfig} className="h-[300px] w-full">

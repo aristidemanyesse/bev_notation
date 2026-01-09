@@ -22,7 +22,7 @@ const COLORS = {
   headerGrey: "#EFEFEF",
   totalPink: "#F3C6F1",
   yellow: "#FFF200",
-  greyCell: "#F5F2F2",
+  greyCell: "#B2AFAF",
 }
 
 const styles = StyleSheet.create({

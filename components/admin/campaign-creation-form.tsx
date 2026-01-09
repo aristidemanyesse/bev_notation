@@ -29,7 +29,7 @@ const QUARTERS: { value: Quarter; label: string }[] = [
 ]
 
 function buildTitle(year: number, quarter: Quarter) {
-  return `Notation trimestrielle ${year}-${quarter}`
+  return `Trimestre ${year}-${quarter}`
 }
 
 function buildPeriod(year: number, quarter: Quarter) {

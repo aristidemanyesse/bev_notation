@@ -30,7 +30,7 @@ export default async function NewQuestionPage() {
       <div className="max-w-2xl mx-auto space-y-6 px-4 sm:px-0">
         <div>
           <h2 className="text-2xl sm:text-3xl font-semibold tracking-tight">Créer une nouvelle question</h2>
-          <p className="text-muted-foreground text-sm sm:text-base">Ajouter une nouvelle question d'évaluation</p>
+          <p className="text-muted-foreground text-sm sm:text-base">Ajouter une nouvelle question de notation</p>
         </div>
 
         <Card>
