@@ -22,7 +22,6 @@ export function CampaignHistory({ campaigns }: CampaignHistoryProps) {
               </div>
               <div className="flex-1">
                 <p className="font-medium text-sm">{campaign.title}</p>
-                <p className="text-xs text-muted-foreground">{campaign.period}</p>
               </div>
             </div>
           ))}

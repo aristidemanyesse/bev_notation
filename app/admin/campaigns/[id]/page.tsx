@@ -59,7 +59,6 @@ export default async function CampaignDetailsPage({ params }: { params: PagePara
             <div>
               <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-2">
                 <h2 className="text-2xl sm:text-3xl font-semibold tracking-tight">{campaign.title}</h2>
-                <Badge variant={completionRate >= 75 ? "default" : "secondary"}>{campaign.period}</Badge>
                 <Badge variant={form.is_active ? "default" : "outline"}>{form.is_active ? "Active" : "Inactive"}</Badge>
               </div>
               <p className="text-muted-foreground text-sm sm:text-base">

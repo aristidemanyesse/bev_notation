@@ -51,7 +51,7 @@ async function CampaignsList() {
                       </Badge>
                     </div>
                     <p className="text-sm text-muted-foreground">
-                      {campaign.period} • {campaign.total_agents} agents • {campaign.total_submitted_evaluations} /{" "}
+                      {campaign.total_agents} agents • {campaign.total_submitted_evaluations} /{" "}
                       {campaign.total_expected_evaluations} notations
                     </p>
                   </div>

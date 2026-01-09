@@ -112,7 +112,7 @@ const { data: evaluationsReceived, error: receivedErr } = await supabase
             <h2 className="text-2xl sm:text-3xl font-semibold tracking-tight">Noter un collègue </h2>
             <p className="text-sm sm:text-base text-muted-foreground">
               {selectedCampaign
-                ? selectedCampaign.title + " - " + selectedCampaign.period
+                ? selectedCampaign.title
                 : "Aucune notation active"}
             </p>
           </div>

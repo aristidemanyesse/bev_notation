@@ -52,8 +52,8 @@ export function CampaignsList({ campaigns }: CampaignsListProps) {
                     </Badge>
                   </div>
                   <p className="text-sm text-muted-foreground">
-                    {campaign.period} • {campaign.total_submitted_evaluations} / {campaign.total_expected_evaluations}{" "}
-                    evaluations
+                    {campaign.total_submitted_evaluations} / {campaign.total_expected_evaluations}{" "}
+                    notations
                   </p>
                 </div>
                 <div className="flex items-center gap-3">

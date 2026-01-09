@@ -2,6 +2,7 @@
 
 import { getSupabaseAdminClient, getSupabaseServerClient } from "@/lib/supabase/server"
 import { revalidatePath } from "next/cache"
+import { supabaseAdminClient } from "../supabase/adminClient"
 
 interface CreateAgentData {
   email: string
@@ -26,7 +27,7 @@ interface UpdateAgentData {
 
 export async function createAgent(data: CreateAgentData) {
   try {
-    const supabaseAdmin = await getSupabaseServerClient()
+    const supabaseAdmin = await getSupabaseAdminClient();
 
     const {
       data: { user },
@@ -41,7 +42,8 @@ export async function createAgent(data: CreateAgentData) {
       return { error: "Erreur lors de la création de l'utilisateur: " + (authError?.message || "Utilisateur non créé") }
     }
 
-    const { error: agentError } = await supabaseAdmin.from("agents").insert({
+    const supabase = await getSupabaseServerClient()
+    const { error: agentError } = await supabase.from("agents").insert({
       id: user.id,
       matricule: data.matricule,
       username: data.username,
@@ -65,9 +67,9 @@ export async function createAgent(data: CreateAgentData) {
 
 export async function updateAgent(data: UpdateAgentData) {
   try {
-    const supabaseAdmin = await getSupabaseServerClient()
+    const supabase = await getSupabaseServerClient()
 
-    const { error } = await supabaseAdmin
+    const { error } = await supabase
       .from("agents")
       .update({
         matricule: data.matricule,
@@ -92,17 +94,18 @@ export async function updateAgent(data: UpdateAgentData) {
 
 export async function deleteAgent(agentId: string) {
   try {
-    const supabaseAdmin = await getSupabaseServerClient()
+    const admin = await getSupabaseAdminClient()
+    const supabase = await getSupabaseServerClient()
 
     // Supprimer l'agent de la table
-    const { error: agentError } = await supabaseAdmin.from("agents").delete().eq("id", agentId)
+    const { error: agentError } = await supabase.from("agents").delete().eq("id", agentId)
 
     if (agentError) {
       return { error: "Erreur lors de la suppression de l'agent" }
     }
 
     // Supprimer l'utilisateur Auth
-    const { error: authError } = await supabaseAdmin.auth.admin.deleteUser(agentId)
+    const { error: authError } = await admin.auth.admin.deleteUser(agentId)
 
     if (authError) {
       console.error("[v0] Erreur suppression auth user:", authError)

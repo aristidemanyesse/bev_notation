@@ -109,11 +109,6 @@ const { data: summary } = await supabase
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <h2 className="text-2xl sm:text-3xl font-semibold tracking-tight">Mes notes du {selectedCampaign?.title}</h2>
-            <p className="text-sm sm:text-base text-muted-foreground">
-              {selectedCampaign
-                ? selectedCampaign.period
-                : "Aucune notation active"}
-            </p>
           </div>
           <CampaignSelect
             campaigns = {activeCampaigns}

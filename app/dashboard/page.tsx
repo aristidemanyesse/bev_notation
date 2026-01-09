@@ -113,7 +113,7 @@ const { data: summary , error: summaryErr} = await supabase
     return (
       <DashboardShell role={user.role?.code as "ADMIN" | "AGENT"} user={user}>
         <div className="p-6">
-          Aucune campagne active pour le moment.
+          Aucune notation active pour le moment.
         </div>
       </DashboardShell>
     )

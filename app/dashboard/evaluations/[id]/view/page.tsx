@@ -61,7 +61,7 @@ export default async function EvaluationViewPage({ params }: PageProps) {
   <div className="max-w-3xl mx-auto space-y-6">
     <div>
           <h2 className="text-3xl font-semibold tracking-tight text-primary">Notation de {evaluation.evaluator.first_name} {evaluation.evaluator.last_name} <small className="text-muted-foreground">({evaluation.evaluator.matricule})</small></h2>
-          <h5>{evaluation.form.title} - {evaluation.form.period}</h5>
+          <h5>{evaluation.form.title}</h5>
           <br></br>
           <p className="text-muted-foreground">Visualisation des réponses de votre collègue</p>
         </div>

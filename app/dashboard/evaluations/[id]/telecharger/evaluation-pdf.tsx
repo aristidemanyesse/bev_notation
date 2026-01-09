@@ -154,7 +154,7 @@ export function EvaluationPdf({
   const service = evaluation.evaluated?.service ?? ""
   const contact = evaluation.evaluated?.contact ?? ""
 
-  const period = evaluation.form?.period ?? ""
+  const title = evaluation.form?.title ?? ""
   const submittedAt = evaluation.submitted_at ? new Date(evaluation.submitted_at).toLocaleDateString("fr-FR") : ""
 
   const evaluatorName = `${evaluation.evaluator?.last_name ?? ""} ${evaluation.evaluator?.first_name ?? ""}`.trim()
@@ -257,7 +257,7 @@ export function EvaluationPdf({
 
           {/* NOTE TRIMESTRE */}
           <View style={styles.totalsRow}>
-            <Text style={styles.noteLeft}>NOTE DU {period || "TRIMESTRE"}</Text>
+            <Text style={styles.noteLeft}>NOTE DU {title || "TRIMESTRE"}</Text>
             <Text style={styles.noteMid}>{noteGlobale}</Text>
             <Text style={styles.noteRightGrey}></Text>
           </View>

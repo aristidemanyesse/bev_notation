@@ -41,7 +41,7 @@ export function CampaignSelect({
       <SelectContent>
         {campaigns?.map((campaign) => (
           <SelectItem key={campaign.id} value={campaign.id}>
-            {campaign.title} ({campaign.period})
+            {campaign.title}
           </SelectItem>
         ))}
       </SelectContent>

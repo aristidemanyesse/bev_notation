@@ -1,6 +1,6 @@
 "use server"
 
-import { getSupabaseServerClient, getSupabaseAdminClient } from "@/lib/supabase/server"
+import { getSupabaseServerClient } from "@/lib/supabase/server"
 import { revalidatePath } from "next/cache"
 
 
@@ -39,7 +39,7 @@ export async function createCampaign(data: CreateCampaignData) {
 
     if (formError) {
       if (formError?.code === "23505") {
-        return { error: "Une campagne existe déjà pour ce trimestre et cette année." }
+        return { error: "Une notation existe déjà pour ce trimestre et cette année." }
       }
       return { error: formError.message }
     }

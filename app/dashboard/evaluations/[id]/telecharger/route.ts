@@ -89,9 +89,9 @@ export async function GET(
     })
   )
 
-  const period = form?.period ?? "campagne"
+  const title = form?.title ?? "notation"
   const matricule = evaluated?.matricule ?? ""
-  const fileName = `evaluation_${period}_${matricule}.pdf`
+  const fileName = `${title}_${matricule}.pdf`
 
     return new NextResponse(new Uint8Array(pdfBuffer), {
     status: 200,
