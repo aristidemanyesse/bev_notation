@@ -22,8 +22,6 @@ export default async function DashboardPage({searchParams}: {searchParams: Promi
     .order("period", { ascending: false })
 
   const activeCampaign = trimestres?.find((c) => c.period)
-  // Calculate totals
-  const totalAgents = activeCampaign?.total_agents || 0
 
 
 
@@ -101,9 +99,18 @@ const { data: summary , error: summaryErr} = await supabase
   .order("submitted_at", { ascending: false })
 
 
+
   const totalEvaluationsReceived = summary?.evaluations_received || 0
-  const totalEvaluationsDone = summary?.evaluations_done || 0
-  const expectedEvaluations = pendingEvaluations?.length || 0
+  var totalEvaluationsDone = summary?.evaluations_done || 0
+  var expectedEvaluations = pendingEvaluations?.length || 0
+
+  var totalAgents = activeCampaign?.total_agents || 0
+  if (totalAgents > 0 && user.role?.code === "ADMIN") {
+    totalAgents = 0
+    expectedEvaluations = expectedEvaluations - 1
+  }
+
+
   const completionRate =
     expectedEvaluations > 0
       ? Math.round((totalEvaluationsDone / (totalEvaluationsDone + expectedEvaluations)) * 100)
@@ -118,6 +125,10 @@ const { data: summary , error: summaryErr} = await supabase
       </DashboardShell>
     )
   }
+
+    // Calculate totals
+
+
 
   return (
     <DashboardShell role={user.role?.code as "ADMIN" | "AGENT"} user={user}>
@@ -162,13 +173,13 @@ const { data: summary , error: summaryErr} = await supabase
                   <div className="text-2xl font-bold">
                     {summary.global_score ? summary.global_score.toFixed(2) : "N/A"}
                   </div>
-                  <p className="text-xs text-muted-foreground">Totaux des notes affectés des coefficients / 18 </p>
+                  <p className="text-xs text-muted-foreground">Totaux des notes affectés des coefficients</p>
                 </CardContent>
               </Card>
 
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Nombre de collègues qui m'ont notés</CardTitle>
+                  <CardTitle className="text-sm font-medium">Nombre {user.role?.code == "ADMIN" ? "d'agents" : "de collègues"} qui m'ont notés</CardTitle>
                   <Users className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
@@ -179,7 +190,7 @@ const { data: summary , error: summaryErr} = await supabase
 
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Nombre de collègues que j'ai noté</CardTitle>
+                  <CardTitle className="text-sm font-medium">Nombre {user.role?.code == "ADMIN" ? "d'agents" : "de collègues"} que j'ai noté</CardTitle>
                   <CheckCircle2 className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
@@ -191,7 +202,7 @@ const { data: summary , error: summaryErr} = await supabase
 
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Nombre de collègues restants que je dois noter</CardTitle>
+                  <CardTitle className="text-sm font-medium">Nombre {user.role?.code == "ADMIN" ? "d'agents" : "de collègues"} restants que je dois noter</CardTitle>
                   <FileText className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>

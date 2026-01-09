@@ -5,8 +5,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
 import type { AdminCampaignAgentStats } from "@/lib/types/database"
-import { ArrowUpDown } from "lucide-react"
+import { ArrowUpDown, Download } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import Link from "next/link"
 
 interface AgentPerformanceTableProps {
   agents: AdminCampaignAgentStats[]
@@ -114,6 +115,7 @@ export function AgentPerformanceTable({ agents }: AgentPerformanceTableProps) {
                   <TableCell className={scoreColor}>{hasScore ? agent.global_score.toFixed() : "N/A"}</TableCell>
                   <TableCell>{agent.evaluations_received}</TableCell>
                   <TableCell>{agent.evaluations_done}</TableCell>
+                
                 </TableRow>
               )
             })}

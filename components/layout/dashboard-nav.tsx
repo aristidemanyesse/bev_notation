@@ -35,12 +35,12 @@ export function DashboardNav({ role, user }: DashboardNavProps) {
     },
     {
       href: "/dashboard/noter",
-      label: "Noter un collègue",
+      label: role == 'ADMIN' ? 'Noter un agent' : 'Noter un collègue',
       icon: LucideEdit,
     },
     {
       href: "/dashboard/notations",
-      label: "Consulter mes notes",
+      label: role == 'ADMIN' ? 'Les notes des agents' : "Consulter mes notes",
       icon: Eye,
     },
     {

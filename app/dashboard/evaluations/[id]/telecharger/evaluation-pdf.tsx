@@ -172,6 +172,8 @@ export function EvaluationPdf({
             <Text style={styles.ministryLine}>SOUS-DIRECTION DES ENQUÊTES,</Text>
             <Text style={styles.ministryLine}>DES RECOUPEMENTS ET DU RENSEIGNEMENT</Text>
             <Text style={styles.dashed}>---------</Text>
+            <Text style={styles.ministryLine}>Brigade d'enquête et de Visite</Text>
+            <Text style={styles.dashed}>---------</Text>
           </View>
 
           <View style={styles.logoBlock}>

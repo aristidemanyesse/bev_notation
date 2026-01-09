@@ -97,7 +97,7 @@ export default async function CampaignDetailsPage({ params }: { params: PagePara
                 <div className="text-2xl font-bold">
                   {campaign.total_submitted_evaluations} / {campaign.total_expected_evaluations}
                 </div>
-                <p className="text-xs text-muted-foreground">Nombre de collègues notés</p>
+                <p className="text-xs text-muted-foreground">Nombre {user.role?.code == "ADMIN" ? "d'agents" : "de collègues"} qui ont noté au moins une fois</p>
               </CardContent>
             </Card>
 
