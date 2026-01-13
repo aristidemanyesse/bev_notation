@@ -16,8 +16,13 @@ type PersonRef = {
 type AdminAgentEvaluationInput = {
   id: string
   submitted_at: string | null
-  evaluator?: PersonRef
-  evaluated?: PersonRef
+  evaluator_matricule?: string | null
+  evaluator_first_name?: string | null
+  evaluator_last_name?: string | null
+  evaluator_role_code?: string | null
+  evaluated_matricule?: string | null
+  evaluated_first_name?: string | null
+  evaluated_last_name?: string | null
 }
 
 type EvaluationSummaryRow = {
@@ -92,14 +97,11 @@ export async function AdminAgentsEvaluationsTable({ evaluations }: AdminAgentsEv
 
             <TableBody>
               {rows.map((evaluation) => {
-                const evd = evaluation.evaluated
-                const evr = evaluation.evaluator
+                const evaluatedName = `${evaluation?.evaluated_first_name ?? ""} ${evaluation?.evaluated_last_name ?? ""}`.trim()
+                const evaluatedMat = evaluation?.evaluated_matricule ?? ""
 
-                const evaluatedName = `${evd?.first_name ?? ""} ${evd?.last_name ?? ""}`.trim()
-                const evaluatedMat = evd?.matricule ?? ""
-
-                const evaluatorName = `${evr?.first_name ?? ""} ${evr?.last_name ?? ""}`.trim()
-                const evaluatorMat = evr?.matricule ?? ""
+                const evaluatorName = `${evaluation?.evaluator_first_name ?? ""} ${evaluation?.evaluator_last_name ?? ""}`.trim()
+                const evaluatorMat = evaluation?.evaluator_matricule ?? ""
 
                 const completion = evaluation.completionPct
                 const avgLabel = typeof evaluation.avgScore === "number" ? evaluation.avgScore.toFixed(2) : "N/A"

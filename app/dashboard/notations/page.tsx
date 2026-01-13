@@ -69,14 +69,16 @@ export default async function NotationsPage({
   // Si tu veux "entre agents uniquement" (exclure admin->agent), ajoute aussi evaluator.role_code = 'AGENT' (voir plus bas).
   let agentsEvaluations: any[] = []
   if (user.role?.code === "ADMIN") {
-    const { data: agentsEvaluations, error } = await supabase
+    const { data, error } = await supabase
       .from("admin_agents_evaluations")
       .select("*")
       .eq("form_id", selectedCampaignId)
       .order("submitted_at", { ascending: false })
 
     if (error) throw error
+    agentsEvaluations = data ?? []
   }
+
 
   return (
     <DashboardShell role={user.role?.code as "ADMIN" | "AGENT"} user={user}>

@@ -39,7 +39,7 @@ export async function GET(
   const form = one<any>(evaluation.form)
   const evaluated = one<any>(evaluation.evaluated)
   const evaluator = one<any>(evaluation.evaluator)
-
+    
   const { data: answersRaw, error: aErr } = await supabase
     .from("answers")
     .select(`

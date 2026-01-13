@@ -107,7 +107,6 @@ const { data: summary , error: summaryErr} = await supabase
   var totalAgents = activeCampaign?.total_agents || 0
   if (totalAgents > 0 && user.role?.code === "ADMIN") {
     totalAgents = 0
-    expectedEvaluations = expectedEvaluations - 1
   }
 
 
