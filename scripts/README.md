@@ -6,8 +6,8 @@ Exécutez le fichier `seed-data.sql` dans le SQL Editor de Supabase.
 
 Ce script va créer :
 - Les catégories de questions (Technique, Comportement, Discipline, Communication, Collaboration)
-- 12 questions d'évaluation prêtes à l'emploi
-- Un formulaire d'évaluation pour Q1 2025
+- 12 questions d'notation prêtes à l'emploi
+- Un formulaire d'notation pour Q1 2025
 - Les associations entre le formulaire et les questions
 
 ## Étape 2 : Créer les utilisateurs dans Supabase Auth
@@ -49,11 +49,11 @@ Une fois les utilisateurs créés dans Supabase Auth :
 
 Répétez pour tous les utilisateurs.
 
-## Étape 4 : Créer une campagne d'évaluation
+## Étape 4 : Créer une campagne d'notation
 
 1. Allez dans **Campagnes > Nouvelle campagne**
 2. Remplissez le formulaire :
-   - **Titre** : Évaluation Trimestrielle T1 2025
+   - **Titre** : notation Trimestrielle T1 2025
    - **Période** : 2025-T1
    - **Sélectionnez toutes les questions** que vous voulez inclure
    - **Activer la campagne immédiatement** : Oui si vous voulez que les agents puissent commencer
@@ -62,27 +62,27 @@ Répétez pour tous les utilisateurs.
 
 Le système va automatiquement :
 - Associer les questions sélectionnées au formulaire
-- Créer toutes les évaluations croisées entre agents (chaque agent évalue tous les autres sauf lui-même)
+- Créer toutes les notations croisées entre agents (chaque agent évalue tous les autres sauf lui-même)
 
 ## Étape 5 : Tester le système
 
 ### En tant qu'agent :
 1. Déconnectez-vous
 2. Connectez-vous avec **marie.dupont@entreprise.com** / **Marie123!**
-3. Vous verrez le tableau de bord agent avec les évaluations à compléter
-4. Cliquez sur une évaluation et remplissez le formulaire pour tester
+3. Vous verrez le tableau de bord agent avec les notations à compléter
+4. Cliquez sur une notation et remplissez le formulaire pour tester
 
 ### En tant qu'admin :
 1. Connectez-vous avec **admin@entreprise.com** / **Admin123!**
 2. Consultez les statistiques dans **Vue d'ensemble**
 3. Explorez **Campagnes** pour voir la progression
 4. Consultez **Agents** pour gérer les utilisateurs
-5. Consultez **Questions** pour gérer les questions d'évaluation
+5. Consultez **Questions** pour gérer les questions d'notation
 
 ## Notes importantes
 
 - Les agents ne peuvent évaluer que d'autres agents (pas eux-mêmes)
-- Les administrateurs peuvent voir toutes les données mais ne participent pas aux évaluations
+- Les administrateurs peuvent voir toutes les données mais ne participent pas aux notations
 - Une seule campagne peut être active par période à la fois
 - Les scores vont de 1 à 5 pour chaque question
 - Les commentaires sont optionnels
@@ -90,7 +90,7 @@ Le système va automatiquement :
 ## Requêtes SQL utiles pour déboguer
 
 ```sql
--- Voir toutes les évaluations d'une campagne
+-- Voir toutes les notations d'une campagne
 SELECT 
   e.id,
   eval.first_name || ' ' || eval.last_name as evaluateur,
@@ -128,5 +128,5 @@ ORDER BY qc.label, q.weight DESC;
 **Problème : "Aucune notation trouvée"**
 - Solution : Créez une campagne via l'interface admin
 
-**Problème : L'agent ne voit pas ses évaluations**
+**Problème : L'agent ne voit pas ses notations**
 - Solution : Vérifiez que la campagne est active et que l'agent est actif

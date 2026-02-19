@@ -18,70 +18,42 @@ import { Button } from "@/components/ui/button";
 import { Eye, HardDriveDownload } from "lucide-react";
 import Link from "next/link";
 import { EvaluationNotee, Form } from "@/lib/types/database";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useAuth } from "@/lib/actions/auth-context";
 import { api } from "@/lib/api/api";
-
-type PersonRef = {
-  matricule?: string | null;
-  first_name?: string | null;
-  last_name?: string | null;
-  role_code?: string | null;
-} | null;
-
-type AdminAgentEvaluationInput = {
-  id: string;
-  submitted_at: string | null;
-  evaluator_matricule?: string | null;
-  evaluator_first_name?: string | null;
-  evaluator_last_name?: string | null;
-  evaluator_role_code?: string | null;
-  evaluated_matricule?: string | null;
-  evaluated_first_name?: string | null;
-  evaluated_last_name?: string | null;
-};
-
-type EvaluationSummaryRow = {
-  evaluation_id: string;
-  completion_pct: number | null;
-  weighted_avg_score: number | null;
-};
-
-interface AdminAgentsEvaluationsTableProps {
-  evaluations: AdminAgentEvaluationInput[];
-}
+import { downloadEvaluationPdf } from "./evaluations-received-table";
 
 export function AdminAgentsEvaluationsTable({ form }: { form: Form }) {
   const { user } = useAuth();
   const [evaluations, setEvaluations] = useState<EvaluationNotee[]>([]);
   const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(1);
+  const PAGE_SIZES = [10, 20, 50, 100] as const;
+  const [pageSize, setPageSize] = useState<(typeof PAGE_SIZES)[number]>(20);
+
+  const totalItems = evaluations.length;
+  const totalPages = Math.max(1, Math.ceil(totalItems / pageSize));
 
   useEffect(() => {
     (async () => {
       if (!form) return;
       const datas = await api.get<EvaluationNotee[]>(
-        `/api/forms/${form.id}/evaluations/submitted/stats/`,
+        `/api/forms/${form.id}/evaluations/all-submitted/`,
       );
       setEvaluations(datas);
       setLoading(false);
     })();
   }, [form]);
 
-  if (loading) {
-    return (
-      <Card>
-        <CardHeader>
-          <CardTitle>Notations des agents</CardTitle>
-          <CardDescription>
-            Notes reçues par les agents pour la campagne sélectionnée
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="text-sm text-muted-foreground">Chargement…</div>
-        </CardContent>
-      </Card>
-    );
-  }
+  // Si evaluations change (filtre, reload), on garde page valide
+  useMemo(() => {
+    if (page > totalPages) setPage(totalPages);
+  }, [page, totalPages]);
+
+  const pagedEvaluations = useMemo(() => {
+    const start = (page - 1) * pageSize;
+    return evaluations.slice(start, start + pageSize);
+  }, [evaluations, page, pageSize]);
 
   if (!evaluations?.length) {
     return (
@@ -109,8 +81,8 @@ export function AdminAgentsEvaluationsTable({ form }: { form: Form }) {
           <Table>
             <TableHeader>
               <TableRow className="bg-primary">
-                <TableHead className="text-white">Évalué</TableHead>
                 <TableHead className="text-white">Évaluateur</TableHead>
+                <TableHead className="text-white">Évalué</TableHead>
                 <TableHead className="text-center text-white">Taux</TableHead>
                 <TableHead className="text-center text-white">
                   Moyenne
@@ -124,7 +96,7 @@ export function AdminAgentsEvaluationsTable({ form }: { form: Form }) {
             </TableHeader>
 
             <TableBody>
-              {evaluations.map((eva) => {
+              {pagedEvaluations.map((eva) => {
                 const evaluatedName =
                   `${eva.evaluation?.evaluated.first_name ?? ""} ${eva.evaluation?.evaluated.last_name ?? ""}`.trim();
                 const evaluatedMat = eva.evaluation?.evaluated.matricule ?? "";
@@ -153,18 +125,18 @@ export function AdminAgentsEvaluationsTable({ form }: { form: Form }) {
                   <TableRow key={eva.evaluation.id}>
                     <TableCell className="font-medium">
                       <div className="flex flex-col">
-                        <span>{evaluatedName || "-"}</span>
+                        <span>{evaluatorName || "-"}</span>
                         <span className="text-xs text-muted-foreground">
-                          {evaluatedMat}
+                          {evaluatorMat}
                         </span>
                       </div>
                     </TableCell>
 
                     <TableCell className="font-medium">
                       <div className="flex flex-col">
-                        <span>{evaluatorName || "-"}</span>
+                        <span>{evaluatedName || "-"}</span>
                         <span className="text-xs text-muted-foreground">
-                          {evaluatorMat}
+                          {evaluatedMat}
                         </span>
                       </div>
                     </TableCell>
@@ -199,20 +171,76 @@ export function AdminAgentsEvaluationsTable({ form }: { form: Form }) {
                           Voir
                         </Button>
                       </Link>
-                      <Link
-                        href={`/dashboard/evaluations/${eva.evaluation.id}/telecharger`}
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => downloadEvaluationPdf(eva.evaluation)}
                       >
-                        <Button variant="ghost" size="sm">
-                          <HardDriveDownload className="h-4 w-4 mr-1" />
-                          Télécharger
-                        </Button>
-                      </Link>
+                        <HardDriveDownload className="h-4 w-4 mr-1" />
+                        Télécharger
+                      </Button>
                     </TableCell>
                   </TableRow>
                 );
               })}
             </TableBody>
           </Table>
+        </div>
+
+        <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="text-sm text-muted-foreground">
+            Affichage{" "}
+            <span className="font-medium text-foreground">
+              {totalItems === 0 ? 0 : (page - 1) * pageSize + 1}
+            </span>{" "}
+            à{" "}
+            <span className="font-medium text-foreground">
+              {Math.min(page * pageSize, totalItems)}
+            </span>{" "}
+            sur{" "}
+            <span className="font-medium text-foreground">{totalItems}</span>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-muted-foreground">Lignes/page</span>
+            <select
+              className="h-9 rounded-md border border-border bg-background px-2 text-sm"
+              value={pageSize}
+              onChange={(e) => {
+                setPageSize(Number(e.target.value) as any);
+                setPage(1);
+              }}
+            >
+              {PAGE_SIZES.map((s) => (
+                <option key={s} value={s}>
+                  {s}
+                </option>
+              ))}
+            </select>
+
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={page <= 1}
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+            >
+              Précédent
+            </Button>
+
+            <div className="min-w-[90px] text-center text-sm">
+              Page <span className="font-medium">{page}</span> /{" "}
+              <span className="font-medium">{totalPages}</span>
+            </div>
+
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={page >= totalPages}
+              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+            >
+              Suivant
+            </Button>
+          </div>
         </div>
       </CardContent>
     </Card>

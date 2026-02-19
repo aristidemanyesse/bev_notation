@@ -111,7 +111,7 @@ export function EvaluationForm({ evaluation }: { evaluation: Evaluation }) {
         <Alert className="bg-green-50 dark:bg-green-950 border-green-200 dark:border-green-800">
           <CheckCircle2 className="h-4 w-4 text-green-600 dark:text-green-400" />
           <AlertDescription className="text-green-800 dark:text-green-200">
-            Cette évaluation a déjà été soumise.
+            Cette notation a déjà été soumise.
           </AlertDescription>
         </Alert>
       )}

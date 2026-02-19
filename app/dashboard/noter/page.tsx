@@ -71,7 +71,7 @@ export default function NoterPage({
       } catch {
         toast({
           title: "Erreur",
-          description: "Erreur récupération des évaluations en attente",
+          description: "Erreur récupération des notations en attente",
           variant: "destructive",
         });
       }

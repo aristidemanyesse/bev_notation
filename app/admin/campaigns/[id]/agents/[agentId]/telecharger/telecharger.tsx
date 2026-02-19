@@ -3,6 +3,20 @@ import React from "react"
 import { Document, Page, Text, View, StyleSheet, Image } from "@react-pdf/renderer"
 import { Agent, Form } from "@/lib/types/database"
 
+type PdfEval = {
+  id?: string | null
+  submitted_at: string | null
+  form: { title?: string | null; period?: string | null } | null
+  evaluated: {
+    matricule?: string | null
+    first_name?: string | null
+    last_name?: string | null
+    direction?: string | null
+    service?: string | null
+    contact?: string | null
+  } | null
+  evaluator: { first_name?: string | null; last_name?: string | null } | null
+}
 
 const COLORS = {
   border: "#333333",
@@ -56,6 +70,7 @@ const styles = StyleSheet.create({
   // Meta info block
   meta: { marginBottom: 10, lineHeight: 1.35 },
   metaLine: { marginBottom: 4 },
+  metaLineFooter: { marginTop: 3, textAlign: "center", color: "grey", fontSize: 9},
   metaLabel: { fontWeight: "bold" },
 
   // Table
@@ -109,7 +124,7 @@ const styles = StyleSheet.create({
   // Footer
   footerHint: { marginTop: 18, fontSize: 9 },
   footerLine: { marginTop: 6, borderBottomWidth: 2, borderBottomColor: COLORS.border },
-  footerCols: { marginTop: 6, flexDirection: "row", fontSize: 9, justifyContent: "space-between" },
+  footerCols: { marginTop: 3, flexDirection: "row", fontSize: 9, justifyContent: "space-between" },
   footerCol: { width: "33%" },
 })
 
@@ -140,7 +155,7 @@ export function CampaignFinalPdf({
   const matricule = agent?.matricule ?? ""
 
   const title = form?.title ?? ""
-  const submittedAt = new Date().toLocaleDateString("fr-FR")
+  const submittedAt =  new Date().toLocaleDateString("fr-FR")
 
   const evaluatorName = ""
 
@@ -161,7 +176,7 @@ export function CampaignFinalPdf({
             <Text style={styles.ministryLine}>SOUS-DIRECTION DES ENQUÊTES,</Text>
             <Text style={styles.ministryLine}>DES RECOUPEMENTS ET DU RENSEIGNEMENT</Text>
             <Text style={styles.dashed}>---------</Text>
-            <Text style={styles.ministryLine}>Brigade d'enquête et de Visite</Text>
+            <Text style={styles.ministryLine}>BRIGADE D'ENQUETES ET DE VISITE</Text>
             <Text style={styles.dashed}>---------</Text>
           </View>
 
@@ -173,6 +188,7 @@ export function CampaignFinalPdf({
           </View>
         </View>
 
+        {/* <Text style={styles.idLine}>ID : {docId ?? evaluation.id ?? "-"}</Text> */}
 
         {/* TITLE */}
         <View style={styles.titleWrap}>
@@ -188,12 +204,16 @@ export function CampaignFinalPdf({
 
         <View style={styles.meta}>
 
-          <View>
-              <View style={{width: "65%"}}>
-                <Text style={styles.metaLabel}>NOM DE L’AGENT :</Text> {agentName}
+          <View style={styles.topRow}>
+              <View >
+                <Text>
+                  <Text style={styles.metaLabel}>NOM DE L’AGENT :</Text> {agentName}
+                </Text>
               </View>
-              <View style={{width: "35%"}}>
-                <Text style={styles.metaLabel}>MATRICULE :</Text> {matricule}
+              <View>
+                <Text>
+                  <Text style={styles.metaLabel}>MATRICULE :</Text> {matricule}
+                </Text>
               </View>
           </View>
 
@@ -202,12 +222,11 @@ export function CampaignFinalPdf({
           </Text>
 
           <Text style={styles.metaLine}>
-            <Text style={styles.metaLabel}>SOUS-DIRECTION :</Text> DIRECTION DES ENQUÊTES, DU RENSEIGNEMENT ET DE L'ANALYSE-RISQUE
+            <Text style={styles.metaLabel}>SOUS-DIRECTION :</Text> SOUS-DIRECTION DES ENQUÊTES, DES RECOUPEMENTS ET DU RENSEIGNEMENT
           </Text>
 
           <Text style={styles.metaLine}>
-            <Text style={styles.metaLabel}>SERVICE :</Text> Brigade d'enquête et de Visite
-          </Text>
+            <Text style={styles.metaLabel}>SERVICE :</Text> BRIGADE D'ENQUETES ET DE VISITE </Text>
         </View>
 
         {/* TABLE */}
@@ -244,7 +263,7 @@ export function CampaignFinalPdf({
           {/* MOYENNE */}
           <View style={styles.totalsRow}>
             <Text style={styles.totalsLeft}>
-              MOYENNE (Totaux des notes affectées des coefficients /{totalCoeff || 1})
+              MOYENNE (Totaux des notes affectées des coefficients / {totalCoeff || 1})
             </Text>
             <Text style={styles.moyenneMid}>{moyenne}</Text>
             <Text style={styles.moyenneRightGrey}></Text>
@@ -262,7 +281,7 @@ export function CampaignFinalPdf({
         <View style={styles.signBlock}>
           <View style={styles.signLine} />
           <Text style={styles.signText}>
-            Noté le {new Date().toLocaleDateString("fr-FR")} par
+            Fait le {new Date().toLocaleDateString("fr-FR")}
           </Text>
           <Text style={styles.signName}>{evaluatorName || ""}</Text>
         </View>
@@ -271,9 +290,13 @@ export function CampaignFinalPdf({
         <Text style={styles.footerHint}>Ce document est à joindre à l’état trimestriel des ristournes</Text>
         <View style={styles.footerLine} />
 
-        <View style={styles.footerCols}>
-          <Text style={{textAlign: "center", color: "grey"}}>DERAR-Abidjan - Deux Plateaux Vallons - rue des jardins - BP V 103 Abidjan - Tél : 27 22 41 20 96 - Fax : 27 22 41 32 20</Text>
-          <Text style={{textAlign: "center", color: "grey"}}>Site web: www.dgi.gouv.ci - Email: info@dgi.gouv.ci - Ligne verte: 800 88 888</Text>
+        <View>
+          <Text style={styles.metaLineFooter}>
+            <Text>DERAR-Abidjan - Deux Plateaux Vallons - rue des jardins - BP V 103 Abidjan - Tél : 27 22 41 20 96 - Fax : 27 22 41 32 20</Text>
+          </Text>
+          <Text style={styles.metaLineFooter}>
+            <Text>Site web: www.dgi.gouv.ci - Email: info@dgi.gouv.ci - Ligne verte: 800 88 888</Text>
+          </Text>
         </View>
       </Page>
     </Document>

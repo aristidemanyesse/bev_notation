@@ -80,7 +80,7 @@ export async function updatePassword(newPassword: string) {
       return { error: "Le mot de passe doit contenir au moins 8 caractères." }
     }
 
-    await api.post("/api/users/update-password/", {
+    await api.post("/api/agents/update-password/", {
       password: newPassword,
     })
 

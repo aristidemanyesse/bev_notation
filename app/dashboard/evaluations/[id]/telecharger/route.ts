@@ -6,28 +6,23 @@ import type { Answer, Evaluation } from "@/lib/types/database"
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || ""
 
 // Helper: normalize object | object[]
+async function backendGet<T>(path: string, auth: string): Promise<T> {
+  const res = await fetch(`${API_BASE_URL}${path}`, {
+    headers: { Authorization: auth, "Content-Type": "application/json" },
+    cache: "no-store",
+  })
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}))
+    throw new Error(err?.detail || err?.message || `Backend error ${res.status}`)
+  }
+  return res.json() as Promise<T>
+}
+
 function one<T>(v: T | T[] | null | undefined): T | null {
   if (!v) return null
   return Array.isArray(v) ? (v[0] ?? null) : v
 }
 
-// Helper: call backend with forwarded Authorization
-async function backendGet<T>(path: string, auth: string): Promise<T> {
-  const res = await fetch(`${API_BASE_URL}${path}`, {
-    headers: {
-      Authorization: auth,
-      "Content-Type": "application/json",
-    },
-    cache: "no-store",
-  })
-
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({}))
-    throw new Error(err?.detail || err?.message || `Backend error ${res.status}`)
-  }
-
-  return res.json() as Promise<T>
-}
 
 export async function GET(
   req: Request,
@@ -37,23 +32,22 @@ export async function GET(
   try {
     // 1️⃣ Récupérer le token envoyé par le client
     const auth = req.headers.get("authorization")
-    if (!auth) {
-      return new NextResponse("Unauthorized", { status: 401 })
-    }
+    if (!auth) return new NextResponse("Unauthorized", { status: 401 })
 
-    // 2️⃣ Paramètre
-    const { id: evaluationId } = await params
+    const { id } = await params
 
     // 3️⃣ Appels backend Django
     const evaluation = await backendGet<Evaluation>(
-      `/api/evaluations/${evaluationId}/`,
+      `/api/evaluations/${id}/`,
       auth
     )
 
     const answersRaw = await backendGet<Answer[]>(
-      `/api/evaluations/${evaluationId}/answers/`,
+      `/api/evaluations/${id}/answers/`,
       auth
     )
+
+    console.log("ANSWERS RAW:", answersRaw) // <-- debug
 
     // 4️⃣ Normalisation
     const form = one<any>(evaluation.form)

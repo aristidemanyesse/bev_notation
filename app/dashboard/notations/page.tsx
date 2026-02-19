@@ -71,14 +71,13 @@ export default function NotationsPage({searchParams}: {searchParams: Promise<{ c
           <EvaluationsReceivedTable
               form = {selectedCampaign!}
             />
-
-        </div>
-
-
-        {/* Bloc 2 : Notations des agents (ADMIN seulement) */}
+            
         {user?.role?.code === "ADMIN" && (
           <AdminAgentsEvaluationsTable form={selectedCampaign!} />
         )}
+        </div>
+
+
     </DashboardShell>
   )
 }

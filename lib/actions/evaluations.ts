@@ -32,7 +32,7 @@ export async function submitEvaluation(
       // ou PATCH /api/evaluations/:id { submitted_at: ... }
     } catch (e) {
       console.error("EVAL ERROR:", e)
-      return { error: "Echec lors de la soumission de l'évaluation" }
+      return { error: "Echec lors de la soumission de l'notation" }
     }
 
     return { success: true }

@@ -45,15 +45,12 @@ export function EvaluationsGivenTable({ form }: { form: Form }) {
   // Rien à afficher
   if (!evaluations?.length) {
     return (
-      <Card>
-        <CardHeader>
-          <CardTitle>Les agents que vous avez notés</CardTitle>
-          <CardDescription>Les agents que vous avez noté lors du trimestre</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="text-sm text-muted-foreground">Aucune notation soumise.</div>
-        </CardContent>
-      </Card>
+      <div className="flex flex-col items-center justify-center gap-2 rounded-lg border border-dashed p-8 text-muted-foreground">
+            <Eye className="h-6 w-6 opacity-50" />
+            <p className="text-sm">
+              Aucun agent encore noté pour ce trimestre.
+            </p>
+        </div>
     )
   }
 

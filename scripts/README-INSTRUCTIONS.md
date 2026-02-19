@@ -6,7 +6,7 @@ Exécutez le fichier `seed-data-fixed.sql` dans le SQL Editor de Supabase.
 
 Ce script va créer :
 - Les catégories de questions (Technique, Comportement, etc.)
-- 12 questions d'évaluation prêtes à l'emploi
+- 12 questions d'notation prêtes à l'emploi
 
 ## Étape 2 : Créer les utilisateurs dans Supabase Auth
 
@@ -37,11 +37,11 @@ Une fois les utilisateurs créés dans Supabase Auth :
    - **Rôle** : Administrateur ou Agent
    - **Agent actif** : Oui
 
-## Étape 4 : Créer une campagne d'évaluation
+## Étape 4 : Créer une campagne d'notation
 
 1. Allez dans **Campagnes > Nouvelle campagne**
 2. Remplissez :
-   - **Titre** : Évaluation Trimestrielle T1 2025
+   - **Titre** : notation Trimestrielle T1 2025
    - **Période** : 2025-T1
    - **Sélectionnez toutes les questions** que vous voulez inclure
    - **Activer la campagne immédiatement** : Oui
@@ -50,15 +50,15 @@ Une fois les utilisateurs créés dans Supabase Auth :
 
 Le système va automatiquement :
 - Associer les questions sélectionnées au formulaire
-- Créer toutes les évaluations croisées entre agents (chaque agent évalue tous les autres)
+- Créer toutes les notations croisées entre agents (chaque agent évalue tous les autres)
 
 ## Étape 5 : Tester le système
 
 ### En tant qu'agent :
 1. Déconnectez-vous
 2. Connectez-vous avec **marie.dupont@entreprise.com**
-3. Vous verrez les évaluations à compléter
-4. Remplissez une évaluation pour tester
+3. Vous verrez les notations à compléter
+4. Remplissez une notation pour tester
 
 ### En tant qu'admin :
 1. Connectez-vous avec **admin@entreprise.com**
@@ -69,14 +69,14 @@ Le système va automatiquement :
 ## Notes importantes
 
 - Les agents ne peuvent évaluer que d'autres agents (pas eux-mêmes)
-- Les administrateurs peuvent voir toutes les données mais ne participent pas aux évaluations
+- Les administrateurs peuvent voir toutes les données mais ne participent pas aux notations
 - Une seule campagne peut être active par période à la fois
 - Les scores vont de 1 à 5 pour chaque question
 
 ## Requêtes SQL utiles
 
 ```sql
--- Voir toutes les évaluations d'une campagne
+-- Voir toutes les notations d'une campagne
 SELECT 
   e.id,
   eval.first_name || ' ' || eval.last_name as evaluateur,

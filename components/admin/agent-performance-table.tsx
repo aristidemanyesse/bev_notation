@@ -17,7 +17,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import type { AdminCampaignAgentStats, Form } from "@/lib/types/database";
+import type { AdminCampaignAgentStats, Agent, Form } from "@/lib/types/database";
 import { ArrowUpDown, HardDriveDownload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { api } from "@/lib/api/api";
@@ -52,11 +52,11 @@ export function AgentPerformanceTable({ campaign }: { campaign: Form }) {
     }
   };
 
-  async function downloadFinalRecap(formId: string, agentId: string) {
+  async function downloadFinalRecap(form: Form, agent: Agent) {
     const tokens = api.getTokens();
     if (!tokens?.access) throw new Error("Non authentifié");
 
-    const url = `/admin/campaigns/${formId}/agents/${agentId}/telecharger`;
+    const url = `/admin/campaigns/${form.id}/agents/${agent.id}/telecharger`;
     const res = await fetch(url, {
       headers: { Authorization: `Bearer ${tokens.access}` },
       cache: "no-store",
@@ -70,7 +70,8 @@ export function AgentPerformanceTable({ campaign }: { campaign: Form }) {
     const blob = await res.blob();
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
-    a.download = `bulletin_final_${formId}_${agentId}.pdf`;
+    a.download = `Notation final de ${agent?.matricule} - ${form?.title}.pdf`
+
     document.body.appendChild(a);
     a.click();
     a.remove();
@@ -174,7 +175,7 @@ export function AgentPerformanceTable({ campaign }: { campaign: Form }) {
                       onClick={(e) => {
                         e.preventDefault();
                         e.stopPropagation();
-                        downloadFinalRecap(stat.form.id, stat.agent.id).catch(
+                        downloadFinalRecap(stat.form, stat.agent).catch(
                           console.error,
                         );
                       }}

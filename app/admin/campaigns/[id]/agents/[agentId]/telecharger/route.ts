@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server"
 import { renderToBuffer } from "@react-pdf/renderer"
-import { CampaignFinalPdf } from "./telecharger"
 import { Agent, Form } from "@/lib/types/database"
+import { CampaignFinalPdf } from "./telecharger"
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || ""
 
@@ -41,6 +41,8 @@ export async function GET(
 
     const form = one<Form>(payload.form) ?? payload.form ?? null
     const agent = one<Agent>(payload.agent) ?? payload.agent ?? null
+    const fileName = `Notation final de ${agent?.matricule} - ${form?.title}.pdf`
+
 
     // Cas 1: backend renvoie déjà rows finalisées
     if (Array.isArray(payload.rows)) {
@@ -70,8 +72,6 @@ export async function GET(
           docId: `FINAL-${form?.period ?? ""}-${agent?.matricule ?? ""}`,
         })
       )
-
-      const fileName = `bulletin_final_${form?.period ?? "campagne"}_${agent?.matricule ?? ""}.pdf`
 
       return new NextResponse(new Uint8Array(pdfBuffer), {
         status: 200,
@@ -132,8 +132,6 @@ export async function GET(
         docId: `FINAL-${form?.period ?? ""}-${agent?.matricule ?? ""}`,
       })
     )
-
-    const fileName = `bulletin_final_${form?.period ?? "campagne"}_${agent?.matricule ?? ""}.pdf`
 
     return new NextResponse(new Uint8Array(pdfBuffer), {
       status: 200,

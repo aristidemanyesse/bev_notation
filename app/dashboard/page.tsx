@@ -4,7 +4,7 @@ import { DashboardShell } from "@/components/layout/dashboard-shell";
 import { CampaignSelect } from "@/components/dashboard/campaign-select";
 import { api } from "@/lib/api/api";
 import { useAuth } from "@/lib/actions/auth-context";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { use, useCallback, useEffect, useMemo, useState } from "react";
 import { DashboardSummary, Evaluation, Form } from "@/lib/types/database";
 import { toast } from "@/hooks/use-toast";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -22,12 +22,6 @@ export default function DashboardPage({
   const [activeCampaigns, setActiveCampaigns] = useState<Form[]>([]);
   const [selectedCampaign, setSelectedCampaign] = useState<Form | null>(null);
   const [summary, setSummary] = useState<DashboardSummary | null>(null);
-  const [pendingEvaluations, setPendingEvaluations] = useState<Evaluation[]>(
-    [],
-  );
-  const [totalEvaluationsReceived, setTotalEvaluationsReceived] = useState(0);
-  const [totalEvaluationsDone, setTotalEvaluationsDone] = useState(0);
-  const [expectedEvaluations, setExpectedEvaluations] = useState(0);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -56,10 +50,24 @@ export default function DashboardPage({
           variant: "destructive",
         });
       }
+      setLoading(false);
+    })();
 
-      try {
+    return () => {
+      cancelled = true;
+    };
+    // ✅ IMPORTANT: PAS de selectedCampaign en deps
+  }, [searchParams]);
+
+  useEffect(() => {
+    if (!selectedCampaign) return;
+
+    let cancelled = false;
+
+    (async () => {
+        try {
         const response = await api.get<DashboardSummary>(
-          `/api/evaluations/my_dashboard/?form_id=${selectedCampaign?.id}`,
+          `/api/forms/${selectedCampaign?.id}/my_dashboard/`,
         );
         if (!cancelled) setSummary(response);
       } catch {
@@ -70,41 +78,14 @@ export default function DashboardPage({
           variant: "destructive",
         });
       }
-
-      try {
-        const datas = await api.get<Evaluation[]>(
-          `/api/forms/${selectedCampaign?.id}/evaluations/pending/`,
-        );
-        if (!cancelled) setPendingEvaluations(datas);
-      } catch {
-        setLoading(false);
-        toast({
-          title: "Erreur",
-          description: "Erreur récupération des évaluations en attente",
-          variant: "destructive",
-        });
-      }
       setLoading(false);
     })();
 
-    return () => {
-      cancelled = true;
-    };
-    // ✅ IMPORTANT: PAS de selectedCampaign en deps
-  }, [searchParams, selectedCampaign?.id]);
+    return () => { cancelled = true };
 
-  const completionRate = useMemo(() => {
-    setTotalEvaluationsReceived(summary?.evaluations_received || 0);
-    setTotalEvaluationsDone(summary?.evaluations_done || 0);
-    setExpectedEvaluations(pendingEvaluations?.length || 0);
-    return expectedEvaluations > 0
-      ? Math.round(
-          (totalEvaluationsDone /
-            (totalEvaluationsDone + expectedEvaluations)) *
-            100,
-        )
-      : 100;
-  }, [summary?.evaluations_done, pendingEvaluations?.length]);
+    // ✅ IMPORTANT: PAS de selectedCampaign en deps
+  }, [selectedCampaign]);
+
 
   if (loading) {
     return (
@@ -158,8 +139,8 @@ export default function DashboardPage({
                 <CardContent className="text-center h-55">
                   <div className="h-6"> </div>
                   <div className="text-9xl font-bold">
-                    {summary.global_score
-                      ? summary.global_score.toFixed()
+                    {summary.weighted_score
+                      ? summary.weighted_score.toFixed()
                       : "N/A"}
                   </div>
                   <p className="text-xs text-muted-foreground">{selectedCampaign?.title}</p>
@@ -176,8 +157,8 @@ export default function DashboardPage({
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold">
-                    {summary.global_score
-                      ? summary.global_score.toFixed(2)
+                    {summary.weighted_score
+                      ? summary.weighted_score.toFixed(2)
                       : "N/A"}
                   </div>
                   <p className="text-xs text-muted-foreground">Totaux des notes affectés des coefficients</p>
@@ -190,7 +171,7 @@ export default function DashboardPage({
                   <Users className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">{totalEvaluationsReceived} / {expectedEvaluations}</div>
+                  <div className="text-2xl font-bold">{summary.total_given} / {summary.total_to_given}</div>
                   <p className="text-xs text-muted-foreground">Ceux qui vous ont notés</p>
                 </CardContent>
               </Card>
@@ -202,12 +183,12 @@ export default function DashboardPage({
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold">
-                    {totalEvaluationsDone}
+                    {summary.total_completed}
                   </div>
                   <p className="text-xs text-muted-foreground">
-                    {completionRate}% de Taux de complétion
+                    {summary.completion_rate}% de Taux de complétion
                   </p>
-                  <Progress value={completionRate} className="mt-2 h-1" />
+                  <Progress value={summary.completion_rate} className="mt-2 h-1" />
                 </CardContent>
               </Card>
 
@@ -218,7 +199,7 @@ export default function DashboardPage({
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold">
-                    {expectedEvaluations}
+                    {summary.total_pending}
                   </div>
                   <p className="text-xs text-muted-foreground">
                     Notations à terminer

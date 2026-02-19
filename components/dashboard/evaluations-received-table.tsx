@@ -19,7 +19,7 @@ import { Eye, HardDriveDownload } from "lucide-react";
 import Link from "next/link";
 import { useAuth } from "@/lib/actions/auth-context";
 import { useEffect, useState } from "react";
-import { EvaluationNotee, Form } from "@/lib/types/database";
+import { Evaluation, EvaluationNotee, Form } from "@/lib/types/database";
 import { api } from "@/lib/api/api";
 
 /**
@@ -28,6 +28,44 @@ import { api } from "@/lib/api/api";
  * - Moyenne pondérée (weighted_avg_score)
  * - Note globale = arrondi entier de la moyenne
  */
+
+
+export function downloadEvaluationPdf(evaluation: Evaluation) {
+  const tokens = api.getTokens()
+  
+
+  if (!tokens?.access) {
+    alert("Vous devez être connecté")
+    return
+  }
+  
+  fetch(`/dashboard/evaluations/${evaluation.id}/telecharger`, {
+    headers: {
+      Authorization: `Bearer ${tokens.access}`,
+    },
+  })
+    .then((res) => {
+      if (!res.ok) throw new Error("Erreur téléchargement")
+      return res.blob()
+    })
+    .then((blob) => {
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement("a")
+      a.href = url
+      a.download = `Notation de ${evaluation.evaluated.matricule} - ${evaluation.form.title}.pdf`
+      document.body.appendChild(a)
+      a.click()
+      a.remove()
+      URL.revokeObjectURL(url)
+    })
+    .catch((e) => {
+      console.error(e)
+      alert("Impossible de télécharger le PDF")
+    })
+}
+
+
+
 export function EvaluationsReceivedTable({ form }: { form: Form }) {
   const { user } = useAuth();
   const [evaluations, setEvaluations] = useState<EvaluationNotee[]>([]);
@@ -47,7 +85,7 @@ export function EvaluationsReceivedTable({ form }: { form: Form }) {
     return (
       <div className="flex flex-col items-center justify-center gap-2 rounded-lg border border-dashed p-8 text-muted-foreground">
         <Eye className="h-6 w-6 opacity-50" />
-        <p className="text-sm font-medium">Aucune évaluation reçue</p>
+        <p className="text-sm font-medium">Aucune notation reçue</p>
         <p className="text-xs">
           Les résultats apparaîtront ici une fois que des collègues vous auront
           noté.
@@ -73,41 +111,6 @@ export function EvaluationsReceivedTable({ form }: { form: Form }) {
       </Card>
     );
   }
-
-function downloadEvaluationPdf(evaluationId: string) {
-  const tokens = api.getTokens()
-  
-
-  if (!tokens?.access) {
-    alert("Vous devez être connecté")
-    return
-  }
-  
-  fetch(`/dashboard/evaluations/${evaluationId}/telecharger`, {
-    headers: {
-      Authorization: `Bearer ${tokens.access}`,
-    },
-  })
-    .then((res) => {
-      if (!res.ok) throw new Error("Erreur téléchargement")
-      return res.blob()
-    })
-    .then((blob) => {
-      const url = URL.createObjectURL(blob)
-      const a = document.createElement("a")
-      a.href = url
-      a.download = `evaluation_${evaluationId}.pdf`
-      document.body.appendChild(a)
-      a.click()
-      a.remove()
-      URL.revokeObjectURL(url)
-    })
-    .catch((e) => {
-      console.error(e)
-      alert("Impossible de télécharger le PDF")
-    })
-}
-
 
   return (
     <Card>
@@ -202,7 +205,7 @@ function downloadEvaluationPdf(evaluationId: string) {
                         </Button>
                       </Link>
 
-                      <Button onClick={() => downloadEvaluationPdf(eva.evaluation.id)} variant="ghost" size="sm">
+                      <Button onClick={() => downloadEvaluationPdf(eva.evaluation)} variant="ghost" size="sm">
                           <HardDriveDownload className="h-4 w-4 mr-1" />
                           Télécharger
                         </Button>

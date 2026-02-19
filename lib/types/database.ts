@@ -112,10 +112,13 @@ export interface AdminCampaignAgentStats {
 
 
 export type DashboardSummary = {
-  evaluations_received: number;
-  evaluations_done: number;
-  global_score: number;
-  total_reviews: number;
+  total_assigned: number;
+  total_completed: number;
+  total_pending: number;
+  total_given: number;
+  total_to_given: number;
+  weighted_score: number;
+  completion_rate : number;
 };
 
 
