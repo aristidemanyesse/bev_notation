@@ -9,6 +9,8 @@ import { useAuth } from "@/lib/actions/auth-context"
 import { api } from "@/lib/api/api"
 import { useEffect, useState } from "react"
 import { toast } from "@/hooks/use-toast"
+import { Eye } from "lucide-react";
+import { AdminAgentsEvaluationsTable } from "@/components/dashboard/admin-agents-evaluations-table";
 
 export default function NotationsPage({searchParams}: {searchParams: Promise<{ campaignId?: string }>}) {
   const {user} = useAuth();
@@ -17,7 +19,7 @@ export default function NotationsPage({searchParams}: {searchParams: Promise<{ c
   const [selectedCampaign, setSelectedCampaign] = useState<Form | null>(
     null,
   );
-  const [receivedEvaluations, setReceivedEvaluations] = useState<Evaluation[]>([]);
+  const [agentsEvaluations, setAgentsEvaluations] = useState<Evaluation[]>([]);
 
   useEffect(() => {
     let cancelled = false;
@@ -47,32 +49,6 @@ export default function NotationsPage({searchParams}: {searchParams: Promise<{ c
     // ✅ IMPORTANT: PAS de selectedCampaign en deps
   }, [searchParams]);
 
-  useEffect(() => {
-    if (!selectedCampaign) return;
-
-    let cancelled = false;
-
-    (async () => {
-      try {
-        const datas = await api.get<Evaluation[]>(
-          `/api/forms/${selectedCampaign.id}/evaluations/received/`,
-        );
-        if (!cancelled) setReceivedEvaluations(datas);
-      } catch {
-        toast({
-          title: "Erreur",
-          description: "Erreur récupération des évaluations en attente",
-          variant: "destructive",
-        });
-      }
-
-    })();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [selectedCampaign?.id]); // ✅ dépend uniquement de l'id
-
 
   return (
     <DashboardShell role={user?.role?.code as "ADMIN" | "AGENT"} user={user!}>
@@ -80,7 +56,7 @@ export default function NotationsPage({searchParams}: {searchParams: Promise<{ c
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <h2 className="text-2xl sm:text-3xl font-semibold tracking-tight">
-              {user.role?.code === "ADMIN"
+              {user?.role?.code === "ADMIN"
                 ? `Notations — ${selectedCampaign?.title}`
                 : `Mes notations — ${selectedCampaign?.title}`}
             </h2>
@@ -97,23 +73,12 @@ export default function NotationsPage({searchParams}: {searchParams: Promise<{ c
             />
 
         </div>
-        )}
+
 
         {/* Bloc 2 : Notations des agents (ADMIN seulement) */}
         {user?.role?.code === "ADMIN" && (
-          <div className="grid gap-6">
-            {agentsEvaluations.length > 0 ? (
-              <AdminAgentsEvaluationsTable evaluations={agentsEvaluations} />
-            ) : (
-              <div className="flex flex-col items-center justify-center gap-2 rounded-lg border border-dashed p-8 text-muted-foreground">
-                <Eye className="h-6 w-6 opacity-50" />
-                <p className="text-sm font-medium">Aucune notation des agents</p>
-                <p className="text-xs">Les notations soumises entre agents apparaîtront ici.</p>
-              </div>
-            )}
-          </div>
+          <AdminAgentsEvaluationsTable form={selectedCampaign!} />
         )}
-      </div>
     </DashboardShell>
   )
 }

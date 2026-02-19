@@ -74,27 +74,20 @@ export async function deleteAgent(router: AppRouterInstance, agentId: string) {
 }
 
 
-
-
 export async function updatePassword(newPassword: string) {
-  const supabase = await getSupabaseServerClient()
+  try {
+    if (!newPassword || newPassword.length < 8) {
+      return { error: "Le mot de passe doit contenir au moins 8 caractères." }
+    }
 
-  const {
-    data: { user },
-    error: userErr,
-  } = await supabase.auth.getUser()
+    await api.post("/api/users/update-password/", {
+      password: newPassword,
+    })
 
-  if (userErr || !user) {
-    return { error: "Utilisateur non authentifié." }
+    return { success: true }
+  } catch (e: any) {
+    return {
+      error: String(e?.message || "Erreur lors de la mise à jour du mot de passe"),
+    }
   }
-
-  const { error } = await supabase.auth.updateUser({
-    password: newPassword,
-  })
-
-  if (error) {
-    return { error: error.message }
-  }
-
-  return { success: true }
 }

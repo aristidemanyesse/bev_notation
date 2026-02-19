@@ -1,8 +1,10 @@
+"use client"
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { ChevronRight, CheckCircle2 } from "lucide-react"
-import { getCurrentUser } from "@/lib/actions/auth"
+import { useAuth } from "@/lib/actions/auth-context"
 
 interface EvaluationsListProps {
 evaluations: any[]
@@ -11,7 +13,7 @@ evaluations: any[]
 export async function  EvaluationsList({ evaluations }: EvaluationsListProps) {
 const pending = evaluations.filter((e) => !e.submitted_at)
 const completed = evaluations.filter((e) => e.submitted_at)
-const user = await getCurrentUser()
+const { user } = await useAuth()
 
 return (
 <Card>
@@ -50,7 +52,7 @@ return (
           </div>
         </div>
         <Button asChild size="sm">
-          <Link href={`/dashboard/evaluations/${evaluation.id}`}> Noter le {user.role?.code == "ADMIN" ? "collaborateur" : "collègue"} <ChevronRight className="ml-2 h-4 w-4" />
+          <Link href={`/dashboard/evaluations/${evaluation.id}`}> Noter le {user?.role?.code == "ADMIN" ? "collaborateur" : "collègue"} <ChevronRight className="ml-2 h-4 w-4" />
           </Link>
         </Button>
       </div>
