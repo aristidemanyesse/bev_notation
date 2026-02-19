@@ -1,5 +1,5 @@
 import { DashboardShell } from "@/components/layout/dashboard-shell"
-import { getCurrentUser } from "@/lib/actions/auth"
+
 import { redirect } from "next/navigation"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 

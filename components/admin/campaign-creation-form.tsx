@@ -12,11 +12,13 @@ import type { Question, Agent } from "@/lib/types/database"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Loader2 } from "lucide-react"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { ro } from "date-fns/locale"
+import { useRouter } from "next/navigation"
+import { useAuth } from "@/lib/actions/auth-context"
 
 interface CampaignCreationFormProps {
   questions: Question[]
   agents: Agent[]
-  createdBy: string
 }
 
 type Quarter = "T1" | "T2" | "T3" | "T4"
@@ -37,7 +39,9 @@ function buildPeriod(year: number, quarter: Quarter) {
   return `${year}-${quarter}`
 }
 
-export function CampaignCreationForm({ questions, agents, createdBy }: CampaignCreationFormProps) {
+export function CampaignCreationForm({ questions, agents }: CampaignCreationFormProps) {
+  const { user } = useAuth()
+  const router = useRouter()
   const now = new Date()
   const currentYear = now.getFullYear()
 
@@ -92,12 +96,12 @@ export function CampaignCreationForm({ questions, agents, createdBy }: CampaignC
       return
     }
 
-    const result = await createCampaign({
+    const result = await createCampaign(router, {
       title, // concat année + trimestre
       period: formData.quarter, // demandé: period = trimestre
       isActive: formData.isActive, // par défaut true
       questionIds: formData.selectedQuestions,
-      createdBy,
+      createdBy: user!.id,
       agentIds: agents.map((a) => a.id),
       // Si tu utilises aussi period "2025-T1" côté DB, remplace par: period
     })

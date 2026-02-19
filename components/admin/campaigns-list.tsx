@@ -20,7 +20,7 @@ export function CampaignsList({ campaigns }: CampaignsListProps) {
 
   const handleToggle = async (formId: string, currentStatus: boolean) => {
     setLoading(formId)
-    await toggleCampaignStatus(formId, !currentStatus)
+    await toggleCampaignStatus( router, formId, !currentStatus)
     setLoading(null)
     router.refresh()
   }
@@ -39,12 +39,12 @@ export function CampaignsList({ campaigns }: CampaignsListProps) {
 
             return (
               <div
-                key={campaign.form_id}
+                key={campaign.form.id}
                 className="flex items-center justify-between rounded-lg border border-border bg-card p-4"
               >
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-1">
-                    <p className="font-medium">{campaign.title}</p>
+                    <p className="font-medium">{campaign.form.title}</p>
                     <Badge
                       variant={status === "complete" ? "default" : status === "in-progress" ? "secondary" : "outline"}
                     >
@@ -52,13 +52,13 @@ export function CampaignsList({ campaigns }: CampaignsListProps) {
                     </Badge>
                   </div>
                   <p className="text-sm text-muted-foreground">
-                    {campaign.period} • {campaign.total_submitted_evaluations} / {campaign.total_expected_evaluations}{" "}
+                    {campaign.form.period} • {campaign.total_submitted_evaluations} / {campaign.total_expected_evaluations}{" "}
                     evaluations
                   </p>
                 </div>
                 <div className="flex items-center gap-3">
                   <Button asChild size="sm" variant="ghost">
-                    <Link href={`/admin/campaigns/${campaign.form_id}`}>
+                    <Link href={`/admin/campaigns/${campaign.form.id}`}>
                       Details
                       <ChevronRight className="ml-2 h-4 w-4" />
                     </Link>

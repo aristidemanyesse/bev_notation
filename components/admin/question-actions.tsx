@@ -29,7 +29,7 @@ export function QuestionActions({ question }: QuestionActionsProps) {
 
   const handleDelete = async () => {
     setIsDeleting(true)
-    const result = await deleteQuestion(question.id)
+    const result = await deleteQuestion(router, question.id)
 
     if (result.error) {
       alert(result.error)

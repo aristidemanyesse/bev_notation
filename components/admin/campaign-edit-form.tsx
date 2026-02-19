@@ -1,7 +1,7 @@
 "use client"
 
 import type React from "react"
-import { useMemo, useState } from "react"
+import { use, useEffect, useMemo, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -12,6 +12,7 @@ import type { Question, Form } from "@/lib/types/database"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Loader2 } from "lucide-react"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { useRouter } from "next/navigation"
 
 interface CampaignEditFormProps {
   form: Form
@@ -55,12 +56,16 @@ function buildTitle(year: number, quarter: Quarter) {
 }
 
 export function CampaignEditForm({ form, questions, selectedQuestionIds }: CampaignEditFormProps) {
+  const router = useRouter()
   const now = new Date()
   const currentYear = now.getFullYear()
 
   const yearOptions = useMemo(() => [currentYear - 1, currentYear, currentYear + 1], [currentYear])
 
-  const initial = useMemo(() => parseYearAndQuarterFromTitleOrPeriod(form), [form])
+  const initial = useMemo(() => {
+    if (!form) return { year: currentYear, quarter: "T1" }
+    return parseYearAndQuarterFromTitleOrPeriod(form)
+  }, [form])
 
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -69,11 +74,19 @@ export function CampaignEditForm({ form, questions, selectedQuestionIds }: Campa
   const [formData, setFormData] = useState(() => ({
     year: initial.year,
     quarter: initial.quarter,
-    isActive: form.is_active,
-    selectedQuestions: selectedQuestionIds as string[],
+    isActive: form?.is_active ?? false,
+    selectedQuestions: [...selectedQuestionIds],
   }))
 
-  const title = useMemo(() => buildTitle(formData.year, formData.quarter), [formData.year, formData.quarter])
+  useEffect(() => {
+    setFormData((prev) => ({
+      ...prev,
+      isActive: form?.is_active ?? false,
+      selectedQuestions: [...selectedQuestionIds],
+    }))
+  }, [selectedQuestionIds, form])
+
+  const title = useMemo(() => buildTitle(formData.year, formData.quarter as Quarter), [formData.year, formData.quarter])
   const period = useMemo(() => formData.quarter, [formData.quarter]) // demandé: period = trimestre
 
   const handleQuestionToggle = (questionId: string) => {
@@ -105,7 +118,7 @@ export function CampaignEditForm({ form, questions, selectedQuestionIds }: Campa
       return
     }
 
-    const result = await updateCampaign({
+    const result = await updateCampaign(router, {
       formId: form.id,
       title, // concat année + trimestre
       period, // trimestre uniquement (T1..T4)

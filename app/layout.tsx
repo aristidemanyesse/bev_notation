@@ -4,6 +4,7 @@ import { Geist, Geist_Mono } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
 import { PageTransition } from "@/components/layout/page-transition"
 import "./globals.css"
+import { AuthProvider } from "@/lib/actions/auth-context"
 
 const _geist = Geist({ subsets: ["latin"] })
 const _geistMono = Geist_Mono({ subsets: ["latin"] })
@@ -38,10 +39,13 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="fr">
+      
       <body className={`font-sans antialiased`}>
-        <PageTransition />
-        {children}
-        <Analytics />
+        <AuthProvider>
+          <PageTransition />
+          {children}
+          <Analytics />
+        </AuthProvider>
       </body>
     </html>
   )

@@ -1,23 +1,47 @@
+"use client";
+
 import { DashboardShell } from "@/components/layout/dashboard-shell"
-import { getCurrentUser } from "@/lib/actions/auth"
-import { redirect } from "next/navigation"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { getSupabaseServerClient } from "@/lib/supabase/server"
+import { useAuth } from "@/lib/actions/auth-context"
+import { use, useEffect, useState } from "react"
+import { api } from "@/lib/api/api"
+import { Form } from "@/lib/types/database"
+
 
 export default async function EvaluationsPage() {
-  const user = await getCurrentUser()
+  const { user } = useAuth()
+
+  const [loading, setLoading] = useState(true)
+  const [activeForm, setActiveForm] = useState<Form | null>(null)
+
+  useEffect(() => {
+    ;(async () => {
+      try {
+        const e = await api.get<Form>(`/api/forms/active`)
+        setActiveForm(e)
+
+      } finally {
+        setLoading(false)
+      }
+    })()
+  }, [])
 
   if (!user) {
-    redirect("/login")
+    return <div>Chargement…</div>
   }
 
-
-  const supabase = await getSupabaseServerClient()
-
-  const { data: activeForm } = await supabase.from("forms").select("*").eq("is_active", true).single()
+  if (loading) {
+    return (
+      <DashboardShell role={user.role?.code as "ADMIN" | "AGENT"} user={user}>
+        <div className="space-y-6">
+          <h2 className="text-3xl font-semibold tracking-tight">Chargement…</h2>
+        </div>
+      </DashboardShell>
+    )
+  }
 
   return (
-    <DashboardShell role={user.role?.code as "ADMIN" | "AGENT"} user={user}>
+    <DashboardShell role={user?.role?.code as "ADMIN" | "AGENT"} user={user!}>
       <div className="space-y-6">
         <div>
           <h2 className="text-3xl font-semibold tracking-tight">My Evaluations</h2>

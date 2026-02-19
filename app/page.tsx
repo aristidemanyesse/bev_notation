@@ -1,12 +1,9 @@
+"use client";
+
+import { useAuth } from "@/lib/actions/auth-context"
 import { redirect } from "next/navigation"
-import { getCurrentUser } from "@/lib/actions/auth"
 
-export default async function HomePage() {
-  const user = await getCurrentUser()
-
-  if (!user) {
-    redirect("/login")
-  }
-
+export default function HomePage() {
+  const { user } = useAuth()
   redirect("/dashboard")
 }

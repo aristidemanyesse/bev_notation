@@ -8,31 +8,23 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-
-type Campaign = {
-  id: string
-  title: string
-  period: string
-}
+import { Form } from "@/lib/types/database"
 
 export function CampaignSelect({
   campaigns,
-  selectedCampaignId,
-  path = "/dashboard?campaignId=",
+  selectedCampaign,
+  onSelect = (campaign: Form) => {},
 }: {
-  campaigns: Campaign[] | null
-  selectedCampaignId: string
-  path: string
+  campaigns: Form[]
+  selectedCampaign: Form | null
+  onSelect?: (campaign: Form) => void
 }) {
   const router = useRouter()
 
   return (
     <Select
-      value={selectedCampaignId}
-      onValueChange={(value) => {
-        router.push(path)
-        router.push(`${path}${value}`)
-      }}
+      value={selectedCampaign?.id}
+      onValueChange={(value) => onSelect(campaigns.find((c) => c.id === value)!)}
     >
       <SelectTrigger className="w-[320px]">
         <SelectValue placeholder="Sélectionner un trimestre" />

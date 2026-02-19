@@ -1,15 +1,13 @@
-"use server"
+"use client"
 
-import { getSupabaseServerClient } from "@/lib/supabase/server"
-import { revalidatePath } from "next/cache"
+import { api } from "../api/api";
 
 export async function submitEvaluation(
   evaluationId: string,
   answers: Record<string, { score: number; comment: string }>
 ) {
+  
   try {
-    const supabase = await getSupabaseServerClient()
-
     // 1️⃣ Upsert des réponses (PAS de delete)
     const answersData = Object.entries(answers).map(
       ([questionId, answer]) => ({
@@ -20,32 +18,26 @@ export async function submitEvaluation(
       })
     )
 
-    const { error: answersError } = await supabase
-      .from("answers")
-      .upsert(answersData, {
-        onConflict: "evaluation_id,question_id",
-      })
+    console.log("ANSWERS DATA:", answersData)
 
-    if (answersError) {
-      console.error("ANSWERS ERROR:", answersError)
+    try {
+      await api.post(`/api/answers/bulk-upsert/`, { answers: answersData })
+    } catch (e) {
+      console.error("ANSWERS ERROR:", e)
       return { error: "Echec lors de l'enregistrement des réponses" }
     }
 
-    // 2️⃣ Marquer l’évaluation comme soumise
-    const { error: evalError } = await supabase
-      .from("evaluations")
-      .update({ submitted_at: new Date().toISOString() })
-      .eq("id", evaluationId)
-
-    if (evalError) {
-      console.error("EVAL ERROR:", evalError)
+    try {
+      await api.post(`/api/evaluations/${evaluationId}/submit/`, {})
+      // ou PATCH /api/evaluations/:id { submitted_at: ... }
+    } catch (e) {
+      console.error("EVAL ERROR:", e)
       return { error: "Echec lors de la soumission de l'évaluation" }
     }
 
-    revalidatePath("/dashboard")
     return { success: true }
   } catch (error) {
     console.error("SUBMIT ERROR:", error)
     return { error: "Une erreur inattendue s'est produite" }
-}
+  }
 }

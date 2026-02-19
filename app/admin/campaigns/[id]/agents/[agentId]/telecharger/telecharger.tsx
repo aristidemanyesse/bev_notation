@@ -1,21 +1,8 @@
 // lib/pdf/evaluation-pdf.tsx
 import React from "react"
 import { Document, Page, Text, View, StyleSheet, Image } from "@react-pdf/renderer"
+import { Agent, Form } from "@/lib/types/database"
 
-type PdfEval = {
-  id?: string | null
-  submitted_at: string | null
-  form: { title?: string | null; period?: string | null } | null
-  evaluated: {
-    matricule?: string | null
-    first_name?: string | null
-    last_name?: string | null
-    direction?: string | null
-    service?: string | null
-    contact?: string | null
-  } | null
-  evaluator: { first_name?: string | null; last_name?: string | null } | null
-}
 
 const COLORS = {
   border: "#333333",
@@ -126,8 +113,9 @@ const styles = StyleSheet.create({
   footerCol: { width: "33%" },
 })
 
-export function EvaluationPdf({
-  evaluation,
+export function CampaignFinalPdf({
+  form,
+  agent,
   rows,
   totalCoeff,
   totalPoints,
@@ -137,7 +125,8 @@ export function EvaluationPdf({
   city = "Abidjan",
   docId,
 }: {
-  evaluation: PdfEval
+  form: Form
+  agent: Agent
   rows: { label: string; score: number; coeff: number; total: number }[]
   totalCoeff: number
   totalPoints: number
@@ -147,13 +136,13 @@ export function EvaluationPdf({
   city?: string
   docId?: string
 }) {
-  const agentName = `${evaluation.evaluated?.last_name ?? ""} ${evaluation.evaluated?.first_name ?? ""}`.trim()
-  const matricule = evaluation.evaluated?.matricule ?? ""
+  const agentName = `${agent?.last_name ?? ""} ${agent?.first_name ?? ""}`.trim()
+  const matricule = agent?.matricule ?? ""
 
-  const title = evaluation.form?.title ?? ""
-  const submittedAt = evaluation.submitted_at ? new Date(evaluation.submitted_at).toLocaleDateString("fr-FR") : ""
+  const title = form?.title ?? ""
+  const submittedAt = new Date().toLocaleDateString("fr-FR")
 
-  const evaluatorName = `${evaluation.evaluator?.last_name ?? ""} ${evaluation.evaluator?.first_name ?? ""}`.trim()
+  const evaluatorName = ""
 
   return (
     <Document>
@@ -184,7 +173,6 @@ export function EvaluationPdf({
           </View>
         </View>
 
-        <Text style={styles.idLine}>ID : {docId ?? evaluation.id ?? "-"}</Text>
 
         {/* TITLE */}
         <View style={styles.titleWrap}>
@@ -274,7 +262,7 @@ export function EvaluationPdf({
         <View style={styles.signBlock}>
           <View style={styles.signLine} />
           <Text style={styles.signText}>
-            Noté le {evaluation.submitted_at ? new Date(evaluation.submitted_at).toLocaleDateString("fr-FR") : ""} par
+            Noté le {new Date().toLocaleDateString("fr-FR")} par
           </Text>
           <Text style={styles.signName}>{evaluatorName || ""}</Text>
         </View>

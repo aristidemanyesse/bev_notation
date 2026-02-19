@@ -1,110 +1,81 @@
+"use client";
+
 import { DashboardShell } from "@/components/layout/dashboard-shell"
-import { getCurrentUser } from "@/lib/actions/auth"
-import { redirect } from "next/navigation"
-import { getSupabaseServerClient } from "@/lib/supabase/server"
-import type { AgentCategoryScore, Form } from "@/lib/types/database"
-import { CategoryScoresChart } from "@/components/dashboard/category-scores-chart"
-import { EvaluationsList } from "@/components/dashboard/evaluations-list"
-import { CampaignHistory } from "@/components/dashboard/campaign-history"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Progress } from "@/components/ui/progress"
-import { Users, FileText, CheckCircle2, TrendingUp, Plus, Link, Eye } from "lucide-react"
-import { EvaluationsGivenTable } from "@/components/dashboard/evaluations-given-table"
+
+import type { Evaluation, Form } from "@/lib/types/database"
 import { EvaluationsReceivedTable } from "@/components/dashboard/evaluations-received-table"
-import { Button } from "@/components/ui/button"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@radix-ui/react-select"
 import { CampaignSelect } from "@/components/dashboard/campaign-select"
+import { useAuth } from "@/lib/actions/auth-context"
+import { api } from "@/lib/api/api"
+import { useEffect, useState } from "react"
+import { toast } from "@/hooks/use-toast"
 
-export default async function NotationsPage({searchParams}: {searchParams: Promise<{ campaignId?: string }>}) {
-  const user = await getCurrentUser()
+export default function NotationsPage({searchParams}: {searchParams: Promise<{ campaignId?: string }>}) {
+  const {user} = useAuth();
 
-  if (!user) {
-    redirect("/login")
-  }
-  const supabase = await getSupabaseServerClient()
+  const [activeCampaigns, setActiveCampaigns] = useState<Form[]>([]);
+  const [selectedCampaign, setSelectedCampaign] = useState<Form | null>(
+    null,
+  );
+  const [receivedEvaluations, setReceivedEvaluations] = useState<Evaluation[]>([]);
 
-    // Get active campaigns (pour le select)
+  useEffect(() => {
+    let cancelled = false;
 
-const { data: activeCampaigns } = await supabase
-  .from("forms")
-  .select("id, title, period, created_at")
-  .eq("is_active", true)
-  .order("created_at", { ascending: false })
+    (async () => {
+      try {
+        const datas = await api.get<Form[]>(
+          "/api/forms/?is_active=true&ordering=-created_at",
+        );
+        if (cancelled) return;
 
-const campaigns = activeCampaigns ?? []
+        setActiveCampaigns(datas);
 
-const resolvedSearchParams = await searchParams
-const selectedCampaignId =
-  resolvedSearchParams.campaignId ?? campaigns[0]?.id
+        const params = await searchParams; // si c'est une Promise chez toi
+        const id = params.campaignId ?? datas[0]?.id;
 
-const selectedCampaign = campaigns.find(c => c.id === selectedCampaignId)
+        const next = datas.find((c) => c.id === id) ?? null;
+        setSelectedCampaign(next);
+      } catch (e) {
+        console.error("[v0] Erreur récupération campagnes actives", e);
+      }
+    })();
 
-const { data: summary } = await supabase
-  .from("agent_dashboard_summary")
-  .select("*")
-  .eq("agent_id", user.id)
-  .eq("form_id", selectedCampaignId)
-  .maybeSingle()
+    return () => {
+      cancelled = true;
+    };
+    // ✅ IMPORTANT: PAS de selectedCampaign en deps
+  }, [searchParams]);
 
+  useEffect(() => {
+    if (!selectedCampaign) return;
 
-  const { data: categoryScores } = await supabase
-  .from("agent_category_scores")
-  .select("*")
-  .eq("agent_id", user.id)
-  .eq("form_id", selectedCampaignId)
+    let cancelled = false;
 
+    (async () => {
+      try {
+        const datas = await api.get<Evaluation[]>(
+          `/api/forms/${selectedCampaign.id}/evaluations/received/`,
+        );
+        if (!cancelled) setReceivedEvaluations(datas);
+      } catch {
+        toast({
+          title: "Erreur",
+          description: "Erreur récupération des évaluations en attente",
+          variant: "destructive",
+        });
+      }
 
-  const { data: pendingEvaluations } = await supabase
-  .from("agent_pending_evaluations")
-  .select(`
-    *,
-    evaluated:agents_public!evaluations_evaluated_id_fkey(
-      matricule,
-      first_name,
-      last_name
-    )
-  `)
-  .eq("evaluator_id", user.id)
-  .eq("form_id", selectedCampaignId)
-  .order("form_created_at", { ascending: true })
+    })();
 
+    return () => {
+      cancelled = true;
+    };
+  }, [selectedCampaign?.id]); // ✅ dépend uniquement de l'id
 
-  const { data: evaluationsGiven } = await supabase
-  .from("evaluations")
-  .select(`
-    *,
-    evaluated:agents_public!evaluations_evaluated_id_fkey(matricule, first_name, last_name),
-    form:forms(title, period)
-  `)
-  .eq("evaluator_id", user.id)
-  .eq("form_id", selectedCampaignId)
-  .not("submitted_at", "is", null)
-  .order("submitted_at", { ascending: false })
-
-
-  const { data: evaluationsReceived } = await supabase
-  .from("evaluations")
-  .select(`
-    *,
-    evaluator:agents_public!evaluations_evaluator_id_fkey(matricule, first_name, last_name),
-    form:forms(title, period)
-  `)
-  .eq("evaluated_id", user.id)
-  .eq("form_id", selectedCampaignId)
-  .not("submitted_at", "is", null)
-  .order("submitted_at", { ascending: false })
-
-
-  const totalEvaluationsReceived = summary?.evaluations_received || 0
-  const totalEvaluationsDone = summary?.evaluations_done || 0
-  const expectedEvaluations = pendingEvaluations?.length || 0
-  const completionRate =
-    expectedEvaluations > 0
-      ? Math.round((totalEvaluationsDone / (totalEvaluationsDone + expectedEvaluations)) * 100)
-      : 100
 
   return (
-    <DashboardShell role={user.role?.code as "ADMIN" | "AGENT"} user={user}>
+    <DashboardShell role={user?.role?.code as "ADMIN" | "AGENT"} user={user!}>
       <div className="space-y-6 px-4 sm:px-0">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
@@ -117,31 +88,16 @@ const { data: summary } = await supabase
           </div>
           <CampaignSelect
             campaigns = {activeCampaigns}
-            selectedCampaignId={selectedCampaignId}
-            path = "/dashboard/notations?campaignId="
+            selectedCampaign={selectedCampaign}
           />
         </div>
         <p className="h-5"> </p>
 
         <div className="grid gap-6 ">
 
-          {evaluationsReceived && evaluationsReceived.length > 0 ? (
-            <EvaluationsReceivedTable
-              evaluations={evaluationsReceived}
-              agentId={user.id}
-              formId={selectedCampaign?.id}
+          <EvaluationsReceivedTable
+              form = {selectedCampaign!}
             />
-          ) : (
-            <div className="flex flex-col items-center justify-center gap-2 rounded-lg border border-dashed p-8 text-muted-foreground">
-              <Eye className="h-6 w-6 opacity-50" />
-              <p className="text-sm font-medium">
-                Aucune évaluation reçue
-              </p>
-              <p className="text-xs">
-                Les résultats apparaîtront ici une fois que des collègues vous auront noté.
-              </p>
-            </div>
-          )}
 
         </div>
 

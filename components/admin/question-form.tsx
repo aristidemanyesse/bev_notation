@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { use, useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -13,6 +13,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert"
 import { createQuestion, updateQuestion } from "@/lib/actions/questions"
 import type { QuestionCategory, Question } from "@/lib/types/database"
 import { Loader2 } from "lucide-react"
+import { useRouter } from "next/navigation"
 
 interface QuestionFormProps {
   categories: QuestionCategory[]
@@ -21,6 +22,8 @@ interface QuestionFormProps {
 }
 
 export function QuestionForm({ categories, question, mode = "create" }: QuestionFormProps) {
+  const router = useRouter()
+
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
@@ -29,9 +32,21 @@ export function QuestionForm({ categories, question, mode = "create" }: Question
     label: question?.label || "",
     description: question?.description || "",
     weight: question?.weight?.toString() || "1",
-    categoryId: question?.category_id || "",
+    categoryId: question?.category?.id || "",
     isActive: question?.is_active ?? true,
   })
+
+  useEffect(() => {
+    if (question) {
+      setFormData({
+        label: question.label || "",
+        description: question.description || "",
+        weight: question.weight?.toString() || "1",
+        categoryId: question.category?.id || "",
+        isActive: question.is_active ?? true,
+      })
+    }
+  }, [question])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -48,12 +63,12 @@ export function QuestionForm({ categories, question, mode = "create" }: Question
 
     let result
     if (mode === "edit" && question) {
-      result = await updateQuestion({
+      result = await updateQuestion(router, {
         ...questionData,
         id: question.id,
       })
     } else {
-      result = await createQuestion(questionData)
+      result = await createQuestion(router, questionData)
     }
 
     if (result.error) {

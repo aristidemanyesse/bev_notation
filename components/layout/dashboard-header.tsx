@@ -1,5 +1,5 @@
-import { logout } from "@/lib/actions/auth"
 import { Button } from "@/components/ui/button"
+import { useAuth } from "@/lib/actions/auth-context"
 import { LogOut } from "lucide-react"
 
 interface DashboardHeaderProps {
@@ -7,6 +7,8 @@ interface DashboardHeaderProps {
 }
 
 export function DashboardHeader({ role }: DashboardHeaderProps) {
+  const { logout, refreshUser, user } = useAuth()
+  
   return (
     <header className="border-b border-border bg-card">
       <div className="flex h-16 items-center justify-between px-6">

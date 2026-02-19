@@ -1,7 +1,9 @@
 import { NextResponse } from "next/server"
-import { getSupabaseServerClient } from "@/lib/supabase/server"
 import { renderToBuffer } from "@react-pdf/renderer"
 import { EvaluationPdf } from "./evaluation-pdf"
+import type { Answer, Evaluation } from "@/lib/types/database"
+
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || ""
 
 // Helper: normalize object | object[]
 function one<T>(v: T | T[] | null | undefined): T | null {
@@ -9,96 +11,111 @@ function one<T>(v: T | T[] | null | undefined): T | null {
   return Array.isArray(v) ? (v[0] ?? null) : v
 }
 
-export async function GET(
-  _req: Request,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  const { id: evaluationId } = await params
-  const supabase = await getSupabaseServerClient()
-
-  const { data: evaluationRaw, error: eErr } = await supabase
-    .from("evaluations")
-    .select(`
-      id,
-      form_id,
-      evaluator_id,
-      evaluated_id,
-      submitted_at,
-      form:forms(id, title, period),
-      evaluated:agents_public!evaluations_evaluated_id_fkey(id, matricule, first_name, last_name),
-      evaluator:agents_public!evaluations_evaluator_id_fkey(id, matricule, first_name, last_name)
-    `)
-    .eq("id", evaluationId)
-    .maybeSingle()
-
-  if (eErr) return NextResponse.json({ error: eErr.message }, { status: 400 })
-  if (!evaluationRaw) return NextResponse.json({ error: "Evaluation introuvable" }, { status: 404 })
-
-  // Normalize relations (object | array)
-  const evaluation: any = evaluationRaw
-  const form = one<any>(evaluation.form)
-  const evaluated = one<any>(evaluation.evaluated)
-  const evaluator = one<any>(evaluation.evaluator)
-
-  const { data: answersRaw, error: aErr } = await supabase
-    .from("answers")
-    .select(`
-      id,
-      score,
-      comment,
-      q:questions(id, label, weight)
-    `)
-    .eq("evaluation_id", evaluationId)
-
-  if (aErr) return NextResponse.json({ error: aErr.message }, { status: 400 })
-
-  const rows = (answersRaw ?? []).map((x: any) => {
-    const q = one<any>(x.q)
-    const coeff = Number(q?.weight ?? 1)
-    const score = Number(x.score ?? 0)
-    return {
-      label: String(q?.label ?? "Question"),
-      score,
-      coeff,
-      total: score * coeff,
-    }
+// Helper: call backend with forwarded Authorization
+async function backendGet<T>(path: string, auth: string): Promise<T> {
+  const res = await fetch(`${API_BASE_URL}${path}`, {
+    headers: {
+      Authorization: auth,
+      "Content-Type": "application/json",
+    },
+    cache: "no-store",
   })
 
-  const totalCoeff = rows.reduce((s, r) => s + r.coeff, 0)
-  const totalPoints = rows.reduce((s, r) => s + r.total, 0)
-  const moyenne = totalCoeff > 0 ? Number((totalPoints / totalCoeff).toFixed(2)) : 0
-  const noteGlobale = Math.round(moyenne)
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}))
+    throw new Error(err?.detail || err?.message || `Backend error ${res.status}`)
+  }
 
-  const pdfBuffer = await renderToBuffer(
-    EvaluationPdf({
-      evaluation: {
-        id: evaluation.id,
-        submitted_at: evaluation.submitted_at,
-        form,
-        evaluated,
-        evaluator,
-      },
-      rows,
-      totalCoeff,
-      totalPoints,
-      moyenne,
-      noteGlobale,
-      logoUrl: "public/logo.png",      // <-- ton logo dans public
-      city: "Abidjan",
-      docId: evaluation.id,
+  return res.json() as Promise<T>
+}
+
+export async function GET(
+  req: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+
+  try {
+    // 1️⃣ Récupérer le token envoyé par le client
+    const auth = req.headers.get("authorization")
+    if (!auth) {
+      return new NextResponse("Unauthorized", { status: 401 })
+    }
+
+    // 2️⃣ Paramètre
+    const { id: evaluationId } = await params
+
+    // 3️⃣ Appels backend Django
+    const evaluation = await backendGet<Evaluation>(
+      `/api/evaluations/${evaluationId}/`,
+      auth
+    )
+
+    const answersRaw = await backendGet<Answer[]>(
+      `/api/evaluations/${evaluationId}/answers/`,
+      auth
+    )
+
+    // 4️⃣ Normalisation
+    const form = one<any>(evaluation.form)
+    const evaluated = one<any>(evaluation.evaluated)
+    const evaluator = one<any>(evaluation.evaluator)
+
+    const rows = (answersRaw ?? []).map((x: any) => {
+      const q = one<any>(x.q ?? x.question)
+      const coeff = Number(q?.weight ?? 1)
+      const score = Number(x.score ?? 0)
+
+      return {
+        label: String(q?.label ?? "Question"),
+        score,
+        coeff,
+        total: score * coeff,
+      }
     })
-  )
 
-  const period = form?.period ?? "campagne"
-  const matricule = evaluated?.matricule ?? ""
-  const fileName = `evaluation_${period}_${matricule}.pdf`
+    const totalCoeff = rows.reduce((s, r) => s + r.coeff, 0)
+    const totalPoints = rows.reduce((s, r) => s + r.total, 0)
+    const moyenne =
+      totalCoeff > 0 ? Number((totalPoints / totalCoeff).toFixed(2)) : 0
+    const noteGlobale = Math.round(moyenne)
+
+    // 5️⃣ Génération PDF
+    const pdfBuffer = await renderToBuffer(
+      EvaluationPdf({
+        evaluation: {
+          id: evaluation.id,
+          submitted_at: evaluation.submitted_at,
+          form,
+          evaluated,
+          evaluator,
+        },
+        rows,
+        totalCoeff,
+        totalPoints,
+        moyenne,
+        noteGlobale,
+        logoUrl: "/logo.png",
+        city: "Abidjan",
+        docId: evaluation.id,
+      })
+    )
+
+    const period = form?.period ?? "campagne"
+    const matricule = evaluated?.matricule ?? ""
+    const fileName = `evaluation_${period}_${matricule}.pdf`
 
     return new NextResponse(new Uint8Array(pdfBuffer), {
-    status: 200,
-    headers: {
+      status: 200,
+      headers: {
         "Content-Type": "application/pdf",
         "Content-Disposition": `attachment; filename="${fileName}"`,
         "Cache-Control": "no-store",
-    },
+      },
     })
+  } catch (e: any) {
+    return NextResponse.json(
+      { error: String(e?.message || "Erreur génération PDF") },
+      { status: 500 }
+    )
+  }
 }

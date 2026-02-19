@@ -1,7 +1,7 @@
-"use server"
+"use client"
 
-import { getSupabaseServerClient } from "@/lib/supabase/server"
-import { revalidatePath } from "next/cache"
+import { api } from "../api/api"
+import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime"
 
 interface CreateQuestionData {
   label: string
@@ -15,11 +15,9 @@ interface UpdateQuestionData extends CreateQuestionData {
   id: string
 }
 
-export async function createQuestion(data: CreateQuestionData) {
+export async function createQuestion(router: AppRouterInstance, data: CreateQuestionData) {
   try {
-    const supabase = await getSupabaseServerClient()
-
-    const { error } = await supabase.from("questions").insert({
+    await api.post("/api/questions/", {
       label: data.label,
       description: data.description,
       weight: data.weight,
@@ -27,59 +25,37 @@ export async function createQuestion(data: CreateQuestionData) {
       is_active: data.isActive,
     })
 
-    if (error) {
-      console.error("[v0] Erreur création question:", error)
-      return { error: "Erreur lors de la création de la question" }
-    }
-
-    console.log("[v0] Question créée avec succès")
-    revalidatePath("/admin/questions")
+    router.push("/admin/questions")
     return { success: true }
-  } catch (error) {
-    console.error("[v0] Erreur inattendue:", error)
-    return { error: "Une erreur inattendue s'est produite" }
+  } catch (e: any) {
+    return { error: String(e?.message || "Erreur lors de la création de la question") }
   }
 }
 
-export async function updateQuestion(data: UpdateQuestionData) {
+export async function updateQuestion(router: AppRouterInstance, data: UpdateQuestionData) {
   try {
-    const supabase = await getSupabaseServerClient()
+    await api.patch(`/api/questions/${data.id}/`, {
+      label: data.label,
+      description: data.description,
+      weight: data.weight,
+      category_id: data.categoryId,
+      is_active: data.isActive,
+    })
 
-    const { error } = await supabase
-      .from("questions")
-      .update({
-        label: data.label,
-        description: data.description,
-        weight: data.weight,
-        category_id: data.categoryId,
-        is_active: data.isActive,
-      })
-      .eq("id", data.id)
-
-    if (error) {
-      return { error: "Erreur lors de la mise à jour de la question" }
-    }
-
-    revalidatePath("/admin/questions")
+    router.push("/admin/questions")
     return { success: true }
-  } catch (error) {
-    return { error: "Une erreur inattendue s'est produite" }
+  } catch (e: any) {
+    return { error: String(e?.message || "Erreur lors de la mise à jour de la question") }
   }
 }
 
-export async function deleteQuestion(questionId: string) {
+export async function deleteQuestion(router: AppRouterInstance, questionId: string) {
   try {
-    const supabase = await getSupabaseServerClient()
+    await api.delete(`/api/questions/${questionId}/`)
 
-    const { error } = await supabase.from("questions").delete().eq("id", questionId)
-
-    if (error) {
-      return { error: "Erreur lors de la suppression de la question" }
-    }
-
-    revalidatePath("/admin/questions")
+    router.push("/admin/questions")
     return { success: true }
-  } catch (error) {
-    return { error: "Une erreur inattendue s'est produite" }
+  } catch (e: any) {
+    return { error: String(e?.message || "Erreur lors de la suppression de la question") }
   }
 }
