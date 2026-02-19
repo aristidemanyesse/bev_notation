@@ -150,7 +150,6 @@ export function EvaluationPdf({
 }) {
   const agentName = `${evaluation.evaluated?.last_name ?? ""} ${evaluation.evaluated?.first_name ?? ""}`.trim()
   const matricule = evaluation.evaluated?.matricule ?? ""
-  console.log(agentName)
 
   const title = evaluation.form?.title ?? ""
   const submittedAt = evaluation.submitted_at ? new Date(evaluation.submitted_at).toLocaleDateString("fr-FR") : ""
@@ -220,7 +219,7 @@ export function EvaluationPdf({
           </Text>
 
           <Text style={styles.metaLine}>
-            <Text style={styles.metaLabel}>SOUS-DIRECTION :</Text> DIRECTION DES ENQUÊTES, DU RENSEIGNEMENT ET DE L'ANALYSE-RISQUE
+            <Text style={styles.metaLabel}>SOUS-DIRECTION :</Text> SOUS-DIRECTION DES ENQUÊTES, DES RECOUPEMENTS ET DU RENSEIGNEMENT
           </Text>
 
           <Text style={styles.metaLine}>
