@@ -1,25 +1,47 @@
 "use client"
 
 import { useState } from "react"
-import { login } from "@/lib/actions/auth"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Alert, AlertDescription } from "@/components/ui/alert"
+import { useAuth } from "@/lib/actions/auth-context"
+import { toast } from "../ui/use-toast"
+import { useRouter } from "next/navigation";
+import { ApiError } from "next/dist/server/api-utils"
+
 
 export function LoginForm() {
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
+  const router = useRouter()
+  const { login, isAuthenticated, isLoading } = useAuth()
+  
 
   async function handleSubmit(formData: FormData) {
     setLoading(true)
     setError(null)
 
-    const result = await login(formData)
-
-    if (result?.error) {
-      setError(result.error)
+    const identifiant = formData.get("identifiant") as string
+    const password = formData.get("password") as string
+    
+    try {
+       await login(identifiant, password)
+      toast({
+        title: "Connexion réussie",
+        description: "Bienvenue dans le système SGDBEV",
+      })
+      router.push("/")
+    } catch (err) {
+      const message = err instanceof ApiError ? err.message : "Identifiants incorrects"
+      setError(message)
+      toast({
+        title: "Erreur de connexion",
+        description: message,
+        variant: "destructive",
+      })
+    } finally {
       setLoading(false)
     }
   }

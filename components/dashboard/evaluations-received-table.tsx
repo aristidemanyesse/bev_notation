@@ -1,32 +1,26 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { Eye, HardDriveDownload } from "lucide-react"
-import Link from "next/link"
-import { getSupabaseServerClient } from "@/lib/supabase/server"
-
-type EvaluationReceivedInput = {
-  id: string
-  submitted_at: string | null
-  evaluator?: {
-    matricule?: string | null
-    first_name?: string | null
-    last_name?: string | null
-  } | null
-}
-
-type EvaluationSummaryRow = {
-  evaluation_id: string
-  completion_pct: number | null
-  weighted_avg_score: number | null
-}
-
-interface EvaluationsReceivedTableProps {
-  evaluations: EvaluationReceivedInput[]
-  agentId: string
-  formId?: string
-}
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Eye, HardDriveDownload } from "lucide-react";
+import Link from "next/link";
+import { useAuth } from "@/lib/actions/auth-context";
+import { useEffect, useState } from "react";
+import { EvaluationNotee, Form } from "@/lib/types/database";
+import { api } from "@/lib/api/api";
 
 /**
  * Version optimisée:
@@ -34,53 +28,94 @@ interface EvaluationsReceivedTableProps {
  * - Moyenne pondérée (weighted_avg_score)
  * - Note globale = arrondi entier de la moyenne
  */
-export async function EvaluationsReceivedTable({ evaluations }: EvaluationsReceivedTableProps) {
-  const supabase = await getSupabaseServerClient()
+export function EvaluationsReceivedTable({ form }: { form: Form }) {
+  const { user } = useAuth();
+  const [evaluations, setEvaluations] = useState<EvaluationNotee[]>([]);
+
+  useEffect(() => {
+    (async () => {
+      if (!form) return;
+      const datas = await api.get<EvaluationNotee[]>(
+        `/api/forms/${form.id}/evaluations/received/`,
+      );
+      setEvaluations(datas);
+    })();
+  }, [form]);
+
+  // Rien à afficher
+  if (!evaluations?.length) {
+    return (
+      <div className="flex flex-col items-center justify-center gap-2 rounded-lg border border-dashed p-8 text-muted-foreground">
+        <Eye className="h-6 w-6 opacity-50" />
+        <p className="text-sm font-medium">Aucune évaluation reçue</p>
+        <p className="text-xs">
+          Les résultats apparaîtront ici une fois que des collègues vous auront
+          noté.
+        </p>
+      </div>
+    );
+  }
 
   if (!evaluations?.length) {
     return (
       <Card>
         <CardHeader>
           <CardTitle>Les agents qui vous ont notés</CardTitle>
-          <CardDescription>Les notations que vous avez reçues lors du trimestre</CardDescription>
+          <CardDescription>
+            Les notations que vous avez reçues lors du trimestre
+          </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="text-sm text-muted-foreground">Aucune notation reçue.</div>
+          <div className="text-sm text-muted-foreground">
+            Aucune notation reçue.
+          </div>
         </CardContent>
       </Card>
-    )
+    );
   }
 
-  const evaluationIds = evaluations.map((e) => e.id)
+function downloadEvaluationPdf(evaluationId: string) {
+  const tokens = api.getTokens()
+  
 
-  const { data: summaries, error } = await supabase
-    .from("evaluation_summary")
-    .select("evaluation_id, completion_pct, weighted_avg_score")
-    .in("evaluation_id", evaluationIds)
-
-  if (error) throw error
-
-  const summaryById = new Map<string, EvaluationSummaryRow>(
-    (summaries ?? []).map((s: EvaluationSummaryRow) => [s.evaluation_id, s]),
-  )
-
-  const rows = evaluations.map((evaluation) => {
-    const s = summaryById.get(evaluation.id)
-    const completionPct = s?.completion_pct ?? 0
-    const avgScore = typeof s?.weighted_avg_score === "number" ? s.weighted_avg_score : null
-
-    return {
-      ...evaluation,
-      completionPct,
-      avgScore,
-    }
+  if (!tokens?.access) {
+    alert("Vous devez être connecté")
+    return
+  }
+  
+  fetch(`/dashboard/evaluations/${evaluationId}/telecharger`, {
+    headers: {
+      Authorization: `Bearer ${tokens.access}`,
+    },
   })
+    .then((res) => {
+      if (!res.ok) throw new Error("Erreur téléchargement")
+      return res.blob()
+    })
+    .then((blob) => {
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement("a")
+      a.href = url
+      a.download = `evaluation_${evaluationId}.pdf`
+      document.body.appendChild(a)
+      a.click()
+      a.remove()
+      URL.revokeObjectURL(url)
+    })
+    .catch((e) => {
+      console.error(e)
+      alert("Impossible de télécharger le PDF")
+    })
+}
+
 
   return (
     <Card>
       <CardHeader>
         <CardTitle>Les agents qui vous ont notés</CardTitle>
-        <CardDescription>Les notations que vous avez reçues lors du trimestre</CardDescription>
+        <CardDescription>
+          Les notations que vous avez reçues lors du trimestre
+        </CardDescription>
       </CardHeader>
 
       <CardContent>
@@ -90,40 +125,58 @@ export async function EvaluationsReceivedTable({ evaluations }: EvaluationsRecei
               <TableRow className="bg-primary">
                 <TableHead className="text-white">Évaluateur</TableHead>
                 <TableHead className="text-center text-white">Taux</TableHead>
-                <TableHead className="text-center text-white">Moyenne</TableHead>
-                <TableHead className="text-center text-white">Note globale</TableHead>
+                <TableHead className="text-center text-white">
+                  Moyenne
+                </TableHead>
+                <TableHead className="text-center text-white">
+                  Note globale
+                </TableHead>
                 <TableHead className="text-center text-white">Date</TableHead>
                 <TableHead className="text-right text-white">Actions</TableHead>
               </TableRow>
             </TableHeader>
 
             <TableBody>
-              {rows.map((evaluation) => {
-                const firstName = evaluation.evaluator?.first_name ?? ""
-                const lastName = evaluation.evaluator?.last_name ?? ""
-                const matricule = evaluation.evaluator?.matricule ?? ""
+              {evaluations.map((eva) => {
+                const firstName = eva.evaluation.evaluator?.first_name ?? "";
+                const lastName = eva.evaluation.evaluator?.last_name ?? "";
+                const matricule = eva.evaluation.evaluator?.matricule ?? "";
 
-                const completion = evaluation.completionPct
-                const avgLabel = typeof evaluation.avgScore === "number" ? evaluation.avgScore.toFixed(2) : "N/A"
-                const globalLabel = typeof evaluation.avgScore === "number" ? Math.round(evaluation.avgScore).toString() : "N/A"
+                const completion = eva.completion_pct;
+                const avgLabel =
+                  typeof eva.weighted_avg_score === "number"
+                    ? eva.weighted_avg_score?.toFixed(2)
+                    : "N/A";
+                const globalLabel =
+                  typeof eva.weighted_avg_score === "number"
+                    ? Math.round(eva.weighted_avg_score).toString()
+                    : "N/A";
 
-                const dateLabel = evaluation.submitted_at
-                  ? new Date(evaluation.submitted_at).toLocaleDateString("fr-FR")
-                  : "-"
+                const dateLabel = eva.evaluation.submitted_at
+                  ? new Date(eva.evaluation.submitted_at).toLocaleDateString(
+                      "fr-FR",
+                    )
+                  : "-";
 
                 return (
-                  <TableRow key={evaluation.id}>
+                  <TableRow key={eva.evaluation.id}>
                     <TableCell className="font-medium">
                       <div className="flex flex-col">
                         <span>
                           {firstName} {lastName}
                         </span>
-                        <span className="text-xs text-muted-foreground">{matricule}</span>
+                        <span className="text-xs text-muted-foreground">
+                          {matricule}
+                        </span>
                       </div>
                     </TableCell>
 
                     <TableCell className="text-center">
-                      <Badge variant={completion === 100 ? "default" : "secondary"}>{completion}%</Badge>
+                      <Badge
+                        variant={completion === 100 ? "default" : "secondary"}
+                      >
+                        {completion}%
+                      </Badge>
                     </TableCell>
 
                     <TableCell className="text-center">
@@ -134,29 +187,33 @@ export async function EvaluationsReceivedTable({ evaluations }: EvaluationsRecei
                       <span className="font-semibold">{globalLabel}</span>
                     </TableCell>
 
-                    <TableCell className="text-center text-sm text-muted-foreground">{dateLabel}</TableCell>
+                    <TableCell className="text-center text-sm text-muted-foreground">
+                      {dateLabel}
+                    </TableCell>
 
                     <TableCell className="text-right">
-                      <Link href={`/dashboard/evaluations/${evaluation.id}/view`} className="mr-3">
+                      <Link
+                        href={`/dashboard/evaluations/${eva.evaluation.id}/view`}
+                        className="mr-3"
+                      >
                         <Button variant="outline" size="sm">
                           <Eye className="h-4 w-4 mr-1" />
                           Voir
                         </Button>
                       </Link>
-                      <Link href={`/dashboard/evaluations/${evaluation.id}/telecharger`}>
-                        <Button variant="ghost" size="sm">
+
+                      <Button onClick={() => downloadEvaluationPdf(eva.evaluation.id)} variant="ghost" size="sm">
                           <HardDriveDownload className="h-4 w-4 mr-1" />
                           Télécharger
                         </Button>
-                      </Link>
                     </TableCell>
                   </TableRow>
-                )
+                );
               })}
             </TableBody>
           </Table>
         </div>
       </CardContent>
     </Card>
-  )
+  );
 }

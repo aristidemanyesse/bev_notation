@@ -1,72 +1,58 @@
+"use client"
+
 import { EvaluationView } from "@/components/dashboard/evaluation-view"
 import { DashboardShell } from "@/components/layout/dashboard-shell"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { getCurrentUser } from "@/lib/actions/auth"
-import { getSupabaseServerClient } from "@/lib/supabase/server"
-import { Badge } from "lucide-react"
-import { notFound } from "next/navigation"
+import { useAuth } from "@/lib/actions/auth-context"
+import { api } from "@/lib/api/api"
+import { Answer, Evaluation } from "@/lib/types/database"
+import { use, useEffect, useMemo, useState } from "react"
 
 type PageProps = {
   params: Promise<{ id: string }>
 }
 
-export default async function EvaluationViewPage({ params }: PageProps) {
-  const { id: evaluationId } = await params  // ✅ déstructure ici
+export default function EvaluationViewPage({ params }: PageProps) {
+  const { user } = useAuth()
+  const [evaluation, setEvaluation] = useState<Evaluation | null>(null)
+  const [answers, setAnswers] = useState<any>([])
+  const [loading, setLoading] = useState(true)
 
-  const supabase = await getSupabaseServerClient()
+  useEffect(() => {
+    let cancelled = false;
 
-  // Récupération de l'évaluation avec ses réponses et les questions de son formulaire
-  const { data: evaluation, error } = await supabase
-    .from("evaluations")
-    .select(`
-      *,
-      evaluator:agents_public!evaluations_evaluator_id_fkey(
-        id,
-        first_name,
-        last_name,
-        matricule
-      ),
-      answers(*),
-      form:forms(
-        id,
-        title,
-        period,
-        questions:form_questions(
-          id,
-          question:questions(*)
-        )
-      )
-    `)
-    .eq("id", evaluationId)
-    .maybeSingle()
+    (async () => {
+      try {
+         const { id: evaluationId } = await params 
+        const evaluation = await api.get<Evaluation>(`/api/evaluations/${evaluationId}/`);
+        const answers = await api.get<Answer>(`/api/evaluations/${evaluationId}/answers/`);
+        if (cancelled) return;
+        setEvaluation(evaluation);
+        setAnswers(answers);
 
-  if (!evaluation) {
-    notFound()
-  }
+      } catch (e) {
+        console.error("[v0] Erreur récupération campagnes actives", e);
+      }
+    })();
 
-  // Si form est un tableau (relation multiple), prendre le premier
-  const form = Array.isArray(evaluation.form) ? evaluation.form[0] : evaluation.form
-  const questionsWithAnswers = form.questions.map((fq: { question: { id: any } }) => {
-    const answer = evaluation.answers.find((a: { question_id: any }) => a.question_id === fq.question.id)
-    return {
-      ...fq.question,
-      score: answer?.score ?? null,
-      comment: answer?.comment ?? "",
-    }
-  })
+    return () => {
+      cancelled = true;
+    };
+    // ✅ IMPORTANT: PAS de selectedCampaign en deps
+  }, [params]);
 
-  const user = await getCurrentUser()
+
   return (
-    <DashboardShell role={user.role?.code as "ADMIN" | "AGENT"} user={user}>
+    <DashboardShell role={user?.role?.code as "ADMIN" | "AGENT"} user={user!}>
   <div className="max-w-3xl mx-auto space-y-6">
     <div>
-          <h2 className="text-3xl font-semibold tracking-tight text-primary">Notation de {evaluation.evaluator.first_name} {evaluation.evaluator.last_name} <small className="text-muted-foreground">({evaluation.evaluator.matricule})</small></h2>
-          <h5>{evaluation.form.title}</h5>
+          <h2 className="text-3xl font-semibold tracking-tight text-primary">Notation de {evaluation?.evaluator.first_name} {evaluation?.evaluator.last_name} <small className="text-muted-foreground">({evaluation?.evaluator.matricule})</small></h2>
+          <h5>{evaluation?.form.title}</h5>
           <br></br>
           <p className="text-muted-foreground">Visualisation des réponses de votre collègue</p>
         </div>
 
-    <EvaluationView questions={questionsWithAnswers} answers={evaluation.answers} />
+    <EvaluationView questions={evaluation?.form.questions!} answers={answers} />
   </div>
 </DashboardShell>
 

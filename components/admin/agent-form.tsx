@@ -2,7 +2,7 @@
 
 import type React from "react";
 
-import { useState } from "react";
+import { use, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -18,10 +18,11 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { createAgent, updateAgent } from "@/lib/actions/agents";
 import type { Role, Agent } from "@/lib/types/database";
 import { Loader2 } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 interface AgentFormProps {
   roles: Role[];
-  agent?: Agent & { role: Role };
+  agent?: Agent;
   mode?: "create" | "edit";
 }
 
@@ -29,6 +30,7 @@ export function AgentForm({ roles, agent, mode = "create" }: AgentFormProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const router = useRouter()
 
   const [formData, setFormData] = useState({
     email: agent?.id || "",
@@ -37,9 +39,27 @@ export function AgentForm({ roles, agent, mode = "create" }: AgentFormProps) {
     matricule: agent?.matricule || "",
     firstName: agent?.first_name || "",
     lastName: agent?.last_name || "",
-    roleId: agent?.role_id || "",
+    roleId: agent?.role?.id || "",
     isActive: agent?.is_active ?? true,
   });
+
+  useEffect(() => {
+    if (agent) {
+      setFormData({
+        email: agent.id || "",
+        password: "",
+        username: agent.username || "",
+        matricule: agent.matricule || "",
+        firstName: agent.first_name || "",
+        lastName: agent.last_name || "",
+        roleId: agent.role?.id || "",
+        isActive: agent.is_active ?? true,
+      })
+    }
+  },  [agent])
+
+  
+
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -48,7 +68,7 @@ export function AgentForm({ roles, agent, mode = "create" }: AgentFormProps) {
 
     let result;
     if (mode === "edit" && agent) {
-      result = await updateAgent({
+      result = await updateAgent(router, {
         id: agent.id,
         matricule: formData.matricule,
         username: formData.username,
@@ -58,7 +78,7 @@ export function AgentForm({ roles, agent, mode = "create" }: AgentFormProps) {
         isActive: formData.isActive,
       });
     } else {
-      result = await createAgent(formData);
+      result = await createAgent(router, formData);
     }
 
     if (result.error) {

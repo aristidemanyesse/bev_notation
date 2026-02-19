@@ -1,11 +1,15 @@
+"use client"
+
 import { DashboardShell } from "@/components/layout/dashboard-shell"
-import { getCurrentUser } from "@/lib/actions/auth"
-import { redirect, notFound } from "next/navigation"
-import { getSupabaseServerClient } from "@/lib/supabase/server"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { CampaignEditForm } from "@/components/admin/campaign-edit-form"
-import { Suspense } from "react"
+import { Suspense, use, useEffect, useState } from "react"
 import { Loader2 } from "lucide-react"
+import { useAuth } from "@/lib/actions/auth-context"
+import { Form, Question } from "@/lib/types/database"
+import { api } from "@/lib/api/api"
+import { toast } from "@/hooks/use-toast"
+import { set } from "date-fns"
 
 function FormLoader() {
   return (
@@ -15,34 +19,57 @@ function FormLoader() {
   )
 }
 
-export default async function EditCampaignPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params
-  const user = await getCurrentUser()
+export default function EditCampaignPage({ params }: { params: Promise<{ id: string }> }) {
+  const { user } = useAuth()
 
-  if (!user || user.role?.code !== "ADMIN") {
-    redirect("/login")
+  const [form, setForm] = useState<Form | null>(null) 
+  const [questions, setQuestions] = useState<Question[]>([])
+  const [selectedQuestionIds, setSelectedQuestionIds] = useState<string[]>([])
+  const [loading, setLoading] = useState(false)
+
+  useEffect(() => {
+    let alive = true
+
+    ;(async () => {
+      setLoading(true)
+      try {
+        const param = await params;
+        const form = await api.get<Form>(`/api/forms/${param.id}`)
+        if (!alive) return
+        setForm(form)
+
+        const selected = form?.questions?.map(fq => fq.question?.id) || []
+        setSelectedQuestionIds(selected)
+
+        const qs = await api.get<Question[]>(`/api/questions/?is_active=true&ordering=-weight`)
+        setQuestions(qs)
+        if (!alive) return
+
+      } catch (e) {
+        console.error(e)
+        toast({
+          title: "Erreur",
+          description: "Erreur récupération des informations de la campagne",
+          variant: "destructive",
+        })
+      } finally {
+        if (alive) setLoading(false)
+      }
+    })()
+
+    return () => {
+      alive = false
+    }
+  }, [params])
+
+
+
+  if (loading) {
+    FormLoader()
   }
-
-  const supabase = await getSupabaseServerClient()
-
-  const { data: form } = await supabase.from("forms").select("*").eq("id", id).maybeSingle()
-
-  if (!form) {
-    notFound()
-  }
-
-  const { data: formQuestions } = await supabase
-    .from("form_questions")
-    .select("question_id")
-    .eq("form_id", id)
-    .order("position")
-
-  const selectedQuestionIds = formQuestions?.map((fq) => fq.question_id) || []
-
-  const { data: questions } = await supabase.from("questions").select("*").eq("is_active", true).order("label")
 
   return (
-    <DashboardShell role="ADMIN" user={user}>
+    <DashboardShell role="ADMIN" user={user!}>
       <div className="max-w-4xl mx-auto space-y-6 px-4 sm:px-0">
         <div>
           <h2 className="text-2xl sm:text-3xl font-semibold tracking-tight">Modifier la notation</h2>
@@ -56,7 +83,7 @@ export default async function EditCampaignPage({ params }: { params: Promise<{ i
           </CardHeader>
           <CardContent>
             <Suspense fallback={<FormLoader />}>
-              <CampaignEditForm form={form} questions={questions || []} selectedQuestionIds={selectedQuestionIds} />
+              <CampaignEditForm form={form!} questions={questions || []} selectedQuestionIds={selectedQuestionIds} />
             </Suspense>
           </CardContent>
         </Card>

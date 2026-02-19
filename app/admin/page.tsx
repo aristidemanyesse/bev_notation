@@ -1,41 +1,66 @@
+"use client"
+
 import { DashboardShell } from "@/components/layout/dashboard-shell"
-import { getCurrentUser } from "@/lib/actions/auth"
+
 import { redirect } from "next/navigation"
-import { getSupabaseServerClient } from "@/lib/supabase/server"
-import type { AdminCampaignStats } from "@/lib/types/database"
+
+import type { AdminCampaignStats, Form } from "@/lib/types/database"
 import { AdminStatsCards } from "@/components/admin/admin-stats-cards"
 import { CampaignsList } from "@/components/admin/campaigns-list"
 import { CompletionChart } from "@/components/admin/completion-chart"
+import { useAuth } from "@/lib/actions/auth-context"
+import { useEffect, useState } from "react"
+import { set } from "date-fns"
+import { api } from "@/lib/api/api"
+import { toast } from "@/hooks/use-toast"
 
-export default async function AdminPage() {
-  const user = await getCurrentUser()
+interface AdminStats {
+  totalAgents: 0,
+  totalCampaigns: 0,
+  totalCompleted: 0,
+  overallCompletion: 0,
+}
 
-  if (!user) {
-    redirect("/login")
-  }
+export default function AdminPage() {
+  const { user } = useAuth();
 
-  if (user.role?.code !== "ADMIN") {
-    redirect("/dashboard")
-  }
-
-  const supabase = await getSupabaseServerClient()
+  const [loading, setLoading] = useState(true)
+  const [adminStat, setAdminStat] = useState<AdminStats | null>(null)
+  const [campaigns, setCampaigns] = useState<AdminCampaignStats[]>([])
 
   // Get all campaign stats
-  const { data: campaigns } = await supabase
-    .from("admin_campaign_stats")
-    .select("*")
-    .order("period", { ascending: false })
+  useEffect(() => {
+    setLoading(true)
+    ;(async () => {
+      try {
+        const datas = await api.get<AdminCampaignStats[]>("/api/forms/admin/stats/",);
+        setCampaigns(datas);
+      } catch {
+        toast({
+          title: "Erreur",
+          description: "Erreur récupération des statistiques de vos campagnes",
+          variant: "destructive",
+        });
+      }
 
-  const activeCampaign = campaigns?.find((c) => c.period)
+      try {
+        const stats = await api.get<AdminStats>("/api/general/admin/stats");
+        setAdminStat(stats);
+      } catch {
+        toast({
+          title: "Erreur",
+          description: "Erreur récupération des campagnes actives",
+          variant: "destructive",
+        });
+      }
 
-  // Calculate totals
-  const totalAgents = activeCampaign?.total_agents || 0
-  const totalExpected = campaigns?.reduce((sum, c) => sum + (c.total_expected_evaluations || 0), 0) || 0
-  const totalCompleted = campaigns?.reduce((sum, c) => sum + (c.total_submitted_evaluations || 0), 0) || 0
-  const overallCompletion = totalExpected > 0 ? Math.round((totalCompleted / totalExpected) * 100) : 0
+      setLoading(false)
+    })();
+  }, [])
+
 
   return (
-    <DashboardShell role="ADMIN" user={user}>
+    <DashboardShell role="ADMIN" user={user!}>
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
@@ -45,14 +70,13 @@ export default async function AdminPage() {
         </div>
 
         <AdminStatsCards
-          totalAgents={totalAgents}
-          totalCampaigns={campaigns?.length || 0}
-          totalCompleted={totalCompleted}
-          overallCompletion={overallCompletion}
+          totalAgents={adminStat?.totalAgents || 0}
+          totalCampaigns={adminStat?.totalCampaigns || 0}
+          totalCompleted={adminStat?.totalCompleted || 0}
+          overallCompletion={adminStat?.overallCompletion || 0}
         />
 
         {/* {campaigns && campaigns.length > 0 && <CompletionChart campaigns={campaigns as AdminCampaignStats[]} />} */}
-
         {campaigns && campaigns.length > 0 && <CampaignsList campaigns={campaigns as AdminCampaignStats[]} />}
       </div>
     </DashboardShell>

@@ -1,30 +1,47 @@
+"use client"
+
 import { DashboardShell } from "@/components/layout/dashboard-shell"
-import { getCurrentUser } from "@/lib/actions/auth"
 import { redirect } from "next/navigation"
-import { getSupabaseServerClient } from "@/lib/supabase/server"
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { Plus } from "lucide-react"
 import { AgentActions } from "@/components/admin/agent-actions"
+import { useAuth } from "@/lib/actions/auth-context"
+import { useEffect, useState } from "react"
+import { Agent } from "@/lib/types/database"
+import { api } from "@/lib/api/api"
 
-export default async function AgentsPage() {
-  const user = await getCurrentUser()
+export default function AgentsPage() {
+  const {user} = useAuth()
+  const [loading, setLoading] = useState(true)
+  const [agents, setAgents] = useState<Agent[]>([])
 
-  if (!user || user.role?.code !== "ADMIN") {
-    redirect("/login")
-  }
+  useEffect(() => {
+    let cancelled = false
 
-  const supabase = await getSupabaseServerClient()
+    ;(async () => {
+      try {
+        const datas = await api.get<Agent[]>("/api/agents/?is_active=true&ordering=-last_name")
+        if (cancelled) return
 
-  const { data: agents } = await supabase
-    .from("agents")
-    .select("*, role:roles(*)")
-    .order("last_name", { ascending: true })
+        setAgents(datas)
+      } catch (e) {
+        if (!cancelled) setLoading(false)
+      }
+    })()
+
+    return () => {
+      cancelled = true
+    } 
+  }, [])
+
+  
 
   return (
-    <DashboardShell role="ADMIN" user={user}>
+    <DashboardShell role="ADMIN" user={user!}>
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>

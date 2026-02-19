@@ -1,8 +1,12 @@
-export type Role = "ADMIN" | "AGENT"
+export interface LoginResponse {
+  access: string
+  refresh: string
+}
 
-export interface RoleEntity {
+
+export interface Role {
   id: string
-  code: Role
+  code: string
   label: string
   created_at: string
 }
@@ -13,33 +17,23 @@ export interface Agent {
   first_name: string
   last_name: string
   username: string
-  role_id: string
+  email: string
   is_active: boolean
   created_at: string
-  role?: {
-    code: Role
-    label: string
-  }
+  role?: Role
 }
 
 export interface Form {
   id: string
   title: string
   period: string
-  is_active: boolean
+  is_active: boolean 
   created_by: string
   created_at: string
+  updated_at: string
+  questions : FormQuestion[]
 }
 
-export interface Question {
-  id: string
-  label: string
-  description: string | null
-  weight: number
-  is_active: boolean
-  category_id: string
-  created_at: string
-}
 
 export interface QuestionCategory {
   id: string
@@ -48,18 +42,35 @@ export interface QuestionCategory {
   created_at: string
 }
 
+
+export interface Question {
+  id: string
+  label: string
+  description: string | null
+  weight: number
+  is_active: boolean
+  category: QuestionCategory | null
+  created_at: string
+}
+
+export interface FormQuestion {
+  id: string
+  question: Question
+  position: number
+}
+
 export interface Evaluation {
   id: string
-  form_id: string
-  evaluator_id: string
-  evaluated_id: string
+  form: Form
+  evaluator: Agent
+  evaluated: Agent
   submitted_at: string | null
 }
 
 export interface Answer {
   id: string
-  evaluation_id: string
-  question_id: string
+  evaluation: Evaluation
+  question: Question
   score: number
   comment: string | null
 }
@@ -84,9 +95,7 @@ export interface AgentCategoryScore {
 }
 
 export interface AdminCampaignStats {
-  form_id: string
-  title: string
-  period: string
+  form: Form
   total_agents: number
   total_expected_evaluations: number
   total_submitted_evaluations: number
@@ -94,13 +103,26 @@ export interface AdminCampaignStats {
 }
 
 export interface AdminCampaignAgentStats {
-  form_id: string
-  period: string
-  agent_id: string
-  matricule: string
-  first_name: string
-  last_name: string
+  form: Form
+  agent: Agent
   evaluations_received: number
   evaluations_done: number
   global_score: number
 }
+
+
+export type DashboardSummary = {
+  evaluations_received: number;
+  evaluations_done: number;
+  global_score: number;
+  total_reviews: number;
+};
+
+
+// ////////////////////////////////////////////////////////////////////////////////////
+
+export type EvaluationNotee = {
+  evaluation: Evaluation;
+  completion_pct: number | null;
+  weighted_avg_score: number | null;
+};

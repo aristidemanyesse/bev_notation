@@ -1,11 +1,15 @@
+"use client"
+
 import { DashboardShell } from "@/components/layout/dashboard-shell"
-import { getCurrentUser } from "@/lib/actions/auth"
-import { redirect } from "next/navigation"
-import { getSupabaseServerClient } from "@/lib/supabase/server"
+
 import { CampaignCreationForm } from "@/components/admin/campaign-creation-form"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Suspense } from "react"
+import { Suspense, useEffect, useState } from "react"
 import { Loader2 } from "lucide-react"
+import { useAuth } from "@/lib/actions/auth-context"
+import { Agent, Question } from "@/lib/types/database"
+import { api } from "@/lib/api/api"
+import { toast } from "@/hooks/use-toast"
 
 function FormLoader() {
   return (
@@ -15,21 +19,45 @@ function FormLoader() {
   )
 }
 
-export default async function NewCampaignPage() {
-  const user = await getCurrentUser()
+export default function NewCampaignPage() {
+  const { user } = useAuth()
+  const [questions, setQuestions] = useState<Question[]>([])
+  const [agents, setAgents] = useState<Agent[]>([])
+  const [loading, setLoading] = useState(true)
 
-  if (!user || user.role?.code !== "ADMIN") {
-    redirect("/login")
-  }
+  useEffect(() => {
+    let alive = true
 
-  const supabase = await getSupabaseServerClient()
+    ;(async () => {
+      try {
+        const qs = await api.get<Question[]>(`/api/questions/?is_active=true&ordering=-weight`)
+        if (!alive) return
+        setQuestions(qs)
 
-  const { data: questions } = await supabase.from("questions").select("*").eq("is_active", true).order("label")
+        const agents = await api.get<Agent[]>(`/api/agents/?is_active=true&ordering=-last_name`)
+        if (!alive) return
+        setAgents(agents)
 
-  const { data: agents } = await supabase.from("agents").select("*").eq("is_active", true).order("last_name")
+      } catch (e) {
+        console.error(e)
+        toast({
+          title: "Erreur",
+          description: "Erreur récupération des questions",
+          variant: "destructive",
+        })
+      } finally {
+        if (alive) setLoading(false)
+      }
+    })()
+
+    return () => {
+      alive = false
+    }
+  }, [])
+
 
   return (
-    <DashboardShell role="ADMIN" user={user}>
+    <DashboardShell role="ADMIN" user={user!}>
       <div className="max-w-4xl mx-auto space-y-6 px-4 sm:px-0">
         <div>
           <h2 className="text-2xl sm:text-3xl font-semibold tracking-tight">Créer une nouveau trimestre</h2>
@@ -43,7 +71,7 @@ export default async function NewCampaignPage() {
           </CardHeader>
           <CardContent>
             <Suspense fallback={<FormLoader />}>
-              <CampaignCreationForm questions={questions || []} agents={agents || []} createdBy={user.id} />
+              <CampaignCreationForm questions={questions || []} agents={agents || []} />
             </Suspense>
           </CardContent>
         </Card>

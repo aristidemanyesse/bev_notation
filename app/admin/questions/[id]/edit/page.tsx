@@ -1,34 +1,51 @@
+"use client"
+
 import { DashboardShell } from "@/components/layout/dashboard-shell"
-import { getCurrentUser } from "@/lib/actions/auth"
-import { redirect } from "next/navigation"
-import { getSupabaseServerClient } from "@/lib/supabase/server"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { QuestionForm } from "@/components/admin/question-form"
+import { useAuth } from "@/lib/actions/auth-context"
+import { useEffect, useState } from "react"
+import { api } from "@/lib/api/api"
+import { Question, QuestionCategory } from "@/lib/types/database"
+import { toast } from "@/hooks/use-toast"
 
-export default async function EditQuestionPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params
-  const user = await getCurrentUser()
+export default function EditQuestionPage({ params }: { params: Promise<{ id: string }> }) {
+  const {user} = useAuth()
+  
+  const [loading, setLoading] = useState(true)
+  const [question, setQuestion] = useState<Question | null>(null)
+  const [categories, setCategories] = useState<QuestionCategory[]>([])
+  
+  useEffect(() => {
+    let alive = true
+    ;(async () => {
+      const { id } = await params
+      try {
+        const qs = await api.get<QuestionCategory[]>("/api/question-categories/?is_active=true&ordering=-label")
+        if (alive) setCategories(qs)
 
-  if (!user || user.role?.code !== "ADMIN") {
-    redirect("/login")
-  }
+        const q = await api.get<Question>("/api/questions/" + id)
+        if (alive) setQuestion(q)
 
-  const supabase = await getSupabaseServerClient()
+      } catch (e) {
+        if (!alive) return
+        toast({
+          title: "Erreur",
+          description: "Erreur récupération des questions",
+          variant: "destructive",
+        })
+      } finally {
+        if (alive) setLoading(false)
+      }
+    })()
+    return () => {
+      alive = false
+    }
+  }, [])
 
-  const { data: categories } = await supabase.from("question_categories").select("*").order("label")
-
-  const { data: question } = await supabase
-    .from("questions")
-    .select("*, category:question_categories(*)")
-    .eq("id", id)
-    .single()
-
-  if (!question) {
-    redirect("/admin/questions")
-  }
 
   return (
-    <DashboardShell role="ADMIN" user={user}>
+    <DashboardShell role="ADMIN" user={user!}>
       <div className="max-w-3xl mx-auto space-y-6">
         <div>
           <h2 className="text-3xl font-semibold tracking-tight">Modifier une question</h2>
@@ -41,7 +58,7 @@ export default async function EditQuestionPage({ params }: { params: Promise<{ i
             <CardDescription>Modifiez les paramètres de la question</CardDescription>
           </CardHeader>
           <CardContent>
-            <QuestionForm categories={categories || []} question={question} mode="edit" />
+            <QuestionForm categories={categories || []} question={question!} mode="edit" />
           </CardContent>
         </Card>
       </div>

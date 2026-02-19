@@ -1,21 +1,8 @@
 // lib/pdf/evaluation-pdf.tsx
 import React from "react"
 import { Document, Page, Text, View, StyleSheet, Image } from "@react-pdf/renderer"
+import { Agent, Form } from "@/lib/types/database"
 
-type PdfEval = {
-  id?: string | null
-  submitted_at: string | null
-  form: { title?: string | null; period?: string | null } | null
-  evaluated: {
-    matricule?: string | null
-    first_name?: string | null
-    last_name?: string | null
-    direction?: string | null
-    service?: string | null
-    contact?: string | null
-  } | null
-  evaluator: { first_name?: string | null; last_name?: string | null } | null
-}
 
 const COLORS = {
   border: "#333333",
@@ -69,7 +56,6 @@ const styles = StyleSheet.create({
   // Meta info block
   meta: { marginBottom: 10, lineHeight: 1.35 },
   metaLine: { marginBottom: 4 },
-  metaLineFooter: { marginTop: 3, textAlign: "center", color: "grey", fontSize: 9},
   metaLabel: { fontWeight: "bold" },
 
   // Table
@@ -123,12 +109,13 @@ const styles = StyleSheet.create({
   // Footer
   footerHint: { marginTop: 18, fontSize: 9 },
   footerLine: { marginTop: 6, borderBottomWidth: 2, borderBottomColor: COLORS.border },
-  footerCols: { marginTop: 3, flexDirection: "row", fontSize: 9, justifyContent: "space-between" },
+  footerCols: { marginTop: 6, flexDirection: "row", fontSize: 9, justifyContent: "space-between" },
   footerCol: { width: "33%" },
 })
 
-export function EvaluationPdf({
-  evaluation,
+export function CampaignFinalPdf({
+  form,
+  agent,
   rows,
   totalCoeff,
   totalPoints,
@@ -138,7 +125,8 @@ export function EvaluationPdf({
   city = "Abidjan",
   docId,
 }: {
-  evaluation: PdfEval
+  form: Form
+  agent: Agent
   rows: { label: string; score: number; coeff: number; total: number }[]
   totalCoeff: number
   totalPoints: number
@@ -148,13 +136,13 @@ export function EvaluationPdf({
   city?: string
   docId?: string
 }) {
-  const agentName = `${evaluation.evaluated?.last_name ?? ""} ${evaluation.evaluated?.first_name ?? ""}`.trim()
-  const matricule = evaluation.evaluated?.matricule ?? ""
+  const agentName = `${agent?.last_name ?? ""} ${agent?.first_name ?? ""}`.trim()
+  const matricule = agent?.matricule ?? ""
 
-  const title = evaluation.form?.title ?? ""
-  const submittedAt = evaluation.submitted_at ? new Date(evaluation.submitted_at).toLocaleDateString("fr-FR") : ""
+  const title = form?.title ?? ""
+  const submittedAt = new Date().toLocaleDateString("fr-FR")
 
-  const evaluatorName = `${evaluation.evaluator?.last_name ?? ""} ${evaluation.evaluator?.first_name ?? ""}`.trim()
+  const evaluatorName = ""
 
   return (
     <Document>
@@ -173,7 +161,7 @@ export function EvaluationPdf({
             <Text style={styles.ministryLine}>SOUS-DIRECTION DES ENQUÊTES,</Text>
             <Text style={styles.ministryLine}>DES RECOUPEMENTS ET DU RENSEIGNEMENT</Text>
             <Text style={styles.dashed}>---------</Text>
-            <Text style={styles.ministryLine}>BRIGADE D'ENQUETES ET DE VISITE</Text>
+            <Text style={styles.ministryLine}>Brigade d'enquête et de Visite</Text>
             <Text style={styles.dashed}>---------</Text>
           </View>
 
@@ -185,7 +173,6 @@ export function EvaluationPdf({
           </View>
         </View>
 
-        {/* <Text style={styles.idLine}>ID : {docId ?? evaluation.id ?? "-"}</Text> */}
 
         {/* TITLE */}
         <View style={styles.titleWrap}>
@@ -201,16 +188,12 @@ export function EvaluationPdf({
 
         <View style={styles.meta}>
 
-          <View style={styles.topRow}>
-              <View >
-                <Text>
-                  <Text style={styles.metaLabel}>NOM DE L’AGENT :</Text> {agentName}
-                </Text>
+          <View>
+              <View style={{width: "65%"}}>
+                <Text style={styles.metaLabel}>NOM DE L’AGENT :</Text> {agentName}
               </View>
-              <View>
-                <Text>
-                  <Text style={styles.metaLabel}>MATRICULE :</Text> {matricule}
-                </Text>
+              <View style={{width: "35%"}}>
+                <Text style={styles.metaLabel}>MATRICULE :</Text> {matricule}
               </View>
           </View>
 
@@ -219,11 +202,12 @@ export function EvaluationPdf({
           </Text>
 
           <Text style={styles.metaLine}>
-            <Text style={styles.metaLabel}>SOUS-DIRECTION :</Text> SOUS-DIRECTION DES ENQUÊTES, DES RECOUPEMENTS ET DU RENSEIGNEMENT
+            <Text style={styles.metaLabel}>SOUS-DIRECTION :</Text> DIRECTION DES ENQUÊTES, DU RENSEIGNEMENT ET DE L'ANALYSE-RISQUE
           </Text>
 
           <Text style={styles.metaLine}>
-            <Text style={styles.metaLabel}>SERVICE :</Text> BRIGADE D'ENQUETES ET DE VISITE </Text>
+            <Text style={styles.metaLabel}>SERVICE :</Text> Brigade d'enquête et de Visite
+          </Text>
         </View>
 
         {/* TABLE */}
@@ -260,7 +244,7 @@ export function EvaluationPdf({
           {/* MOYENNE */}
           <View style={styles.totalsRow}>
             <Text style={styles.totalsLeft}>
-              MOYENNE (Totaux des notes affectées des coefficients / {totalCoeff || 1})
+              MOYENNE (Totaux des notes affectées des coefficients /{totalCoeff || 1})
             </Text>
             <Text style={styles.moyenneMid}>{moyenne}</Text>
             <Text style={styles.moyenneRightGrey}></Text>
@@ -278,7 +262,7 @@ export function EvaluationPdf({
         <View style={styles.signBlock}>
           <View style={styles.signLine} />
           <Text style={styles.signText}>
-            Noté le {evaluation.submitted_at ? new Date(evaluation.submitted_at).toLocaleDateString("fr-FR") : ""} par
+            Noté le {new Date().toLocaleDateString("fr-FR")} par
           </Text>
           <Text style={styles.signName}>{evaluatorName || ""}</Text>
         </View>
@@ -287,13 +271,9 @@ export function EvaluationPdf({
         <Text style={styles.footerHint}>Ce document est à joindre à l’état trimestriel des ristournes</Text>
         <View style={styles.footerLine} />
 
-        <View>
-          <Text style={styles.metaLineFooter}>
-            <Text>DERAR-Abidjan - Deux Plateaux Vallons - rue des jardins - BP V 103 Abidjan - Tél : 27 22 41 20 96 - Fax : 27 22 41 32 20</Text>
-          </Text>
-          <Text style={styles.metaLineFooter}>
-            <Text>Site web: www.dgi.gouv.ci - Email: info@dgi.gouv.ci - Ligne verte: 800 88 888</Text>
-          </Text>
+        <View style={styles.footerCols}>
+          <Text style={{textAlign: "center", color: "grey"}}>DERAR-Abidjan - Deux Plateaux Vallons - rue des jardins - BP V 103 Abidjan - Tél : 27 22 41 20 96 - Fax : 27 22 41 32 20</Text>
+          <Text style={{textAlign: "center", color: "grey"}}>Site web: www.dgi.gouv.ci - Email: info@dgi.gouv.ci - Ligne verte: 800 88 888</Text>
         </View>
       </Page>
     </Document>

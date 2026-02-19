@@ -1,30 +1,54 @@
-import { DashboardShell } from "@/components/layout/dashboard-shell"
-import { getCurrentUser } from "@/lib/actions/auth"
-import { redirect } from "next/navigation"
-import { getSupabaseServerClient } from "@/lib/supabase/server"
-import type { AdminCampaignStats } from "@/lib/types/database"
+"use client"
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import Link from "next/link"
 import { Plus, Eye, Loader2 } from "lucide-react"
-import { Suspense } from "react"
+import { useEffect, useState } from "react"
+import { useAuth } from "@/lib/actions/auth-context"
+import { api } from "@/lib/api/api"
+import { toast } from "@/hooks/use-toast"
+import type { AdminCampaignStats } from "@/lib/types/database"
+import { DashboardShell } from "@/components/layout/dashboard-shell"
 
-function CampaignsLoader() {
-  return (
-    <div className="flex items-center justify-center py-12">
-      <Loader2 className="h-8 w-8 animate-spin text-primary" />
-    </div>
-  )
-}
+function CampaignsList() {
+  const [loading, setLoading] = useState(true)
+  const [campaigns, setCampaigns] = useState<AdminCampaignStats[]>([])
 
-async function CampaignsList() {
-  const supabase = await getSupabaseServerClient()
+  useEffect(() => {
+    let alive = true
 
-  const { data: campaigns } = await supabase
-    .from("admin_campaign_stats")
-    .select("*")
-    .order("period", { ascending: false })
+    ;(async () => {
+      setLoading(true)
+      try {
+        const datas = await api.get<AdminCampaignStats[]>("/api/forms/admin/stats")
+        if (!alive) return
+        setCampaigns(datas)
+      } catch (e) {
+        if (!alive) return
+        toast({
+          title: "Erreur",
+          description: "Erreur récupération des statistiques de vos campagnes",
+          variant: "destructive",
+        })
+      } finally {
+        if (alive) setLoading(false)
+      }
+    })()
+
+    return () => {
+      alive = false
+    }
+  }, [])
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    )
+  }
 
   return (
     <Card>
@@ -34,29 +58,28 @@ async function CampaignsList() {
       </CardHeader>
       <CardContent>
         <div className="space-y-3">
-          {campaigns && campaigns.length > 0 ? (
-            campaigns.map((campaign: AdminCampaignStats) => {
+          {campaigns.length > 0 ? (
+            campaigns.map((campaign) => {
               const completionRate = campaign.completion_rate || 0
-
               return (
                 <div
-                  key={campaign.form_id}
+                  key={campaign.form.id}
                   className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-lg border border-border bg-muted/50 p-4"
                 >
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-1 flex-wrap">
-                      <h3 className="font-semibold">{campaign.title}</h3>
+                      <h3 className="font-semibold">{campaign.form.title}</h3>
                       <Badge variant={completionRate >= 75 ? "default" : "secondary"}>
                         {completionRate.toFixed(1)}%
                       </Badge>
                     </div>
                     <p className="text-sm text-muted-foreground">
-                      {campaign.total_agents} agents • {campaign.total_submitted_evaluations} /{" "}
+                      {campaign.form.period} • {campaign.total_agents} agents • {campaign.total_submitted_evaluations} /{" "}
                       {campaign.total_expected_evaluations} notations
                     </p>
                   </div>
                   <Button asChild variant="outline" size="sm" className="w-full sm:w-auto bg-transparent">
-                    <Link href={`/admin/campaigns/${campaign.form_id}`}>
+                    <Link href={`/admin/campaigns/${campaign.form.id}`}>
                       <Eye className="mr-2 h-4 w-4" />
                       Voir détails
                     </Link>
@@ -66,7 +89,7 @@ async function CampaignsList() {
             })
           ) : (
             <p className="text-center text-muted-foreground py-8">
-              Aucune notation trouvée. Créez votre premièr trimestre de notation.
+              Aucune notation trouvée. Créez votre premier trimestre de notation.
             </p>
           )}
         </div>
@@ -75,15 +98,11 @@ async function CampaignsList() {
   )
 }
 
-export default async function CampaignsPage() {
-  const user = await getCurrentUser()
-
-  if (!user || user.role?.code !== "ADMIN") {
-    redirect("/login")
-  }
+export default function CampaignsPage() {
+  const { user } = useAuth()
 
   return (
-    <DashboardShell role="ADMIN" user={user}>
+    <DashboardShell role="ADMIN" user={user!}>
       <div className="space-y-6 px-4 sm:px-0">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
@@ -100,9 +119,8 @@ export default async function CampaignsPage() {
           </Button>
         </div>
 
-        <Suspense fallback={<CampaignsLoader />}>
-          <CampaignsList />
-        </Suspense>
+        {/* Suspense inutile ici, on l’enlève */}
+        <CampaignsList />
       </div>
     </DashboardShell>
   )

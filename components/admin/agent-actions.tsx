@@ -18,11 +18,8 @@ import { deleteAgent } from "@/lib/actions/agents"
 import { useRouter } from "next/navigation"
 import type { Agent, Role } from "@/lib/types/database"
 
-interface AgentActionsProps {
-  agent: Agent & { role: Role }
-}
 
-export function AgentActions({ agent }: AgentActionsProps) {
+export function AgentActions({ agent }: {agent: Agent}) {
   const router = useRouter()
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)

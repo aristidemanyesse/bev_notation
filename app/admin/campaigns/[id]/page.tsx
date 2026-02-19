@@ -1,16 +1,21 @@
+"use client"
+
+
 import { DashboardShell } from "@/components/layout/dashboard-shell"
-import { getCurrentUser } from "@/lib/actions/auth"
-import { redirect, notFound } from "next/navigation"
-import { getSupabaseServerClient } from "@/lib/supabase/server"
 import { AgentPerformanceTable } from "@/components/admin/agent-performance-table"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
 import { CampaignStatusToggle } from "@/components/admin/campaign-status-toggle"
 import { Button } from "@/components/ui/button"
-import { Suspense } from "react"
+import { Suspense, use, useEffect, useState } from "react"
 import { Loader2, Edit } from "lucide-react"
 import Link from "next/link"
+import { useAuth } from "@/lib/actions/auth-context"
+import { AdminCampaignStats, Form } from "@/lib/types/database"
+import { api } from "@/lib/api/api"
+import { toast } from "@/hooks/use-toast"
+import { stat } from "fs"
 
 function CampaignLoader() {
   return (
@@ -24,42 +29,47 @@ interface PageParams {
   id: string
 }
 
-export default async function CampaignDetailsPage({ params }: { params: PageParams | Promise<PageParams> }) {
-  const { id } = await params
+export default function CampaignDetailsPage({ params }: { params: PageParams | Promise<PageParams> }) {
+  const { user } = useAuth()
 
-  const user = await getCurrentUser()
+  const [campaign, setCampaign] = useState<Form | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [campaignStats, setCampaignStats] = useState<AdminCampaignStats | null>(null)
 
-  if (!user || user.role?.code !== "ADMIN") {
-    redirect("/login")
-  }
 
-  const supabase = await getSupabaseServerClient()
+  useEffect(() => {
+    ;(async () => {
+      const { id } = await params
+    if (!id) return
+      try {
+        const campaign = await api.get<Form>(`/api/forms/${id}`)
+        setCampaign(campaign)
 
-  const { data: campaign } = await supabase.from("admin_campaign_stats").select("*").eq("form_id", id).maybeSingle()
+        const stats = await api.get<AdminCampaignStats>(`/api/forms/${id}/stats`)
+        setCampaignStats(stats)
+      
+      } catch {
+        toast({
+          title: "Erreur",
+          description: "Erreur récupération des statistiques de la campagne",
+          variant: "destructive",
+        });
+      }
 
-  const { data: form } = await supabase.from("forms").select("*").eq("id", id).maybeSingle()
+    })();
+  }, [params])
 
-  const { data: agentStats } = await supabase
-    .from("admin_campaign_agent_stats")
-    .select("*")
-    .eq("form_id", id)
-    .order("global_score", { ascending: false })
-
-  if (!campaign || !form) {
-    throw new Error("Campaign or Form not found")
-  }
-
-  const completionRate = campaign.completion_rate || 0
 
   return (
-    <DashboardShell role="ADMIN" user={user}>
+    <DashboardShell role="ADMIN" user={user!}>
       <Suspense fallback={<CampaignLoader />}>
         <div className="space-y-6 px-4 sm:px-0">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
               <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-2">
-                <h2 className="text-2xl sm:text-3xl font-semibold tracking-tight">{campaign.title}</h2>
-                <Badge variant={form.is_active ? "default" : "outline"}>{form.is_active ? "Active" : "Inactive"}</Badge>
+                <h2 className="text-2xl sm:text-3xl font-semibold tracking-tight">{campaign?.title}</h2>
+                <Badge variant={campaignStats?.completion_rate ?? 0 >= 75 ? "default" : "secondary"}>{campaign?.period}</Badge>
+                <Badge variant={campaign?.is_active ? "default" : "outline"}>{campaign?.is_active ? "Active" : "Inactive"}</Badge>
               </div>
               <p className="text-muted-foreground text-sm sm:text-base">
                 Analyses détaillées du trimestre et performances des agents
@@ -67,7 +77,7 @@ export default async function CampaignDetailsPage({ params }: { params: PagePara
             </div>
 
             <Button asChild variant="outline" size="sm">
-              <Link href={`/admin/campaigns/${id}/edit`}>
+              <Link href={`/admin/campaigns/${campaign?.id}/edit`}>
                 <Edit className="mr-2 h-4 w-4" />
                 Modifier
               </Link>
@@ -75,7 +85,10 @@ export default async function CampaignDetailsPage({ params }: { params: PagePara
           </div>
 
           <div className="flex items-center gap-2">
-            <CampaignStatusToggle formId={id} isActive={form.is_active} />
+            {campaign && (
+
+            <CampaignStatusToggle formId={campaign.id} isActive={campaign?.is_active ?? false} />
+            )}
           </div>
 
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -84,7 +97,7 @@ export default async function CampaignDetailsPage({ params }: { params: PagePara
                 <CardTitle className="text-sm font-medium">Total Agents</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{campaign.total_agents}</div>
+                <div className="text-2xl font-bold">{campaignStats?.total_agents}</div>
                 <p className="text-xs text-muted-foreground">Participant à cette notation</p>
               </CardContent>
             </Card>
@@ -95,9 +108,9 @@ export default async function CampaignDetailsPage({ params }: { params: PagePara
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">
-                  {campaign.total_submitted_evaluations} / {campaign.total_expected_evaluations}
+                  {campaignStats?.total_submitted_evaluations} / {campaignStats?.total_expected_evaluations}
                 </div>
-                <p className="text-xs text-muted-foreground">Nombre {user.role?.code == "ADMIN" ? "d'agents" : "de collègues"} qui ont noté au moins une fois</p>
+                <p className="text-xs text-muted-foreground">Nombre {user?.role?.code == "ADMIN" ? "d'agents" : "de collègues"} qui ont noté au moins une fois</p>
               </CardContent>
             </Card>
 
@@ -106,13 +119,14 @@ export default async function CampaignDetailsPage({ params }: { params: PagePara
                 <CardTitle className="text-sm font-medium">Taux de complétion</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{completionRate.toFixed(1)}%</div>
-                <Progress value={completionRate} className="mt-2 h-2" />
+                <div className="text-2xl font-bold">{campaignStats?.completion_rate.toFixed(1)}%</div>
+                <Progress value={campaignStats?.completion_rate} className="mt-2 h-2" />
               </CardContent>
             </Card>
           </div>
 
-          {agentStats && <AgentPerformanceTable agents={agentStats} />}
+          <AgentPerformanceTable campaign={campaign!} />
+
         </div>
       </Suspense>
     </DashboardShell>

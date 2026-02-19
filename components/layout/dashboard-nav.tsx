@@ -102,8 +102,8 @@ export function DashboardNav({ role, user }: DashboardNavProps) {
     <nav className="w-64 border-r border-border bg-card p-4 flex flex-col">
       {/* AGENT */}
       <div className="space-y-1 h-15">
-        <h1 className="px-3 text-md font-semibold">{user.first_name} {user.last_name}</h1>
-        <p className="px-3 text-xs text-muted-foreground">{user.matricule || role}</p>
+        <h1 className="px-3 text-md font-semibold">{user?.first_name} {user?.last_name}</h1>
+        <p className="px-3 text-xs text-muted-foreground">{user?.matricule || role}</p>
       </div>
 
       {/* AGENT */}
