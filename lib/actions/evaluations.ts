@@ -17,9 +17,7 @@ export async function submitEvaluation(
         comment: answer.comment || null,
       })
     )
-
-    console.log("ANSWERS DATA:", answersData)
-
+    
     try {
       await api.post(`/api/answers/bulk-upsert/`, { answers: answersData })
     } catch (e) {

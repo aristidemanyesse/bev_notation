@@ -47,8 +47,6 @@ export async function GET(
       auth
     )
 
-    console.log("ANSWERS RAW:", answersRaw) // <-- debug
-
     // 4️⃣ Normalisation
     const form = one<any>(evaluation.form)
     const evaluated = one<any>(evaluation.evaluated)

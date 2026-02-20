@@ -12,13 +12,13 @@ export default function LoginPage() {
           fill
           className="object-cover "
         />
-        <div className="absolute inset-0 bg-gradient-to-br from-orange-700/50 via-background/60 to-green-600/60 backdrop-blur-md" />
+        <div className="absolute inset-0 bg-gradient-to-br from-orange-700/70 via-background/60 to-green-600/50 backdrop-blur-md" />
         <div className="absolute z-10 px-12 text-center">
-          <h1 className="text-sm font-bold text-white/90 mb-4">MINISTERE DES FINANCES<br></br>ET DU BUDGET</h1>
+          <h1 className="text-sm font-bold text-white/90 mb-4">MINISTERE DE L'ECONOMIE<br></br>DES FINANCES ET DU BUDGET</h1>
           <h1 className="text-sm font-bold text-white/90 mb-4">DIRECTION GENERALE DES IMPOTS</h1>
           <h1 className="text-sm font-bold text-white/90 mb-4">DIRECTION DES ENQUETES, DU RENSEIGNEMENT ET<br></br>DE L'ANALYSE-RISQUE</h1>
           <h1 className="text-sm font-bold text-white/90 mb-4 h-20">SOUS-DIRECTION DES ENQUETES,<br></br> DES RECOUPEMENTS ET DU RENSEIGNEMENT</h1>
-          <h1 className="text-5xl font-bold text-primary mb-4">Brigade d'Enquêtes et de Visite</h1>
+          <h1 className="text-5xl font-bold text-orange-600 mb-4">Brigade d'Enquêtes et de Visite</h1>
           <p className="text-xl font-bold text-white/90">
             Plateforme de grilles de notation entre les agents
           </p>

@@ -1,17 +1,16 @@
-import { DashboardShell } from "@/components/layout/dashboard-shell"
+"use client"
 
+import { DashboardShell } from "@/components/layout/dashboard-shell"
 import { redirect } from "next/navigation"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { use } from "react"
+import { useAuth } from "@/lib/actions/auth-context"
 
-export default async function SettingsPage() {
-  const user = await getCurrentUser()
-
-  if (!user || user.role?.code !== "ADMIN") {
-    redirect("/login")
-  }
+export default function SettingsPage() {
+const { user } = useAuth()
 
   return (
-    <DashboardShell role="ADMIN" user={user}>
+    <DashboardShell role="ADMIN" user={user!}>
       <div className="space-y-6">
         <div>
           <h2 className="text-3xl font-semibold tracking-tight">Paramètres</h2>

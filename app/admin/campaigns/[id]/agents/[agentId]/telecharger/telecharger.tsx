@@ -165,8 +165,8 @@ export function CampaignFinalPdf({
         {/* HEADER */}
         <View style={styles.topRow}>
           <View style={styles.ministryBlock}>
-            <Text style={styles.ministryLine}>MINISTERE DES FINANCES</Text>
-            <Text style={styles.ministryLine}>ET DU BUDGET</Text>
+            <Text style={styles.ministryLine}>MINISTERE DE L'ECONOMIE</Text>
+            <Text style={styles.ministryLine}>DES FINANCES ET DU BUDGET</Text>
             <Text style={styles.dashed}>---------</Text>
             <Text style={styles.ministryLine}>DIRECTION GENERALE DES IMPOTS</Text>
             <Text style={styles.dashed}>---------</Text>

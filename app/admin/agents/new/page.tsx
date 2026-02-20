@@ -1,11 +1,15 @@
-import { DashboardShell } from "@/components/layout/dashboard-shell"
+"use client"
 
+import { DashboardShell } from "@/components/layout/dashboard-shell"
 import { redirect } from "next/navigation"
 
 import { AgentForm } from "@/components/admin/agent-form"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Suspense } from "react"
+import { Suspense, use, useEffect, useState } from "react"
 import { Loader2 } from "lucide-react"
+import { useAuth } from "@/lib/actions/auth-context"
+import { Role } from "@/lib/types/database"
+import { api } from "@/lib/api/api"
 
 function FormLoader() {
   return (
@@ -15,18 +19,30 @@ function FormLoader() {
   )
 }
 
-export default async function NewAgentPage() {
-  const user = await getCurrentUser()
+export default function NewAgentPage() {
+  const {user} = useAuth()
+  const [roles , setRoles] = useState<Role[]>([])
+  const [loading, setLoading] = useState(true)
 
-  if (!user || user.role?.code !== "ADMIN") {
-    redirect("/login")
-  }
+  useEffect(() => {
+    let cancelled = false
+    ;(async () => {
+      try {
+        const rs = await api.get<Role[]>("/api/roles/?is_active=true&ordering=-label")
+        if (cancelled) return
+        setRoles(rs)
+      } catch (e) {
+        if (!cancelled) setLoading(false)
+      }
+    })()
 
-  const supabase = await getSupabaseServerClient()
-  const { data: roles } = await supabase.from("roles").select("*").order("label")
+    return () => {
+      cancelled = true
+    }
+  }, [])
 
   return (
-    <DashboardShell role="ADMIN" user={user}>
+    <DashboardShell role="ADMIN" user={user!}>
       <div className="max-w-2xl mx-auto space-y-6 px-4 sm:px-0">
         <div>
           <h2 className="text-2xl sm:text-3xl font-semibold tracking-tight">Créer un nouvel agent</h2>
