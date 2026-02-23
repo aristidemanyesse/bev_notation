@@ -3,19 +3,29 @@ import { renderToBuffer } from "@react-pdf/renderer"
 import { Agent, Form } from "@/lib/types/database"
 import { CampaignFinalPdf } from "./telecharger"
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || ""
+const API_BASE_URL =
+  process.env.API_BASE_URL || process.env.NEXT_PUBLIC_API_BASE_URL || ""
 
-async function backendGet<T>(path: string, auth: string): Promise<T> {
-  const res = await fetch(`${API_BASE_URL}${path}`, {
+
+export async function backendGet<T>(path: string, auth: string): Promise<T> {
+  if (!API_BASE_URL) throw new Error("API_BASE_URL is missing")
+
+  const base = API_BASE_URL.replace(/\/+$/, "")
+  const p = path.startsWith("/") ? path : `/${path}`
+  const url = `${base}${p}`
+
+  const res = await fetch(url, {
     headers: { Authorization: auth, "Content-Type": "application/json" },
     cache: "no-store",
   })
+
   if (!res.ok) {
     const err = await res.json().catch(() => ({}))
     throw new Error(err?.detail || err?.message || `Backend error ${res.status}`)
   }
   return res.json() as Promise<T>
 }
+
 
 function one<T>(v: T | T[] | null | undefined): T | null {
   if (!v) return null

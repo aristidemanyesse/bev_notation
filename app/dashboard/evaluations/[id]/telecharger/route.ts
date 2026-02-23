@@ -2,21 +2,8 @@ import { NextResponse } from "next/server"
 import { renderToBuffer } from "@react-pdf/renderer"
 import { EvaluationPdf } from "./evaluation-pdf"
 import type { Answer, Evaluation } from "@/lib/types/database"
+import { backendGet } from "@/app/admin/campaigns/[id]/agents/[agentId]/telecharger/route"
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || ""
-
-// Helper: normalize object | object[]
-async function backendGet<T>(path: string, auth: string): Promise<T> {
-  const res = await fetch(`${API_BASE_URL}${path}`, {
-    headers: { Authorization: auth, "Content-Type": "application/json" },
-    cache: "no-store",
-  })
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({}))
-    throw new Error(err?.detail || err?.message || `Backend error ${res.status}`)
-  }
-  return res.json() as Promise<T>
-}
 
 function one<T>(v: T | T[] | null | undefined): T | null {
   if (!v) return null
