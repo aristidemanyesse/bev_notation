@@ -53,10 +53,12 @@ export async function GET(
         total: Number(r.total ?? 0),
       }))
 
-      const totalCoeff = rows.reduce((s: number, r: any) => s + r.coeff, 0)
-      const totalPoints = rows.reduce((s: number, r: any) => s + r.total, 0)
-      const moyenne = totalCoeff > 0 ? Number((totalPoints / totalCoeff).toFixed(2)) : 0
-      const noteGlobale = Math.round(moyenne)
+      console.log("Rows from backend:", payload)
+
+      const totalCoeff = payload.global.totalCoeff
+      const totalPoints = payload.global.totalPoints
+      const moyenne = payload.global.moyenne
+      const noteGlobale = payload.global.noteGlobale
 
       const pdfBuffer = await renderToBuffer(
         CampaignFinalPdf({

@@ -5,5 +5,8 @@ import { redirect } from "next/navigation"
 
 export default function HomePage() {
   const { user } = useAuth()
+  if (!user) {
+    redirect("/login")
+  }
   redirect("/dashboard")
 }

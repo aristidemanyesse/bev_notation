@@ -5,7 +5,6 @@ import { createContext, useContext, useState, useCallback, useEffect } from "rea
 import type { Agent, LoginResponse, Role } from "../types/database"
 import { api, ApiError } from "../api/api"
 
-
 export interface AuthContextType {
   user: Agent | null
   isAuthenticated: boolean
@@ -46,7 +45,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const mappedUser = mapUserMeToUser(userMe)
       setUser(mappedUser)
       setIsAuthenticated(true)
-      // setMustChangePassword(mappedUser.must_change_password)
       return mappedUser
     } catch {
       api.clearTokens()
@@ -143,5 +141,7 @@ export function useAuth() {
   if (context === undefined) {
     throw new Error("useAuth must be used within an AuthProvider")
   }
+  console.log(context)
+  const user = context.user
   return context as AuthContextType
 }

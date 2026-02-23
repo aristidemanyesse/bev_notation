@@ -17,17 +17,16 @@ export function LoginForm() {
   const [loading, setLoading] = useState(false)
   const router = useRouter()
   const { login, isAuthenticated, isLoading } = useAuth()
+  const [username, setUsername] = useState("")
+  const [password, setPassword] = useState("")
   
 
   async function handleSubmit(formData: FormData) {
     setLoading(true)
     setError(null)
 
-    const identifiant = formData.get("identifiant") as string
-    const password = formData.get("password") as string
-    
     try {
-       await login(identifiant, password)
+       await login(username, password)
       toast({
         title: "Connexion réussie",
         description: "Bienvenue dans le système SGDBEV",
@@ -66,7 +65,9 @@ export function LoginForm() {
               type="text"
               placeholder="identifiant"
               required
+              value = {username}
               disabled={loading}
+              onChange= {(e) => setUsername(e.target.value)}
               className="h-11 text-base"
             />
           </div>
@@ -80,6 +81,8 @@ export function LoginForm() {
               type="password"
               placeholder="Mot de passe"
               required
+              value = {password}
+              onChange= {(e) => setPassword(e.target.value)}
               disabled={loading}
               className="h-11 text-base"
             />
