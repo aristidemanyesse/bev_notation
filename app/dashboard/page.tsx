@@ -18,7 +18,6 @@ export default function DashboardPage({
   searchParams: Promise<{ campaignId?: string }>;
 }) {
   const { user } = useAuth();
-  console.log("User in DashboardPage:", user);
 
   const [activeCampaigns, setActiveCampaigns] = useState<Form[]>([]);
   const [selectedCampaign, setSelectedCampaign] = useState<Form | null>(null);

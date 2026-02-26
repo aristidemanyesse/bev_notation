@@ -63,8 +63,6 @@ export async function GET(
         total: Number(r.total ?? 0),
       }))
 
-      console.log("Rows from backend:", payload)
-
       const totalCoeff = payload.global.totalCoeff
       const totalPoints = payload.global.totalPoints
       const moyenne = payload.global.moyenne

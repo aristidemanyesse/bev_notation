@@ -1,22 +1,6 @@
 // lib/pdf/evaluation-pdf.tsx
-import React from "react"
 import { Document, Page, Text, View, StyleSheet, Image } from "@react-pdf/renderer"
 import { Agent, Form } from "@/lib/types/database"
-
-type PdfEval = {
-  id?: string | null
-  submitted_at: string | null
-  form: { title?: string | null; period?: string | null } | null
-  evaluated: {
-    matricule?: string | null
-    first_name?: string | null
-    last_name?: string | null
-    direction?: string | null
-    service?: string | null
-    contact?: string | null
-  } | null
-  evaluator: { first_name?: string | null; last_name?: string | null } | null
-}
 
 const COLORS = {
   border: "#333333",
