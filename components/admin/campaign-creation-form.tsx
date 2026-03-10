@@ -95,7 +95,7 @@ export function CampaignCreationForm({ questions, agents }: CampaignCreationForm
       setLoading(false)
       return
     }
-
+    console.log(formData)
     const result = await createCampaign(router, {
       title, // concat année + trimestre
       period: formData.quarter, // demandé: period = trimestre

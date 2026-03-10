@@ -1,5 +1,4 @@
-"use server"
-import { revalidatePath } from "next/cache"
+"use client"
 
 import type { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime"
 import { api } from "@/lib/api/api"
@@ -24,12 +23,14 @@ interface UpdateCampaignData {
 export async function createCampaign(router: AppRouterInstance, data: CreateCampaignData) {
   try {
     // 1) Create form
+    console.log("ghello kdlf", data)
     const form = await api.post<{ id: string }>(`/api/forms/`, {
       title: data.title,
       period: data.period,
       is_active: data.isActive,
       created_by: data.createdBy,
     })
+    console.log(form)
 
     // 2) Set questions (positions auto)
     const uniqueQuestionIds = Array.from(new Set(data.questionIds))
