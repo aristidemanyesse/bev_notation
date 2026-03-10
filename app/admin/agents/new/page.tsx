@@ -28,9 +28,10 @@ export default function NewAgentPage() {
     let cancelled = false
     ;(async () => {
       try {
-        const rs = await api.get<Role[]>("/api/roles/?is_active=true&ordering=-label")
+        const rs = await api.get<Role[]>("/api/roles/")
         if (cancelled) return
         setRoles(rs)
+        console.log(rs)
       } catch (e) {
         if (!cancelled) setLoading(false)
       }

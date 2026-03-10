@@ -26,7 +26,7 @@ interface UpdateAgentData {
 
 export async function createAgent(router: AppRouterInstance, data: CreateAgentData) {
   try {
-    await api.post("/api/admin/agents/", {
+    await api.post("/api/agents/", {
       email: data.email || `${data.username}@internal.local`,
       password: data.password,
       matricule: data.matricule,
